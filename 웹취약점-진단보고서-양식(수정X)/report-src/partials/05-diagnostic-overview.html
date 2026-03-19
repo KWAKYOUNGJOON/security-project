@@ -1,0 +1,137 @@
+<!-- === 2장 진단 개요 === -->
+    <section class="report-section print-page-start" id="chapter-2-section" data-toc-key="chapter-2">
+      <h1 class="chapter-title" id="chapter-2" data-toc-key="chapter-2">2. 웹 취약점 진단 개요</h1>
+
+      <h2 class="section-title" id="chapter-2-basis" data-toc-key="chapter-2-basis">1) 점검 기준</h2>
+      <p style="margin-bottom: 10px">
+        본 웹 취약점 진단은 「주요정보통신기반시설 기술적 취약점 분석·평가 방법 상세가이드」와 OWASP Top 10 2021을
+        기본 기준으로 활용하였으며, 서비스 특성과 인증/인가 흐름을 고려하여 수동 검증 항목을 추가 반영하였습니다.
+      </p>
+      <div class="info-note auto-field" data-field="methodology.references">
+        참고 기준: 주요정보통신기반시설 기술적 취약점 분석·평가 방법 상세가이드 / OWASP Top 10 2021 / 기관 내부 보안 요구사항
+      </div>
+
+      <h2 class="section-title" id="chapter-2-process" data-toc-key="chapter-2-process">2) 진단 절차</h2>
+      <div class="process-flow-figure">
+        <div class="process-flow-track" role="img" aria-label="정보 수집에서 결과 보고까지 이어지는 웹 취약점 진단 절차 흐름도">
+          <div class="process-step">정보 수집</div>
+          <div class="process-arrow" aria-hidden="true"></div>
+          <div class="process-step">취약점 진단</div>
+          <div class="process-arrow" aria-hidden="true"></div>
+          <div class="process-step">결과 분석</div>
+          <div class="process-arrow" aria-hidden="true"></div>
+          <div class="process-step">보고서 작성</div>
+          <div class="process-arrow" aria-hidden="true"></div>
+          <div class="process-step">결과 보고</div>
+        </div>
+      </div>
+      <div class="figure-caption" id="figure-01" data-toc-key="figure-01">[그림 1] 웹 취약점 진단 절차 흐름도</div>
+
+      <table>
+        <thead>
+          <tr>
+            <th width="20%">절차</th>
+            <th>수행 내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td align="center">정보 수집</td>
+            <td>대상 시스템 정보 수집, 인증 구조 파악, 테스트 계정/시나리오 및 진단 환경 구성</td>
+          </tr>
+          <tr>
+            <td align="center">취약점 진단</td>
+            <td>체크리스트 기반 점검, 요청/응답 분석, 기능별 수동 검증 및 자동화 도구 보조 점검</td>
+          </tr>
+          <tr>
+            <td align="center">결과 분석</td>
+            <td>발견 취약점의 재현 가능성, 영향 범위, 악용 조건 및 판정 근거 분석</td>
+          </tr>
+          <tr>
+            <td align="center">보고서 작성</td>
+            <td>취약점별 상세 설명, 재현 절차, 증빙, 대응 방안, 재점검 기준 정리</td>
+          </tr>
+          <tr>
+            <td align="center">결과 보고</td>
+            <td>발견 사항 공유, 조치 우선순위 협의, 재점검 범위 및 일정 조율</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="table-caption" id="table-09" data-toc-key="table-09">[표 9] 웹 취약점 진단 방법</div>
+
+      <h2 class="section-title" id="chapter-2-tools" data-toc-key="chapter-2-tools">3) 활용 도구</h2>
+      <table>
+        <thead>
+          <tr>
+            <th width="30%">도구명</th>
+            <th width="40%">용도</th>
+            <th width="30%">비고</th>
+          </tr>
+        </thead>
+        <tbody data-repeat="tool-list">
+[[tool-list-rows]]
+        </tbody>
+      </table>
+      <div class="table-caption" id="table-10" data-toc-key="table-10">[표 10] 활용 도구</div>
+    </section>
+
+    <!-- === 2장 진단 개요 (계속) === -->
+    <section class="report-section print-page-start report-continuation" id="chapter-2-continuation">
+      <h2 class="section-title" id="chapter-2-risk-scale" data-toc-key="chapter-2-risk-scale">4) 위험도 기준</h2>
+      <p>본 보고서의 최종 위험도는 취약점 파급도, 공격 난이도, 악용 선행조건, 영향 범위를 종합적으로 고려하여 판정합니다.</p>
+      <table>
+        <thead>
+          <tr>
+            <th width="20%">위험도</th>
+            <th>판정 기준</th>
+            <th width="15%">표기</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-risk="high">
+            <td align="center"><strong>상(High)</strong></td>
+            <td>인증 우회, 권한 상승, 민감정보 탈취, 시스템 침해 등 직접적인 보안 사고로 이어질 수 있는 경우</td>
+            <td align="center"><span class="badge badge-high" data-risk="high">상</span></td>
+          </tr>
+          <tr data-risk="mid">
+            <td align="center"><strong>중(Medium)</strong></td>
+            <td>조건부 악용이 가능하거나 추가 조합이 필요한 경우로서 단기 내 조치가 필요한 경우</td>
+            <td align="center"><span class="badge badge-mid" data-risk="mid">중</span></td>
+          </tr>
+          <tr data-risk="low">
+            <td align="center"><strong>하(Low)</strong></td>
+            <td>직접적 피해 가능성은 낮으나 보안 강화 및 오남용 예방 관점에서 개선이 필요한 경우</td>
+            <td align="center"><span class="badge badge-low" data-risk="low">하</span></td>
+          </tr>
+          <tr data-risk="ok">
+            <td align="center"><strong>양호</strong></td>
+            <td>취약점이 확인되지 않았으며 보안 요구사항을 충족하는 경우</td>
+            <td align="center"><span class="badge badge-ok" data-risk="ok">양호</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="table-caption" id="table-11" data-toc-key="table-11">[표 11] 위험도 기준</div>
+
+      <h2 class="section-title checklist-title" id="chapter-2-checklist" data-toc-key="chapter-2-checklist">5) 점검 체크리스트</h2>
+      <p class="keep-with-next">아래 체크리스트는 「주요정보통신기반시설 기술적 취약점 분석·평가 방법 상세가이드」 기반 21개 항목입니다.</p>
+      <div class="info-note">
+        ※ 본 표의 “기본 위험도(예시)”는 항목 성격에 따른 참조값이며, 최종 위험도는 상세 결과에서 실제 재현 결과와 영향 범위를 기준으로 판정합니다.
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th width="8%">코드</th>
+            <th width="24%">항목명</th>
+            <th width="40%">점검 포인트</th>
+            <th width="14%">기본 위험도(예시)</th>
+            <th width="14%">결과</th>
+          </tr>
+        </thead>
+        <tbody data-repeat="checklist-item">
+[[checklist-item-rows]]
+        </tbody>
+      </table>
+      <div class="table-caption" id="table-12" data-toc-key="table-12">[표 12] 웹 취약점 진단 체크리스트</div>
+    </section>
+
+    
