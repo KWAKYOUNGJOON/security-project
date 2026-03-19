@@ -17,6 +17,12 @@ The current deterministic local flow is:
 
 `apps/report-template/build_report.py` remains the renderer entrypoint. `apps/report-automation` owns validation, normalization, aggregation, provenance, and bridge shaping.
 
+Pre-target intake is a separate file-based path:
+
+`intake raw -> format observation -> intake provenance`
+
+It does not generate normalized findings or report payloads.
+
 ## Commands
 
 Run from `apps/report-automation`:
@@ -29,7 +35,10 @@ python -m src.cli.main normalize --case cases/web/case-001
 python -m src.cli.main apply-review --case cases/web/case-003
 python -m src.cli.main build-payload --case cases/web/case-001
 python -m src.cli.main render-report --case cases/web/case-001
+python -m src.cli.main validate-live-hexstrike --run intake\synthetic\hexstrike-ai\rehearsal-001
 ```
+
+`intake\web\hexstrike-ai\run-001` is baseline-only and intentionally has no raw payload yet, so it is not a successful validator target until a file-based raw capture is added.
 
 Legacy scaffold commands remain available:
 
@@ -41,7 +50,7 @@ python -m src.cli.main --output ..\..\outputs\exports\sample-report-payload.json
 Regression-focused test set:
 
 ```powershell
-python -m unittest tests.test_smoke tests.test_schema_validation tests.test_manual_finding_schema tests.test_taxonomy_mapping tests.test_web_case_e2e tests.test_web_case_multi_e2e tests.test_provenance_ledger tests.test_tool_inventory_contract tests.test_document_control_optional tests.test_web_case_golden tests.test_review_key_stability tests.test_review_override tests.test_review_suppression tests.test_review_resolution tests.test_review_no_input_backward_compat tests.test_web_case_review_e2e tests.test_review_golden
+python -m unittest tests.test_smoke tests.test_schema_validation tests.test_manual_finding_schema tests.test_taxonomy_mapping tests.test_web_case_e2e tests.test_web_case_multi_e2e tests.test_provenance_ledger tests.test_tool_inventory_contract tests.test_document_control_optional tests.test_web_case_golden tests.test_review_key_stability tests.test_review_override tests.test_review_suppression tests.test_review_resolution tests.test_review_no_input_backward_compat tests.test_web_case_review_e2e tests.test_review_golden tests.test_hexstrike_pretarget_intake
 ```
 
 ## Case Models
@@ -224,6 +233,14 @@ Provenance policy:
 - the ledger is for reproducibility and drift detection, not for mutating source files
 - `provenance.json` does not include its own file hash in `outputs`; the self-hash exclusion policy remains intentional
 
+Pre-target intake policy:
+
+- `validate-live-hexstrike` is file-based only and must not touch a network target
+- live intake originals stay under `intake/web/hexstrike-ai/<run-id>/raw/`
+- synthetic rehearsal fixtures stay under `intake/synthetic/...`
+- `format-observation.json` is generated under `intake/.../derived/format-observation.json`
+- case-derived artifacts remain under `cases/.../derived`
+
 Reviewed artifact policy:
 
 - `reviewed-findings.json` contains the post-review finding set with per-finding `review` metadata
@@ -260,3 +277,4 @@ Report inclusion policy:
 - API and Server adapters remain out of scope
 - target criticality is carried for future deterministic prioritization but is not yet used as a tie-breaker
 - the bridge groups multi-finding results by target and aggregates remediation, but template-native section design can still be improved later
+- when a real local Web target is ready, the next step is to capture a live raw payload into `intake/web/hexstrike-ai/<run-id>/raw/`, run `validate-live-hexstrike`, compare its observation with the synthetic rehearsal, and only then promote stable inputs into a `cases/web/<case-id>/input/` workflow

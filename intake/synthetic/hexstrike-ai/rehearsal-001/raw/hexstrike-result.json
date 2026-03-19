@@ -1,0 +1,57 @@
+{
+  "tool": {
+    "name": "HexStrike",
+    "version": "2026.03"
+  },
+  "scan": {
+    "scan_id": "synthetic-rehearsal-001",
+    "started_at": "2026-03-20T03:00:00Z"
+  },
+  "engagement": {
+    "name": "synthetic-parser-rehearsal",
+    "current_scope": "web"
+  },
+  "findings": [
+    {
+      "id": "HX-SYN-001",
+      "title": "Synthetic reflected output rehearsal",
+      "severity": "Medium",
+      "status": "needs-review",
+      "endpoint": "https://lab.local/search?q=test",
+      "path": "/search",
+      "method": "GET",
+      "parameter": "q",
+      "description": "Synthetic HexStrike-style raw payload for parser rehearsal only.",
+      "request": {
+        "method": "GET",
+        "path": "/search?q=test",
+        "headers": {
+          "Accept": "text/html"
+        }
+      },
+      "response": {
+        "status_code": 200,
+        "content_type": "text/html"
+      },
+      "evidence": [
+        {
+          "kind": "http",
+          "ref": "request-response-pair"
+        },
+        {
+          "kind": "screenshot",
+          "path": "synthetic://search-result"
+        },
+        "encoded-marker-observed"
+      ],
+      "confidence": "synthetic",
+      "experimental_trace": {
+        "seed": "hexstrike-pretarget-001"
+      }
+    }
+  ],
+  "metadata": {
+    "fixture": "synthetic",
+    "purpose": "parser-rehearsal"
+  }
+}

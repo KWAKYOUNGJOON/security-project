@@ -25,6 +25,24 @@ Do not store:
 - archived originals
 - engagement-specific raw evidence
 
+### `intake`
+
+Use for immutable intake runs and pre-target observation only.
+
+Expected contents:
+- run manifests
+- notes
+- runtime baseline captures
+- raw HexStrike-style payloads
+- derived intake observations
+- intake provenance ledgers
+
+Do not put:
+- normalized findings
+- reviewed findings
+- report payloads
+- report previews
+
 ### `shared`
 
 Use for reusable assets that can serve multiple apps or future scopes.

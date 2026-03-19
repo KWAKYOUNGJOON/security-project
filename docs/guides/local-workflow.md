@@ -11,19 +11,23 @@ Use the current flow to keep Web work stable. Treat API and Server as future ext
 
 ## Suggested workflow
 
-1. Prepare an engagement workspace.
+1. Decide whether the work is still pre-target.
+
+   If a local Web target is not ready, keep the work under `intake/` and use only runtime baseline capture or synthetic rehearsal. Do not jump straight into `cases/`.
+
+2. Prepare an engagement workspace.
 
    Start from `engagements/sample-folder` when creating a new working folder. Keep scope notes, targets, evidence, and findings inside the engagement directory rather than scattering them across the repository.
 
-2. Capture assessment inputs.
+3. Capture assessment inputs.
 
    Store raw scanner exports under `scans/raw/`, screenshots under `evidence/screenshots/`, traffic captures under `evidence/traffic/`, and proxy exports under `evidence/burp/`.
 
-3. Normalize working data.
+4. Normalize working data.
 
    Convert or summarize raw material into `scans/normalized/` and `findings/` so the reporting workflow can consume cleaner inputs.
 
-4. Run the automation scaffold.
+5. Run the automation scaffold.
 
    From `apps/report-automation`, run:
 
@@ -33,7 +37,7 @@ Use the current flow to keep Web work stable. Treat API and Server as future ext
 
    This phase-1 CLI uses a local-safe `HexStrike-AI` stub and produces a report-ready JSON payload without requiring external services.
 
-5. Review the generated payload.
+6. Review the generated payload.
 
    If you want a file output:
 
@@ -41,16 +45,17 @@ Use the current flow to keep Web work stable. Treat API and Server as future ext
    python -m src.cli.main --output ..\..\outputs\exports\sample-report-payload.json
    ```
 
-6. Render the report.
+7. Render the report.
 
    Use `apps/report-template` to maintain and build the HTML/PDF report assets for the current Web engagement workflow.
 
-7. Publish final outputs.
+8. Publish final outputs.
 
    Place report deliverables, evidence bundles, or presentation exports under `outputs/` as needed.
 
 ## Operating guidance
 
+- Keep `intake/` reserved for immutable raw observations and pre-target artifacts.
 - Keep evidence and customer-specific data inside `engagements/`.
 - Keep reusable mappings, schemas, and prompts inside `shared/`.
 - Do not modify `archive/original-sources`.

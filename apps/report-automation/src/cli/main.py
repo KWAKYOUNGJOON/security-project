@@ -19,6 +19,7 @@ from src.cases.provenance import build_provenance_ledger
 from src.collectors import collect_hexstrike_snapshot
 from src.enrichers import enrich_findings
 from src.generators import build_report_payload, build_web_report_payload, render_report_preview
+from src.intake.hexstrike import validate_live_hexstrike_run
 from src.integrations import HexStrikeClient, HexStrikeClientConfig
 from src.normalizers import normalize_findings
 from src.normalizers.web_hexstrike import (
@@ -36,6 +37,7 @@ REPO_ROOT = APP_ROOT.parent.parent
 DEFAULT_CONFIG_PATH = APP_ROOT / "configs" / "default.yaml"
 SHARED_SCHEMA_DIR = REPO_ROOT / "shared" / "schemas"
 CASE_COMMANDS = {"normalize", "apply-review", "build-payload", "render-report", "build-all"}
+INTAKE_COMMANDS = {"validate-live-hexstrike"}
 LOGGER = logging.getLogger(__name__)
 
 
@@ -144,12 +146,37 @@ def build_case_argument_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def build_intake_argument_parser() -> argparse.ArgumentParser:
+    """Create the pre-target intake parser."""
+
+    parser = argparse.ArgumentParser(description="Validate HexStrike pre-target intake files without network activity.")
+    parser.add_argument(
+        "command",
+        choices=sorted(INTAKE_COMMANDS),
+    )
+    parser.add_argument(
+        "--run",
+        required=True,
+        type=Path,
+        help="Repo-relative or absolute path to the intake run directory.",
+    )
+    parser.add_argument(
+        "--log-level",
+        default="INFO",
+        choices=("DEBUG", "INFO", "WARNING", "ERROR"),
+        help="Logging verbosity for intake commands.",
+    )
+    return parser
+
+
 def main(argv: list[str] | None = None) -> int:
     """Run the CLI and print or save the report payload."""
 
     args_list = list(argv or sys.argv[1:])
     if args_list and args_list[0] in CASE_COMMANDS:
         return _run_case_cli(args_list)
+    if args_list and args_list[0] in INTAKE_COMMANDS:
+        return _run_intake_cli(args_list)
 
     parser = build_legacy_argument_parser()
     args = parser.parse_args(args_list)
@@ -187,6 +214,20 @@ def _run_case_cli(argv: list[str]) -> int:
             result = render_report_artifact(args.case)
         else:
             result = build_all_artifacts(args.case)
+    except Exception as exc:  # pragma: no cover - CLI boundary
+        parser.exit(status=1, message=f"report-automation error: {exc}\n")
+
+    print(json.dumps(result, indent=2, ensure_ascii=False))
+    return 0
+
+
+def _run_intake_cli(argv: list[str]) -> int:
+    parser = build_intake_argument_parser()
+    args = parser.parse_args(argv)
+    logging.basicConfig(level=getattr(logging, args.log_level), format="%(levelname)s %(message)s")
+
+    try:
+        result = validate_live_hexstrike_artifact(args.run)
     except Exception as exc:  # pragma: no cover - CLI boundary
         parser.exit(status=1, message=f"report-automation error: {exc}\n")
 
@@ -258,6 +299,12 @@ def build_all_artifacts(case_arg: Path) -> dict[str, str | None]:
 
     case_dir = resolve_case_directory(case_arg, REPO_ROOT)
     return _build_case_stage(case_dir, include_review=True, include_payload=True, include_render=True)
+
+
+def validate_live_hexstrike_artifact(run_arg: Path) -> dict[str, Any]:
+    """Validate one pre-target live intake run and write observation artifacts."""
+
+    return validate_live_hexstrike_run(run_arg, REPO_ROOT, SHARED_SCHEMA_DIR)
 
 
 def _build_case_stage(

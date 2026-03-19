@@ -26,6 +26,7 @@ Phase 1 is intentionally Web-first. The repository is being normalized so curren
 
 - `docs/`: architecture notes, workflow guides, checklists, and references
 - `apps/`: executable project components
+- `intake/`: immutable raw intake runs and pre-target observation artifacts
 - `shared/`: reusable schemas, mappings, prompts, and utilities
 - `engagements/`: engagement workspaces for scoped targets, evidence, findings, and reports
 - `assets/`: reusable logos, icons, and sample data
@@ -50,15 +51,18 @@ The initial integration target is `HexStrike-AI`, implemented as a local-safe st
 ## Recommended local workflow
 
 1. Define engagement scope and targets under `engagements/sample-folder` or a copied engagement folder.
-2. Store raw scan outputs, screenshots, proxy traffic, and notes in the engagement workspace.
-3. Run the phase-1 automation scaffold under `apps/report-automation` to prepare normalized payload data.
-4. Use `apps/report-template` to render the Web assessment report.
-5. Export final deliverables to `outputs/`.
+2. If no local Web target exists yet, stay in pre-target mode and collect only runtime baseline or synthetic rehearsal inputs under `intake/`.
+3. Store live raw scan outputs, screenshots, proxy traffic, and notes in the engagement workspace only after a target is ready.
+4. Run the phase-1 automation scaffold under `apps/report-automation` to prepare normalized payload data.
+5. Use `apps/report-template` to render the Web assessment report.
+6. Export final deliverables to `outputs/`.
 
 Detailed guidance:
 - [project-overview](docs/architecture/project-overview.md)
 - [folder-policy](docs/architecture/folder-policy.md)
 - [local-workflow](docs/guides/local-workflow.md)
+- [pre-target-mode](docs/guides/pre-target-mode.md)
+- [hexstrike-runtime-baseline](docs/hexstrike-runtime-baseline.md)
 
 ## Conventions
 
@@ -72,4 +76,5 @@ Detailed guidance:
 - Repository layout already aligns with the intended top-level structure.
 - Core documentation has been normalized around the Web-only phase-1 baseline.
 - `apps/report-automation` now carries a minimal executable scaffold for future growth.
+- Pre-target intake handling now supports runtime baseline capture, file-based format observation, and synthetic parser rehearsal without touching a live Web target.
 - Future expansion should add API and Server-specific collectors, parsers, schemas, and templates without breaking the current Web path.

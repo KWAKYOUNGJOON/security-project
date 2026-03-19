@@ -1,0 +1,33 @@
+{
+  "case_id": "run-001",
+  "generated_at": "2026-03-19T18:53:01Z",
+  "inputs": [
+    {
+      "role": "intake-raw",
+      "path": "intake/web/hexstrike-ai/run-001/raw/hexstrike-format-capture.json",
+      "sha256": "d87d63b1f8835199b7b67e24ac57b4ffdad32d61a789b2efe4877b1f5d4aa2c1"
+    },
+    {
+      "role": "manifest",
+      "path": "intake/web/hexstrike-ai/run-001/manifest.json",
+      "sha256": "e65751622f7b16a93c006f6e5f69149974afed698713c1f09bda47546ffc79b1"
+    },
+    {
+      "role": "notes",
+      "path": "intake/web/hexstrike-ai/run-001/notes.md",
+      "sha256": "e7b432fab3bfc226fd80117caa3ba773fc39f051e51ef90931d21db83ce54150"
+    },
+    {
+      "role": "runtime-baseline",
+      "path": "intake/web/hexstrike-ai/run-001/raw/runtime-baseline.json",
+      "sha256": "b3e842b51eaf6d0487c75d9ce511235ffee715b578a0eeb8c3b063b465db49a2"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "intake/web/hexstrike-ai/run-001/derived/format-observation.json",
+      "sha256": "0006fe248376182942948903d1167efb39a6353145ebf93fcc18d715482cee72"
+    }
+  ],
+  "subject_type": "intake-run"
+}

@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "platform": "web",
+  "integration": "hexstrike-ai",
+  "run_id": "run-001",
+  "mode": "pre-target",
+  "status": "waiting-for-local-web-target",
+  "source_type": "live-intake",
+  "tool": {
+    "name": "HexStrike-AI",
+    "capture_purpose": "pre-target format observation"
+  },
+  "baseline_files": [
+    "raw/runtime-baseline.json"
+  ],
+  "raw_payloads": [
+    "raw/hexstrike-format-capture.json"
+  ],
+  "notes_file": "notes.md",
+  "derived": {
+    "format_observation": "derived/format-observation.json",
+    "provenance": "derived/provenance.json"
+  }
+}

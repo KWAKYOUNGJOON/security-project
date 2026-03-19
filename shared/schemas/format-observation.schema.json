@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HexStrike Format Observation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "platform",
+    "integration",
+    "run_id",
+    "mode",
+    "finding_count_detected",
+    "detected_top_level_keys",
+    "unknown_fields",
+    "missing_expected_fields",
+    "parser_warnings",
+    "evidence_shape_summary"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "platform": {
+      "type": "string"
+    },
+    "integration": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "mode": {
+      "type": "string"
+    },
+    "finding_count_detected": {
+      "type": "integer"
+    },
+    "detected_top_level_keys": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "unknown_fields": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source",
+          "path",
+          "field",
+          "shape",
+          "value"
+        ],
+        "properties": {
+          "source": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "field": {
+            "type": "string"
+          },
+          "shape": {
+            "type": "string"
+          },
+          "value": {}
+        }
+      }
+    },
+    "missing_expected_fields": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source",
+          "path",
+          "field_group",
+          "required"
+        ],
+        "properties": {
+          "source": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "field_group": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "parser_warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "evidence_shape_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "request_field_shapes",
+        "response_field_shapes",
+        "evidence_field_shapes",
+        "severity_field_shapes",
+        "status_field_shapes",
+        "evidence_item_shapes",
+        "evidence_item_kinds"
+      ],
+      "properties": {
+        "request_field_shapes": {
+          "$ref": "#/$defs/countMap"
+        },
+        "response_field_shapes": {
+          "$ref": "#/$defs/countMap"
+        },
+        "evidence_field_shapes": {
+          "$ref": "#/$defs/countMap"
+        },
+        "severity_field_shapes": {
+          "$ref": "#/$defs/countMap"
+        },
+        "status_field_shapes": {
+          "$ref": "#/$defs/countMap"
+        },
+        "evidence_item_shapes": {
+          "$ref": "#/$defs/countMap"
+        },
+        "evidence_item_kinds": {
+          "$ref": "#/$defs/countMap"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "countMap": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer"
+      }
+    }
+  }
+}

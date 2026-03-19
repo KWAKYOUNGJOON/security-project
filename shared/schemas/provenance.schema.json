@@ -13,6 +13,9 @@
     "case_id": {
       "type": "string"
     },
+    "subject_type": {
+      "type": "string"
+    },
     "generated_at": {
       "type": "string"
     },

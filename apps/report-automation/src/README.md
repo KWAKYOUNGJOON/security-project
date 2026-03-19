@@ -4,6 +4,7 @@ Source code for the phase-1 report automation pipeline.
 
 ## Pipeline stages
 
+- `intake/`: resolve immutable pre-target run manifests and raw payload lists
 - `collectors/`: fetch or assemble source snapshots
 - `parsers/`: translate raw source payloads into structured records
 - `normalizers/`: reshape records into a stable internal finding model

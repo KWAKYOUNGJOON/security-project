@@ -15,7 +15,12 @@ Store schema guidance for objects such as:
 
 The current Web-only baseline now defines the first shared automation contracts here:
 - `normalized-finding.schema.json`
+- `normalized-findings.schema.json`
+- `reviewed-findings.schema.json`
+- `review-log.schema.json`
 - `report-payload.schema.json`
+- `provenance.schema.json`
+- `format-observation.schema.json`
 
 These schemas are validated by the local `apps/report-automation` CLI before derived artifacts are written.
 

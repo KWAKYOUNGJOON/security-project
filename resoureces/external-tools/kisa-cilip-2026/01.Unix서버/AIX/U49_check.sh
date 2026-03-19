@@ -1,0 +1,166 @@
+#!/bin/bash
+# ============================================================================
+# @Project: KISA-CIIP-2026 Vulnerability Assessment Scripts
+# @Copyright: Copyright (c) 2026 Yang Uhyeok (양우혁). All rights reserved.
+# @Version: 1.0.0
+# @Last Updated: 2026-01-16
+# ============================================================================
+# [점검 항목 상세]
+# @ID          : U-49
+# @Category    : Unix Server
+# @Platform    : AIX
+# @Severity    : 상
+# @Title       : DNS 보안 버전 패치
+# @Description : BIND 버전 확인
+# @Reference   : 2026 KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세 가이드
+# ==============================================================================
+
+set -euo pipefail
+
+# 스크립트 디렉토리 설정
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LIB_DIR="${SCRIPT_DIR}/../../lib"
+
+# 필수 라이브러리 로드
+source "${LIB_DIR}/common.sh"
+source "${LIB_DIR}/command_validator.sh"
+source "${LIB_DIR}/timeout_handler.sh"
+source "${LIB_DIR}/result_manager.sh"
+source "${LIB_DIR}/output_mode.sh"
+source "${LIB_DIR}/metadata_parser.sh"
+
+
+ITEM_ID="U-49"
+ITEM_NAME="DNS 보안 버전 패치"
+SEVERITY="상"
+
+# 가이드라인 정보
+GUIDELINE_PURPOSE="취약점이발표되지않은BIND버전을사용하여시스템보안성을높이기위함"
+GUIDELINE_THREAT="취약점이 내포된 BIND 버전을 사용할 경우, DoS 공격, 버퍼 오버플로우(Buffer Overflow) 및 DNS 서버원격침입등의위험이존재함"
+GUIDELINE_CRITERIA_GOOD="주기적으로패치를관리하는경우"
+GUIDELINE_CRITERIA_BAD="주기적으로패치를관리하고있지않은경우"
+GUIDELINE_REMEDIATION="Ÿ DNS서비스를사용하지않는경우서비스중지및비활성화설정 Ÿ DNS서비스사용시패치관리정책수립및주기적으로패치적용설정 ※ DNS서비스의경우대부분의버전에서취약점이보고되고있으므로OS관리자, 서비스 개발자가 패치적용에따른서비스영향정도를정확히파악하여주기적인패치적용정책수리후적용"
+
+# ============================================================================
+# 진단 함수
+# ============================================================================
+
+# 진단 수행
+diagnose() {
+
+
+    diagnosis_result="unknown"
+    local status="미진단"
+    local inspection_summary=""
+    local command_result=""
+    local command_executed=""
+    local newline=$'\n'
+
+    # DNS 보안 버전 패치 확인
+    local dns_installed=false
+    local dns_info=""
+
+    # 1) BIND(named) 설치 및 버전 확인
+    if command -v named &>/dev/null; then
+        dns_installed=true
+        local bind_version=$(named -v 2>/dev/null || echo "Unknown")
+        dns_info="${dns_info}BIND 버전: ${bind_version}\\n"
+
+        # 버전에서 메이저/마이너 번호 추출
+        local version_number=$(echo "$bind_version" | grep -oP '\d+\.\d+' | head -1)
+        dns_info="${dns_info}버전 번호: ${version_number}\\n"
+    fi
+
+    # 2) bind9-utils 확인
+    if lslpp -L | grep -q "bind9"; then
+        dns_installed=true
+        local bind_version=$(lslpp -L | grep "bind9" | awk '{print $3}' | head -1)
+        dns_info="${dns_info}설치된 bind9 버전: ${bind_version}\\n"
+    fi
+
+    # 3) DNS 서비스 실행 확인
+    if lssrc -s named 2>/dev/null | grep -q "active" &>/dev/null || lssrc -s bind9 2>/dev/null | grep -q "active" &>/dev/null; then
+        dns_installed=true
+        dns_info="${dns_info}DNS 서비스 실행 중\\n"
+    fi
+
+    # 4) 포트 확인 (DNS: 53)
+    if command -v ss &>/dev/null; then
+        local dns_port=$(ss -tuln | grep ":53 " || echo "")
+        if [ -n "$dns_port" ]; then
+            dns_installed=true
+            dns_info="${dns_info}DNS 포트 53 활성화\\n"
+        fi
+    fi
+
+    # 최종 판정
+    if [ "$dns_installed" = false ]; then
+        diagnosis_result="GOOD"
+        status="양호"
+        inspection_summary="DNS 서비스 미설치됨"
+        local cmd_check=$(command -v named 2>/dev/null || echo "named not found")
+        local lssrc_out=$(lssrc -s named bind9 2>/dev/null || echo "DNS services not found")
+        local ss_out=$(ss -tuln | grep ":53 " 2>/dev/null || echo "DNS ports not listening")
+        command_result="[Command: command -v named]${newline}${cmd_check}${newline}${newline}[Command: lssrc -s named bind9]${newline}${lssrc_out}${newline}${newline}[Command: ss -tuln | grep :53]${newline}${ss_out}"
+        command_executed="command -v named; lssrc -s named 2>/dev/null | grep -q "active" bind9; ss -tuln | grep ':53'"
+    else
+        diagnosis_result="MANUAL"
+        status="수동진단"
+        inspection_summary="DNS 서비스 설치됨 - 최신 보안 패치 적용 여부 수동 확인 필요"
+        command_result="${dns_info}"
+        command_executed="named -v; lslpp -L | grep bind9"
+    fi
+
+    # echo ""
+    # echo "진단 결과: ${status}"
+    # echo "판정: ${diagnosis_result}"
+    # echo "설명: ${inspection_summary}"
+    # echo ""
+
+    # 결과 생성 (PC 패턴: 스크립트에서 모드 확인 후 처리)
+    # Run-all 모드 확인
+    save_dual_result \
+        "${ITEM_ID}" \
+        "${ITEM_NAME}" \
+        "${status}" \
+        "${diagnosis_result}" \
+        "${inspection_summary}" \
+        "${command_result}" \
+        "${command_executed}" \
+        "${GUIDELINE_PURPOSE}" \
+        "${GUIDELINE_THREAT}" \
+        "${GUIDELINE_CRITERIA_GOOD}" \
+        "${GUIDELINE_CRITERIA_BAD}" \
+        "${GUIDELINE_REMEDIATION}"
+
+    # 결과 저장 확인
+    verify_result_saved "${ITEM_ID}"
+
+
+    return 0
+}
+
+# ============================================================================
+# 메인 실행
+# ============================================================================
+
+main() {
+    # 진단 시작 표시
+    show_diagnosis_start "${ITEM_ID}" "${ITEM_NAME}"
+
+    # 디스크 공간 확인
+    check_disk_space
+
+    # 진단 수행
+    diagnose
+
+    # 진단 완료 표시
+    show_diagnosis_complete "${ITEM_ID}" "${diagnosis_result:-UNKNOWN}"
+
+    return 0
+}
+
+# 스크립트 직접 실행 시에만 진단 수행
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+    main "$@"
+fi

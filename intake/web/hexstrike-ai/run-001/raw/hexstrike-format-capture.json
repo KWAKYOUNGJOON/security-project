@@ -1,0 +1,70 @@
+{
+  "tool": {
+    "name": "HexStrike-AI",
+    "version": "pretarget-observation"
+  },
+  "scan": {
+    "scan_id": "pretarget-run-001",
+    "started_at": "2026-03-20T00:00:00Z",
+    "mode": "pre-target"
+  },
+  "engagement": {
+    "name": "pretarget-local-runtime",
+    "current_scope": "web",
+    "target_scope": [
+      "web"
+    ],
+    "primary_target": "target-not-configured"
+  },
+  "findings": [
+    {
+      "id": "PT-001",
+      "title": "Pre-target format observation placeholder",
+      "severity": "info",
+      "status": "observed",
+      "asset": "target-not-configured",
+      "description": "No live target was scanned. This record exists only to preserve an observable HexStrike-style response shape.",
+      "request": {
+        "method": "GET",
+        "url": "about:blank",
+        "headers": {
+          "x-pretarget-mode": "true"
+        },
+        "body": null
+      },
+      "response": {
+        "status_code": 0,
+        "reason": "not-requested",
+        "body_excerpt": ""
+      },
+      "evidence": [
+        {
+          "kind": "note",
+          "value": "No network request was issued in pre-target mode."
+        }
+      ],
+      "references": [
+        "internal://pre-target-mode"
+      ],
+      "tags": [
+        "web",
+        "pre-target",
+        "format-observation"
+      ],
+      "confidence": "low",
+      "unexpected_signal": {
+        "origin": "pre-target",
+        "network": "disabled"
+      }
+    }
+  ],
+  "runtime": {
+    "hexstrike_server": {
+      "resolved_on_path": false
+    },
+    "hexstrike_mcp": {
+      "resolved_on_path": false
+    }
+  },
+  "collector_note": "pre-target format-only capture"
+}

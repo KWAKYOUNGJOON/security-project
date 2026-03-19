@@ -5,6 +5,7 @@ Guides for local execution, repository usage, and repeatable assessment operatio
 ## Available guide
 
 - [local-workflow.md](local-workflow.md): phase-1 local workflow for the current Web implementation
+- [pre-target-mode.md](pre-target-mode.md): file-based HexStrike intake policy before a local Web target exists
 
 ## Guide policy
 

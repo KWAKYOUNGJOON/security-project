@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "platform": "web",
+  "integration": "hexstrike-ai",
+  "run_id": "rehearsal-001",
+  "mode": "synthetic-rehearsal",
+  "baseline_files": [],
+  "raw_payloads": [
+    "raw/hexstrike-result.json"
+  ]
+}

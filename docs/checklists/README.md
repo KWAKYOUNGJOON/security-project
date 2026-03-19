@@ -18,6 +18,10 @@ Suggested future checklist categories:
 - `web-assessment-checklist.md`
 - `evidence-quality-checklist.md`
 - `report-review-checklist.md`
+- `target-ready-checklist.md`
+
+Current draft:
+- [target-ready-checklist.md](target-ready-checklist.md): exit criteria for moving from pre-target intake to a local live Web target
 
 ## Future expansion
 

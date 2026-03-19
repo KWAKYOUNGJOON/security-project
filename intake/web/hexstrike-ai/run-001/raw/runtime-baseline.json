@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "captured_on": "2026-03-20",
+  "working_directory": "d:/security-project",
+  "mode": "pre-target",
+  "scope": "web",
+  "runtime": {
+    "python_version": "3.14.3",
+    "shell": "powershell"
+  },
+  "command_probe": {
+    "pattern": "hexstrike*",
+    "result": "not-detected-in-current-shell"
+  },
+  "package_probe": {
+    "pip_show": {
+      "hexstrike-ai": "not-found",
+      "hexstrike-mcp": "not-found"
+    },
+    "importlib_metadata": {
+      "hexstrike-ai": "not-found",
+      "hexstrike_mcp": "not-found",
+      "hexstrike-mcp": "not-found",
+      "hexstrike-server": "not-found",
+      "hexstrike_server": "not-found"
+    }
+  }
+}

@@ -1,0 +1,187 @@
+#!/bin/bash
+# ============================================================================
+# @Project: KISA-CIIP-2026 Vulnerability Assessment Scripts
+# @Copyright: Copyright (c) 2026 Yang Uhyeok (양우혁). All rights reserved.
+# @Version: 1.0.0
+# @Last Updated: 2026-01-16
+# ============================================================================
+# [점검 항목 상세]
+# @ID          : U-46
+# @Category    : Unix Server
+# @Platform    : AIX
+# @Severity    : 상
+# @Title       : 일반 사용자의 메일 서비스 실행 방지
+# @Description : mail 실행 제한 확인
+# @Reference   : 2026 KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세 가이드
+# ==============================================================================
+
+set -euo pipefail
+
+# 스크립트 디렉토리 설정
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LIB_DIR="${SCRIPT_DIR}/../../lib"
+
+# 필수 라이브러리 로드
+source "${LIB_DIR}/common.sh"
+source "${LIB_DIR}/command_validator.sh"
+source "${LIB_DIR}/timeout_handler.sh"
+source "${LIB_DIR}/result_manager.sh"
+source "${LIB_DIR}/output_mode.sh"
+source "${LIB_DIR}/metadata_parser.sh"
+
+
+ITEM_ID="U-46"
+ITEM_NAME="일반 사용자의 메일 서비스 실행 방지"
+SEVERITY="상"
+
+# 가이드라인 정보
+GUIDELINE_PURPOSE="일반 사용자의 q 옵션을 제한하여 메일 서비스 설정 및메일큐를강제적으로drop시킬수없게하여 비인가자에의한SMTP서비스오류방지하기위함"
+GUIDELINE_THREAT="일반사용자가q옵션을이용해서메일큐,메일서비스설정을보거나메일큐를강제적으로drop시킬 수있어악의적으로SMTP서버의오류를발생시킬위험이존재함"
+GUIDELINE_CRITERIA_GOOD="일반사용자의메일서비스실행방지가설정된경우"
+GUIDELINE_CRITERIA_BAD="일반사용자의메일서비스실행방지가설정되어있지않은경우"
+GUIDELINE_REMEDIATION="Ÿ 메일서비스를사용하지않는경우서비스중지및비활성화설정 Ÿ 메일서비스사용시메일서비스의q옵션제한설정"
+
+# ============================================================================
+# 진단 함수
+# ============================================================================
+
+# 진단 수행
+diagnose() {
+
+
+    diagnosis_result="unknown"
+    local status="미진단"
+    local inspection_summary=""
+    local command_result=""
+    local command_executed=""
+    local newline=$'\n'
+
+    # 일반 사용자의 메일 서비스 실행 방지 확인
+    local mail_restricted=false
+    local restriction_info=""
+
+    # 1) Sendmail: smrsh 확인
+    if [ -f /etc/mail/smrsh ]; then
+        restriction_info="${restriction_info}Sendmail smrsh 설치됨\\n"
+        if command -v smrsh &>/dev/null; then
+            mail_restricted=true
+            restriction_info="${restriction_info}smrsh: 사용 가능한 명령어 제한됨\\n"
+        fi
+    fi
+
+    # Sendmail 설정에서 restrict-mailrun 확인
+    if [ -f /etc/mail/sendmail.cf ] || [ -f /etc/sendmail.cf ]; then
+        local conf_file="/etc/mail/sendmail.cf"
+        [ ! -f "$conf_file" ] && conf_file="/etc/sendmail.cf"
+
+        local privacy_options=$(grep -i "PrivacyOptions" "$conf_file" | grep -v "^#" | head -1)
+        restriction_info="${restriction_info}Sendmail PrivacyOptions: ${privacy_options}\\n"
+
+        if echo "$privacy_options" | grep -q "restrict-mailrun"; then
+            mail_restricted=true
+            restriction_info="${restriction_info}restrict-mailrun 설정됨\\n"
+        fi
+    fi
+
+    # 2) Postfix: mail_owner 확인
+    if command -v postconf &>/dev/null; then
+        local mail_owner=$(postconf mail_owner 2>/dev/null | grep "mail_owner" | awk '{print $3}')
+        restriction_info="${restriction_info}Postfix mail_owner: ${mail_owner}\\n"
+
+        if [ "$mail_owner" = "postfix" ] || [ "$mail_owner" = "mail" ]; then
+            mail_restricted=true
+            restriction_info="${restriction_info}mail_owner가 특정 사용자로 설정됨\\n"
+        fi
+
+        # authorized_mail_users 확인
+        local auth_users=$(postconf authorized_mail_users 2>/dev/null | grep "authorized_mail_users" | awk '{print $3}')
+        if [ -n "$auth_users" ]; then
+            restriction_info="${restriction_info}authorized_mail_users: ${auth_users}\\n"
+        fi
+
+        # authorized_submit_users 확인
+        local submit_users=$(postconf authorized_submit_users 2>/dev/null | grep "authorized_submit_users" | awk '{print $3}')
+        if [ -n "$submit_users" ]; then
+            restriction_info="${restriction_info}authorized_submit_users: ${submit_users}\\n"
+            mail_restricted=true
+        fi
+    fi
+
+    # 3) 메일 큐 디렉토리 권한 확인 (AIX: stat -c 미지원, perl 사용)
+    local mailq_dirs=("/var/spool/mqueue" "/var/spool/postfix" "/var/mail")
+    for dir in "${mailq_dirs[@]}"; do
+        if [ -d "$dir" ]; then
+            local perms=$(perl -le 'printf "%04o\n", (stat shift)[2] & 07777' "$dir" 2>/dev/null || echo "000")
+            local owner=$(perl -le 'print +(getpwuid((stat shift)[4]))[0]' "$dir" 2>/dev/null || echo "unknown")
+            restriction_info="${restriction_info}${dir}: ${perms}, ${owner}\\n"
+        fi
+    done || true
+
+    # 최종 판정
+    if [ "$mail_restricted" = true ]; then
+        diagnosis_result="GOOD"
+        status="양호"
+        inspection_summary="일반 사용자의 메일 서비스 실행 제한됨"
+        command_result="${restriction_info}"
+        command_executed="postconf mail_owner authorized_submit_users; grep -i 'PrivacyOptions' /etc/mail/sendmail.cf 2>/dev/null"
+    else
+        diagnosis_result="MANUAL"
+        status="수동진단"
+        inspection_summary="메일 서비스 접근 제한 설정 수동 확인 필요"
+        command_result="${restriction_info}"
+        command_executed="postconf mail_owner; grep -i 'PrivacyOptions' /etc/mail/sendmail.cf"
+    fi
+
+    # echo ""
+    # echo "진단 결과: ${status}"
+    # echo "판정: ${diagnosis_result}"
+    # echo "설명: ${inspection_summary}"
+    # echo ""
+
+    # 결과 생성 (PC 패턴: 스크립트에서 모드 확인 후 처리)
+    # Run-all 모드 확인
+    save_dual_result \
+        "${ITEM_ID}" \
+        "${ITEM_NAME}" \
+        "${status}" \
+        "${diagnosis_result}" \
+        "${inspection_summary}" \
+        "${command_result}" \
+        "${command_executed}" \
+        "${GUIDELINE_PURPOSE}" \
+        "${GUIDELINE_THREAT}" \
+        "${GUIDELINE_CRITERIA_GOOD}" \
+        "${GUIDELINE_CRITERIA_BAD}" \
+        "${GUIDELINE_REMEDIATION}"
+
+    # 결과 저장 확인
+    verify_result_saved "${ITEM_ID}"
+
+
+    return 0
+}
+
+# ============================================================================
+# 메인 실행
+# ============================================================================
+
+main() {
+    # 진단 시작 표시
+    show_diagnosis_start "${ITEM_ID}" "${ITEM_NAME}"
+
+    # 디스크 공간 확인
+    check_disk_space
+
+    # 진단 수행
+    diagnose
+
+    # 진단 완료 표시
+    show_diagnosis_complete "${ITEM_ID}" "${diagnosis_result:-UNKNOWN}"
+
+    return 0
+}
+
+# 스크립트 직접 실행 시에만 진단 수행
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+    main "$@"
+fi

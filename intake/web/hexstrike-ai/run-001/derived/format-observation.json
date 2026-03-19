@@ -1,0 +1,86 @@
+{
+  "schema_version": "1.0",
+  "platform": "web",
+  "integration": "hexstrike-ai",
+  "run_id": "run-001",
+  "mode": "pre-target",
+  "finding_count_detected": 1,
+  "detected_top_level_keys": [
+    "collector_note",
+    "engagement",
+    "findings",
+    "runtime",
+    "scan",
+    "tool"
+  ],
+  "unknown_fields": [
+    {
+      "source": "intake/web/hexstrike-ai/run-001/raw/hexstrike-format-capture.json",
+      "path": "$",
+      "field": "collector_note",
+      "shape": "string",
+      "value": "pre-target format-only capture"
+    },
+    {
+      "source": "intake/web/hexstrike-ai/run-001/raw/hexstrike-format-capture.json",
+      "path": "$",
+      "field": "runtime",
+      "shape": "object",
+      "value": {
+        "hexstrike_server": {
+          "resolved_on_path": false
+        },
+        "hexstrike_mcp": {
+          "resolved_on_path": false
+        }
+      }
+    },
+    {
+      "source": "intake/web/hexstrike-ai/run-001/raw/hexstrike-format-capture.json",
+      "path": "$.findings[0]",
+      "field": "confidence",
+      "shape": "string",
+      "value": "low"
+    },
+    {
+      "source": "intake/web/hexstrike-ai/run-001/raw/hexstrike-format-capture.json",
+      "path": "$.findings[0]",
+      "field": "unexpected_signal",
+      "shape": "object",
+      "value": {
+        "origin": "pre-target",
+        "network": "disabled"
+      }
+    }
+  ],
+  "missing_expected_fields": [],
+  "parser_warnings": [
+    "Unknown finding field preserved: intake/web/hexstrike-ai/run-001/raw/hexstrike-format-capture.json:$.findings[0].confidence",
+    "Unknown finding field preserved: intake/web/hexstrike-ai/run-001/raw/hexstrike-format-capture.json:$.findings[0].unexpected_signal",
+    "Unknown root field preserved: intake/web/hexstrike-ai/run-001/raw/hexstrike-format-capture.json:$.collector_note",
+    "Unknown root field preserved: intake/web/hexstrike-ai/run-001/raw/hexstrike-format-capture.json:$.runtime"
+  ],
+  "evidence_shape_summary": {
+    "request_field_shapes": {
+      "object": 1
+    },
+    "response_field_shapes": {
+      "object": 1
+    },
+    "evidence_field_shapes": {
+      "array": 1
+    },
+    "severity_field_shapes": {
+      "string": 1
+    },
+    "status_field_shapes": {
+      "string": 1
+    },
+    "evidence_item_shapes": {
+      "object": 1
+    },
+    "evidence_item_kinds": {
+      "note": 1
+    }
+  }
+}

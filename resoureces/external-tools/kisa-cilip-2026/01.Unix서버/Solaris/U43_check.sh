@@ -1,0 +1,181 @@
+#!/bin/bash
+# ============================================================================
+# @Project: KISA-CIIP-2026 Vulnerability Assessment Scripts
+# @Copyright: Copyright (c) 2026 Yang Uhyeok (양우혁). All rights reserved.
+# @Version: 1.0.0
+# @Last Updated: 2026-01-16
+# ============================================================================
+# [점검 항목 상세]
+# @ID          : U-43
+# @Category    : Unix Server
+# @Platform    : Solaris (Oracle)
+# @Severity    : 상
+# @Title       : r 계열 서비스 비활성화
+# @Description : rsh, rlogin, rexec 서비스 비활성화 확인
+# @Reference   : 2026 KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세 가이드
+# ==============================================================================
+
+set -euo pipefail
+
+# 스크립트 디렉토리 설정
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LIB_DIR="${SCRIPT_DIR}/../../lib"
+
+# 필수 라이브러리 로드
+source "${LIB_DIR}/common.sh"
+source "${LIB_DIR}/command_validator.sh"
+source "${LIB_DIR}/timeout_handler.sh"
+source "${LIB_DIR}/result_manager.sh"
+source "${LIB_DIR}/output_mode.sh"
+source "${LIB_DIR}/metadata_parser.sh"
+
+
+ITEM_ID="U-43"
+ITEM_NAME="r 계열 서비스 비활성화"
+SEVERITY="상"
+
+# 가이드라인 정보
+GUIDELINE_PURPOSE="인증 없는 원격 접속을 방지하여 시스템 보안을 강화하기 위함"
+GUIDELINE_THREAT="rsh, rlogin, rexec 등의 r 계열 서비스가 활성화된 경우, 패스워드 없이 원격 접속이 가능하여 공격자가 시스템에 무단 접근하고 악의적인 명령을 실행할 수 있는 위험이 존재함"
+GUIDELINE_CRITERIA_GOOD="r 계열 서비스(rsh, rlogin, rexec)가 모두 비활성화된 경우"
+GUIDELINE_CRITERIA_BAD="r 계열 서비스 중 하나라도 활성화되어 있는 경우"
+GUIDELINE_REMEDIATION="r 계열 서비스 중지 및 패키지 제거, /etc/inetd.conf 및 /etc/xinetd.d 설정 파일에서 해당 서비스 비활성화"
+
+# ============================================================================
+# 진단 함수
+# ============================================================================
+
+# 진단 수행
+diagnose() {
+
+
+    diagnosis_result="unknown"
+    local status="미진단"
+    local inspection_summary=""
+    local command_result=""
+    local command_executed=""
+    local newline=$'\n'
+
+    # 진단 로직 구현
+    # rsh, rlogin, rexec 서비스 상태 확인
+
+    local is_secure=true
+    local service_status=""
+    local active_services=()
+
+    # 확인할 r 계열 서비스 목록
+    local r_services=("rsh" "rlogin" "rexec")
+
+    for service in "${r_services[@]}"; do
+        # Solaris SMF로 서비스 상태 확인
+        local svc_name="network/${service}"
+        if svcs "$svc_name" 2>/dev/null | grep -q "online"; then
+            is_secure=false
+            active_services+=("${service} (online)")
+            service_status="${service_status}${service}: online\\n"
+        else
+            service_status="${service_status}${service}: offline 또는 미설치\\n"
+        fi
+    done || true
+
+    # inetd 기반 서비스 확인 (rsh, rlogin, rexec)
+    if [ -f /etc/inetd.conf ]; then
+        for inetd_service in rsh rlogin rexec; do
+            if grep -q "^${inetd_service}" /etc/inetd.conf 2>/dev/null; then
+                is_secure=false
+                active_services+=("${inetd_service} (inetd)")
+                service_status="${service_status}${inetd_service}: inetd.conf에서 활성화됨\\n"
+            fi
+        done || true
+    fi
+
+    # /etc/inetd.conf 확인 (레거시 시스템)
+    if [ -f /etc/inetd.conf ]; then
+        local inetd_r=$(grep -E "^(rsh|rlogin|rexec)" /etc/inetd.conf || echo "")
+        if [ -n "$inetd_r" ]; then
+            is_secure=false
+            active_services+=("r services in inetd.conf")
+            service_status="${service_status}r 계열 서비스: inetd.conf에서 활성화됨\\n"
+        fi
+    fi
+
+    # 포트 확인 (rsh: 514, rlogin: 513, rexec: 512)
+    if command -v netstat &>/dev/null; then
+        local rsh_port=$(netstat -an | grep "\.514 " || echo "")
+        local rlogin_port=$(netstat -an | grep "\.513 " || echo "")
+        local rexec_port=$(netstat -an | grep "\.512 " || echo "")
+
+        if [ -n "$rsh_port" ] || [ -n "$rlogin_port" ] || [ -n "$rexec_port" ]; then
+            is_secure=false
+            service_status="${service_status}r 계열 포트 활성화 감지\\n"
+        fi
+    fi
+
+    # 최종 판정
+    if [ "$is_secure" = true ]; then
+        diagnosis_result="GOOD"
+        status="양호"
+        inspection_summary="r 계열 서비스 비활성화됨"
+        command_result="${service_status}"
+        command_executed="svcs network/rsh network/rlogin network/rexec; cat /etc/inetd.conf 2>/dev/null | grep -E 'rsh|rlogin|rexec'"
+    else
+        diagnosis_result="VULNERABLE"
+        status="취약"
+        inspection_summary="r 계열 서비스 활성화됨: ${active_services[*]}"
+        command_result="${service_status}"
+        command_executed="svcs network/rsh network/rlogin network/rexec; cat /etc/inetd.conf 2>/dev/null | grep -E 'rsh|rlogin|rexec'"
+    fi
+
+    # echo ""
+    # echo "진단 결과: ${status}"
+    # echo "판정: ${diagnosis_result}"
+    # echo "설명: ${inspection_summary}"
+    # echo ""
+
+    # 결과 생성 (PC 패턴: 스크립트에서 모드 확인 후 처리)
+    # Run-all 모드 확인
+    save_dual_result \
+        "${ITEM_ID}" \
+        "${ITEM_NAME}" \
+        "${status}" \
+        "${diagnosis_result}" \
+        "${inspection_summary}" \
+        "${command_result}" \
+        "${command_executed}" \
+        "${GUIDELINE_PURPOSE}" \
+        "${GUIDELINE_THREAT}" \
+        "${GUIDELINE_CRITERIA_GOOD}" \
+        "${GUIDELINE_CRITERIA_BAD}" \
+        "${GUIDELINE_REMEDIATION}"
+
+    # 결과 저장 확인
+    verify_result_saved "${ITEM_ID}"
+
+
+    return 0
+}
+
+# ============================================================================
+# 메인 실행
+# ============================================================================
+
+main() {
+    # 진단 시작 표시
+    show_diagnosis_start "${ITEM_ID}" "${ITEM_NAME}"
+
+    # 디스크 공간 확인
+    check_disk_space
+
+    # 진단 수행
+    diagnose
+
+    # 진단 완료 표시
+    show_diagnosis_complete "${ITEM_ID}" "${diagnosis_result:-UNKNOWN}"
+
+    return 0
+}
+
+# 스크립트 직접 실행 시에만 진단 수행
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+    main "$@"
+fi

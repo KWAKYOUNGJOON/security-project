@@ -1,0 +1,35 @@
+#!/bin/bash
+# Minimal runner to verify all scripts in Docker
+# Hardcoded paths to avoid locale issues.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LIB_DIR="${SCRIPT_DIR}/../../lib"
+
+bash "${SCRIPT_DIR}/WEB01_check.sh"
+bash "${SCRIPT_DIR}/WEB02_check.sh"
+bash "${SCRIPT_DIR}/WEB03_check.sh"
+bash "${SCRIPT_DIR}/WEB04_check.sh"
+bash "${SCRIPT_DIR}/WEB05_check.sh"
+bash "${SCRIPT_DIR}/WEB06_check.sh"
+# WEB07 skipped? No, 26 items.
+bash "${SCRIPT_DIR}/WEB07_check.sh"
+bash "${SCRIPT_DIR}/WEB08_check.sh"
+bash "${SCRIPT_DIR}/WEB09_check.sh"
+bash "${SCRIPT_DIR}/WEB10_check.sh"
+bash "${SCRIPT_DIR}/WEB11_check.sh"
+bash "${SCRIPT_DIR}/WEB12_check.sh"
+bash "${SCRIPT_DIR}/WEB13_check.sh"
+bash "${SCRIPT_DIR}/WEB14_check.sh"
+bash "${SCRIPT_DIR}/WEB15_check.sh"
+bash "${SCRIPT_DIR}/WEB16_check.sh"
+bash "${SCRIPT_DIR}/WEB17_check.sh"
+bash "${SCRIPT_DIR}/WEB18_check.sh"
+bash "${SCRIPT_DIR}/WEB19_check.sh"
+bash "${SCRIPT_DIR}/WEB20_check.sh"
+bash "${SCRIPT_DIR}/WEB21_check.sh"
+bash "${SCRIPT_DIR}/WEB22_check.sh"
+bash "${SCRIPT_DIR}/WEB23_check.sh"
+bash "${SCRIPT_DIR}/WEB24_check.sh"
+bash "${SCRIPT_DIR}/WEB25_check.sh"
+bash "${SCRIPT_DIR}/WEB26_check.sh"
+
+echo "Minimal Run Complete."

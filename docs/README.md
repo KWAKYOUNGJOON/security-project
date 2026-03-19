@@ -14,6 +14,9 @@ Project-level documentation for the phase-1 Web baseline and the planned path to
 - [architecture/project-overview.md](architecture/project-overview.md)
 - [architecture/folder-policy.md](architecture/folder-policy.md)
 - [guides/local-workflow.md](guides/local-workflow.md)
+- [guides/pre-target-mode.md](guides/pre-target-mode.md)
+- [hexstrike-runtime-baseline.md](hexstrike-runtime-baseline.md)
+- [checklists/target-ready-checklist.md](checklists/target-ready-checklist.md)
 
 ## Scope note
 

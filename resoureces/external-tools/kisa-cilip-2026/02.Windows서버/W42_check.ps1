@@ -1,0 +1,100 @@
+﻿# ============================================================================
+# @Project: KISA-CIIP-2026 Vulnerability Assessment Scripts
+# @Copyright: Copyright (c) 2026 Yang Uhyeok (양우혁). All rights reserved.
+# @Version: 1.0.0
+# @Last Updated: 2026-01-16
+# ============================================================================
+# [점검 항목 상세]
+# @ID          : W-42
+# @Category    : Windows Server
+# @Platform    : Windows Server 2008, 2012, 2016, 2019, 2022
+# @Severity    : 하
+# @Title       : 이벤트로그관리설정
+# @Description : 이벤트 로그 파일 크기 및 보관 기간 적절 유지로 중요 로그 누락 방지
+# @Reference   : 2026 KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세 가이드
+# ============================================================================
+
+$ErrorActionPreference = 'Stop'
+
+# Parameters
+$ITEM_ID = "W-42"
+$ITEM_NAME = "이벤트로그관리설정"
+$SEVERITY = "하"
+$CATEGORY = "4.로그관리"
+
+# lib 로드
+$SCRIPT_DIR = Split-Path -Parent $MyInvocation.MyCommand.Path
+$LIB_DIR = Join-Path $SCRIPT_DIR "..\lib"
+. "${LIB_DIR}\result_manager.ps1"
+
+# run_all 모드가 아닐 때만 진단 정보 출력
+if (-not (Test-RunallMode)) {
+    Write-Host "진단 항목: $ITEM_ID - $ITEM_NAME"
+    Write-Host "카테고리: $CATEGORY"
+}
+
+# 1. Check event log maximum size settings
+try {
+    $logNames = @('Application', 'System', 'Security')
+    $logDetails = @()
+    $allConfigured = $true
+
+    foreach ($logName in $logNames) {
+        $log = Get-WinEvent -ListLog $logName -ErrorAction SilentlyContinue
+        if ($log) {
+            $maxSizeMB = [math]::Round($log.MaximumSizeInBytes / 1MB, 2)
+            $logDetails += "$logName : $($log.MaximumSizeInBytes) bytes ($maxSizeMB MB)"
+
+            if ($log.MaximumSizeInBytes -lt 10485760) {  # 10,240 KB = 10,485,760 bytes
+                $allConfigured = $false
+            }
+        } else {
+            $allConfigured = $false
+            $logDetails += "$logName : 접근 불가"
+        }
+    }
+
+    if ($allConfigured) {
+        $finalResult = "GOOD"
+        $summary = "최대 로그 크기가 10,240KB 이상으로 설정됨"
+        $status = "양호"
+    } else {
+        $finalResult = "VULNERABLE"
+        $summary = "최대 로그 크기가 10,240KB 미만으로 설정됨"
+        $status = "취약"
+    }
+
+    $commandExecuted = "Get-WinEvent -ListLog Application, System, Security"
+    $commandOutput = $logDetails -join "`n"
+
+} catch {
+    $finalResult = "MANUAL"
+    $summary = "진단 실패: 수동 확인 필요"
+    $status = "수동진단"
+    $commandExecuted = "Get-WinEvent -ListLog Application, System, Security"
+    $commandOutput = "진단 실패: $_"
+}
+
+# Define guideline variables
+$purpose = '유사시 책임 추적을 위해 주요 이벤트가 누락 되지 않도록 이벤트 로그 파일의 크기 및 보관 기간을 적절하게 유지'
+$threat = '이벤트 로그 파일의 크기가 충분하지 않으면 중요 로그가 저장되지 않을 위험이 있으며, 최대 보존 크기를 초과하는 경우 자동으로 덮어씀으로써 중요 로그의 손실 위험 존재'
+$criteria_good = '최대 로그 크기 ''10,240KB 이상''으로 설정, ''90일 이후 이벤트 덮어씀''을 설정한 경우'
+$criteria_bad = '최대 로그 크기 ''10,240KB 미만''으로 설정, 이벤트 덮어씀 기간이 ''90일 이하로 설정된 경우'
+$remediation = '최대 로그 크기 ''10,240KB'', ''90일 이후 이벤트 덮어씀'' 설정 (이벤트 뷰어 > 해당 로그 > 속성 > 일반)'
+
+# Save results using lib
+Save-DualResult -ItemId $ITEM_ID `
+    -ItemName $ITEM_NAME `
+    -Status $status `
+    -FinalResult $finalResult `
+    -InspectionSummary $summary `
+    -CommandResult $commandOutput `
+    -CommandExecuted $commandExecuted `
+    -GuidelinePurpose $purpose `
+    -GuidelineThreat $threat `
+    -GuidelineCriteriaGood $criteria_good `
+    -GuidelineCriteriaBad $criteria_bad `
+    -GuidelineRemediation $remediation `
+    -ScriptDir $SCRIPT_DIR
+
+exit 0
