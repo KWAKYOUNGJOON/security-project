@@ -1,18 +1,20 @@
-﻿# docs(문서)
+# docs(문서)
 
-Path
-- docs
+Project-level documentation for the phase-1 Web baseline and the planned path to Web + API + Server.
 
-Description
-Project-level documentation, structure notes, and operational guidance.
+## Contents
 
-Current implementation scope
-- Web
+- `architecture/`: project structure, operating boundaries, and future growth model
+- `guides/`: local working instructions and repeatable workflow notes
+- `checklists/`: assessment checklist ownership and expected checklist categories
+- `references/`: standards, mappings, examples, and external reference material
 
-Target scope
-- Web + API + Server
+## Recommended starting points
 
-Notes
-- Actual folder names use English only.
-- Documentation may use the English(한글) notation.
-- Stabilize the web workflow first, then expand to API and server support.
+- [architecture/project-overview.md](architecture/project-overview.md)
+- [architecture/folder-policy.md](architecture/folder-policy.md)
+- [guides/local-workflow.md](guides/local-workflow.md)
+
+## Scope note
+
+Current implementation is Web only. Documentation should keep that explicit while reserving room for API and Server additions later.

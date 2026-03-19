@@ -1,0 +1,50 @@
+finding_id: VUL-001
+taxonomy:
+  name: web-kisa-2026
+  version: "2026"
+code: AU
+title_ko: 자동화 공격
+severity: high
+finding_name: 로그인 실패 횟수 제한 미흡
+summary: 로그인 실패 횟수 제한 또는 CAPTCHA가 없어 반복 요청이 가능함
+description: 로그인 기능에서 반복 인증 시도에 대한 제한이 없어 자동화 공격이 가능합니다.
+cause: 로그인 실패 횟수 제한, CAPTCHA, 계정 잠금 정책이 부재합니다.
+affected:
+  url: https://example.com/login
+  method: POST
+  parameter: null
+reproduction:
+  preconditions:
+    - 비인가 상태 접근 가능
+  steps:
+    - 로그인 페이지 접속
+    - 반복 로그인 시도
+    - 통제 부재 확인
+impact: 계정 존재 여부 식별 및 무차별 대입 공격 가능
+risk:
+  rationale: 인증 없이 접근 가능한 로그인 기능에서 반복 요청 제한이 없어 자동화 공격 성공 가능성이 높습니다.
+  difficulty: 낮음
+  asset: 인증 기능 및 사용자 계정
+  precondition: 비인가 상태에서 로그인 페이지 접근 가능
+remediation:
+  summary: 로그인 실패 횟수 제한 및 CAPTCHA 적용
+  short_term:
+    - rate limit 적용
+    - CAPTCHA 또는 2차 검증 적용
+    - 계정 잠금 정책 검토
+  mid_term: []
+  long_term: []
+references:
+  - OWASP Automated Threats to Web Applications
+  - 내부 점검 코드 AU
+decision_basis: 반복 로그인 시도 시 별도의 CAPTCHA 또는 계정 잠금 정책이 동작하지 않음을 확인했습니다.
+exception_note: ""
+false_positive: false
+status: open
+owner: null
+reviewer: null
+notes: 로컬 샘플 케이스
+due_date: null
+screenshot_captions:
+  screenshot-01.png: 로그인 반복 요청 화면
+  screenshot-02.png: 응답 결과 확인 화면

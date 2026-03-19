@@ -1,18 +1,13 @@
-﻿# guides(가이드)
+# guides(가이드)
 
-Path
-- docs\guides
+Guides for local execution, repository usage, and repeatable assessment operations.
 
-Description
-User guides for setup, workflow, tooling, and report generation.
+## Available guide
 
-Current implementation scope
-- Web
+- [local-workflow.md](local-workflow.md): phase-1 local workflow for the current Web implementation
 
-Target scope
-- Web + API + Server
+## Guide policy
 
-Notes
-- Actual folder names use English only.
-- Documentation may use the English(한글) notation.
-- Stabilize the web workflow first, then expand to API and server support.
+- Document the current supported Web flow clearly.
+- Note future API and Server expansion points without presenting them as active workflows.
+- Prefer Windows-safe examples and Python-first commands.

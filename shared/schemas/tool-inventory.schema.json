@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Tool Inventory Input",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "tool_inventory"
+  ],
+  "properties": {
+    "tool_inventory": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "purpose",
+          "category",
+          "source_type"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "source_type": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

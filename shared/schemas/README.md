@@ -1,18 +1,29 @@
-﻿# schemas(스키마)
+# schemas(스키마)
 
-Path
-- shared\schemas
+This folder is reserved for reusable data shape definitions shared across automation and reporting workflows.
 
-Description
-Shared data schemas for findings, targets, evidence, and report payloads.
+## Intended use
 
-Current implementation scope
-- Web
+Store schema guidance for objects such as:
+- targets
+- findings
+- evidence items
+- normalized scan records
+- report payloads
 
-Target scope
-- Web + API + Server
+## Phase-1 expectation
 
-Notes
-- Actual folder names use English only.
-- Documentation may use the English(한글) notation.
-- Stabilize the web workflow first, then expand to API and server support.
+The current Web-only baseline now defines the first shared automation contracts here:
+- `normalized-finding.schema.json`
+- `report-payload.schema.json`
+
+These schemas are validated by the local `apps/report-automation` CLI before derived artifacts are written.
+
+## Naming guidance
+
+Prefer descriptive schema names such as:
+- `finding.schema.json`
+- `report-payload.schema.json`
+- `target.schema.json`
+
+Keep names in English only.

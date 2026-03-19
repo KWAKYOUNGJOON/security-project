@@ -1,0 +1,11 @@
+document_control:
+  history:
+    - version: v2.0
+      date: 2026-03-20
+      author: Example Analyst
+      change: Initial multi-finding release
+  approvals:
+    - role: Reviewer
+      name: Example Reviewer
+      status: approved
+      note: sample review approval

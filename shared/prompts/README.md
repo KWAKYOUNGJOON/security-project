@@ -1,18 +1,21 @@
-﻿# prompts(프롬프트)
+# prompts(프롬프트)
 
-Path
-- shared\prompts
+This folder is for reusable prompt text that supports structured analysis and report preparation.
 
-Description
-Reusable prompts for analysis, reporting, and future automation flows.
+## Intended use
 
-Current implementation scope
-- Web
+Prompts placed here should be:
+- reusable across engagements
+- free of customer-specific data
+- versionable in plain text or Markdown
 
-Target scope
-- Web + API + Server
+## Example future categories
 
-Notes
-- Actual folder names use English only.
-- Documentation may use the English(한글) notation.
-- Stabilize the web workflow first, then expand to API and server support.
+- finding summarization prompts
+- remediation drafting prompts
+- evidence classification prompts
+- QA review prompts
+
+## Scope note
+
+Current implementation is Web only, but prompt assets should be written so API and Server variants can be added later without renaming the existing structure.

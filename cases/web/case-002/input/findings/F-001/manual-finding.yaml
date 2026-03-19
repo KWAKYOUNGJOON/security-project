@@ -1,0 +1,49 @@
+finding_id: F-001
+target_ref: TGT-001
+taxonomy:
+  name: web-kisa-2026
+  version: "2026"
+code: AU
+title_ko: 자동화 공격
+severity: high
+finding_name: 로그인 실패 횟수 제한 미흡
+summary: 로그인 실패 횟수 제한 또는 CAPTCHA가 없어 반복 요청이 가능함
+description: 포털 로그인 기능에서 반복 인증 시도 제한이 없어 자동화 공격이 가능합니다.
+cause: 로그인 실패 횟수 제한과 CAPTCHA 정책이 부재합니다.
+affected:
+  url: https://portal.example.com/login
+  method: POST
+  parameter: null
+reproduction:
+  preconditions:
+    - 인증 전 로그인 페이지 접근 가능
+  steps:
+    - 포털 로그인 페이지 접속
+    - 동일 계정으로 반복 로그인 시도
+    - 별도 차단이 없음을 확인
+impact: 계정 존재 여부 식별 및 무차별 대입 공격 가능
+risk:
+  rationale: 인증 전 반복 요청 제한이 없어 자동화 공격 성공 가능성이 높습니다.
+  difficulty: 낮음
+  asset: 사용자 계정 및 인증 기능
+  precondition: 로그인 페이지 공개 노출
+remediation:
+  summary: 로그인 실패 횟수 제한과 CAPTCHA를 적용합니다.
+  short_term:
+    - 로그인 rate limit 적용
+    - CAPTCHA 적용
+  mid_term:
+    - 계정 잠금 정책 검토
+  long_term: []
+references:
+  - OWASP Automated Threats to Web Applications
+decision_basis: 반복 로그인 요청 시 lockout과 CAPTCHA가 동작하지 않음을 확인했습니다.
+exception_note: ""
+false_positive: false
+status: open
+owner: Portal Team
+reviewer: Example Reviewer
+notes: portal target finding
+due_date: 2026-03-27
+screenshot_captions:
+  screenshot-01.png: 포털 로그인 반복 요청 화면

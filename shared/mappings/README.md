@@ -1,18 +1,14 @@
-﻿# mappings(매핑표)
+# mappings(매핑표)
 
-Path
-- shared\mappings
+This folder stores reusable mapping data used by automation and reporting flows.
 
-Description
-Mappings such as OWASP, CWE, severity, and related reference tables.
+## Typical mapping examples
 
-Current implementation scope
-- Web
+- severity normalization maps
+- OWASP to CWE references
+- internal priority translations
+- remediation ownership categories
 
-Target scope
-- Web + API + Server
+## Phase-1 expectation
 
-Notes
-- Actual folder names use English only.
-- Documentation may use the English(한글) notation.
-- Stabilize the web workflow first, then expand to API and server support.
+For the current Web-only baseline, keep mappings small, explicit, and reviewable. If a mapping becomes shared across modules, move it here instead of duplicating it in app code.

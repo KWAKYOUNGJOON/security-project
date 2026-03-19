@@ -1,0 +1,44 @@
+{
+  "name": "web-legacy-template",
+  "version": "1.0",
+  "scope": "web",
+  "description": "Legacy code system inherited from the existing Web report template checklist.",
+  "codes": {
+    "IL": {
+      "title_ko": "정보 누출",
+      "canonical_key": "information_disclosure"
+    },
+    "AU": {
+      "title_ko": "자동화 공격",
+      "canonical_key": "automated_attack"
+    },
+    "SF": {
+      "title_ko": "세션 고정",
+      "canonical_key": "session_fixation"
+    },
+    "CI": {
+      "title_ko": "코드 인젝션",
+      "canonical_key": "code_injection"
+    },
+    "SI": {
+      "title_ko": "SQL 인젝션",
+      "canonical_key": "sql_injection"
+    },
+    "BF": {
+      "title_ko": "약한 비밀번호 정책",
+      "canonical_key": "weak_password_policy"
+    },
+    "IA": {
+      "title_ko": "불충분한 인증 절차",
+      "canonical_key": "insufficient_authentication"
+    },
+    "IN": {
+      "title_ko": "불충분한 권한 검증",
+      "canonical_key": "insufficient_authorization"
+    },
+    "IS": {
+      "title_ko": "불충분한 세션 관리",
+      "canonical_key": "insecure_session_management"
+    }
+  }
+}

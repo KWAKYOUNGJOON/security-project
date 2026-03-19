@@ -1,18 +1,24 @@
-﻿# checklists(체크리스트)
+# checklists(체크리스트)
 
-Path
-- docs\checklists
+This folder is the home for assessment checklists and review sheets.
 
-Description
-Security assessment checklists for current and future scopes.
+## Purpose
 
-Current implementation scope
-- Web
+Checklists should support repeatable execution and review across:
+- assessment preparation
+- evidence collection
+- finding validation
+- report quality review
 
-Target scope
-- Web + API + Server
+## Phase 1 focus
 
-Notes
-- Actual folder names use English only.
-- Documentation may use the English(한글) notation.
-- Stabilize the web workflow first, then expand to API and server support.
+Current implementation scope is Web only, so checklist additions should prioritize Web assessment needs first.
+
+Suggested future checklist categories:
+- `web-assessment-checklist.md`
+- `evidence-quality-checklist.md`
+- `report-review-checklist.md`
+
+## Future expansion
+
+When API and Server workflows are introduced, add separate checklist files rather than overloading a single Web-focused document.

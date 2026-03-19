@@ -1,18 +1,122 @@
-﻿# references(참고자료)
+# references 운영 가이드
 
-Path
-- docs\references
+## 1) 이 폴더의 목적
 
-Description
-Reference material such as OWASP, KISA, reporting examples, and internal notes.
+이 폴더는 보안 진단 과정에서 finding을 분류하고, 근거 문서를 연결하고, 보완권고를 일관되게 작성하기 위한 기준 문서 저장소다. 단순 참고문헌 목록이 아니라 현재 프로젝트의 Web, API, Server 진단과 보고서 작성에 공통으로 쓰는 운영 기준을 정리하는 위치로 사용한다.
 
-Current implementation scope
-- Web
+현재 범위는 모바일이 아니라 Web + API + Server다. 따라서 문서 활용 우선순위도 웹 애플리케이션, API, 서버 운영환경 순서로 두며, engagement별 증적이나 스캔 결과물 raw 파일은 이 폴더에 두지 않는다.
 
-Target scope
-- Web + API + Server
+## 2) 폴더 구조 설명
 
-Notes
-- Actual folder names use English only.
-- Documentation may use the English(한글) notation.
-- Stabilize the web workflow first, then expand to API and server support.
+```text
+references/
+├─ README.md
+├─ kisa/
+│  ├─ Javascript_시큐어코딩_가이드(2023년_개정본).pdf
+│  ├─ Python_시큐어코딩_가이드(2023년_개정본).pdf
+│  ├─ 소프트웨어_개발보안_가이드(2021.12.29).pdf
+│  ├─ 소프트웨어_보안약점_진단가이드(2021).pdf
+│  └─ 주요정보통신기반시설 기술적 취약점 분석·평가 방법 상세가이드.pdf
+└─ owasp/
+   ├─ CheatSheetSeries-master.zip
+   ├─ OWASP Top Ten 2025.pdf
+   ├─ OWASP_Application_Security_Verification_Standard_5.0.0_en.pdf
+   ├─ OWASP-Testing-Guide-v5-master.zip
+   └─ owasp-api-security-top-10.pdf
+```
+
+`kisa` 폴더는 국내 기준, 진단 관점, 시큐어코딩 기준을 정리할 때 우선 참조하는 문서 모음이다. `owasp` 폴더는 국제 공통 분류체계, 검증 기준, 테스트 가이드, 치트시트 원문을 관리하는 위치다.
+
+## 3) KISA 문서 목록과 각 문서의 활용 목적
+
+- `소프트웨어_개발보안_가이드(2021.12.29).pdf`
+  개발보안 프로세스와 통제 항목을 설명하는 기준 문서로 분류한다. 설계, 구현, 검토 단계에서 어떤 보안 통제가 빠졌는지 서술할 때 근거 문서로 쓰고, 보완권고를 개발 프로세스 개선 관점으로 정리할 때 유용하다.
+
+- `소프트웨어_보안약점_진단가이드(2021).pdf`
+  국내 소프트웨어 취약점 진단 기준서로 분류한다. finding 명칭을 정리하거나 국내 기준 기반의 점검 항목 설명이 필요할 때 우선 참조하며, 웹과 서버 항목을 국내 실무 용어로 정리할 때 기준점으로 사용한다.
+
+- `주요정보통신기반시설 기술적 취약점 분석·평가 방법 상세가이드.pdf`
+  서버, 시스템, 운영환경, 인프라 점검 관점의 상세 가이드로 분류한다. 애플리케이션 코드 이슈보다 서버 설정, 서비스 노출, 계정, 패치, 접근통제, 로그 관리 같은 운영 영역 finding을 작성할 때 근거로 사용한다.
+
+- `Javascript_시큐어코딩_가이드(2023년_개정본).pdf`
+  JavaScript 구현 수준의 보안 코딩 기준서로 분류한다. 프론트엔드 또는 Node.js 계열 코드에서 입력값 검증, DOM 처리, 인증정보 노출, 위험한 함수 사용 여부를 점검한 뒤 구체적인 수정 방향을 제시할 때 사용한다.
+
+- `Python_시큐어코딩_가이드(2023년_개정본).pdf`
+  Python 구현 수준의 보안 코딩 기준서로 분류한다. API 서버나 백엔드 로직에서 입력 처리, 명령 실행, 파일 처리, 직렬화, 예외 처리, 비밀정보 관리 이슈를 보완권고로 연결할 때 직접 참조하기 좋다.
+
+## 4) OWASP 문서 목록과 각 문서의 활용 목적
+
+- `OWASP Top Ten 2025.pdf`
+  웹 애플리케이션 주요 위험 범주를 정리하는 상위 taxonomy 문서로 분류한다. 현재 프로젝트의 Web finding을 대분류로 묶을 때 가장 먼저 참조하며, 보고서 요약본이나 경영진 관점 설명에도 연결하기 쉽다.
+
+- `OWASP_Application_Security_Verification_Standard_5.0.0_en.pdf`
+  애플리케이션 보안 검증 요구사항 표준으로 분류한다. finding을 단순 취약점 나열이 아니라 "어떤 보안 검증 요구가 충족되지 않았는가" 형태로 정리할 때 유용하며, 재현 결과를 통제 항목과 연결하는 데 적합하다.
+
+- `owasp-api-security-top-10.pdf`
+  API 전용 위험 분류 기준 문서로 분류한다. 인증, 인가, 객체 수준 권한검사, 과도한 데이터 노출, 리소스 소비 같은 API 성격의 finding을 웹 이슈와 분리해 정리할 때 1차 기준으로 사용한다.
+
+- `CheatSheetSeries-master.zip`
+  OWASP 치트시트 원문 압축본으로 분류한다. 일상적인 finding 분류 기준이라기보다 보완권고를 구체화할 때 참고하는 raw 원문 저장 자산이며, 필요 시 압축 해제 후 관련 치트시트를 찾아 구현 예시나 운영 체크리스트로 연결한다.
+
+- `OWASP-Testing-Guide-v5-master.zip`
+  OWASP 테스트 가이드 원문 압축본으로 분류한다. 테스트 절차와 검증 포인트를 세분화할 때 참고하는 raw 원문 저장 자산이며, 현재 확인된 압축 내부에도 `Testing_for_APIs.md` 같은 세부 문서가 포함되어 있어 API 및 웹 테스트 시나리오 확장에 직접 활용할 수 있다.
+
+## 5) 현재 프로젝트(Web + API + Server) 기준 우선순위
+
+1. Web 우선
+   `OWASP Top Ten 2025.pdf`를 대분류 기준으로 두고, 세부 통제 근거는 `OWASP_Application_Security_Verification_Standard_5.0.0_en.pdf`로 연결한다. 구현 수준 보완이 필요하면 `Javascript_시큐어코딩_가이드(2023년_개정본).pdf`와 `CheatSheetSeries-master.zip`을 보조 참조로 사용한다.
+
+2. API 동시 관리
+   API finding은 `owasp-api-security-top-10.pdf`를 1차 기준으로 삼는다. 테스트 절차 세분화가 필요하면 `OWASP-Testing-Guide-v5-master.zip`의 API 관련 문서를 확인하고, 백엔드 구현 보완은 `Python_시큐어코딩_가이드(2023년_개정본).pdf` 또는 JavaScript 가이드를 연결한다.
+
+3. Server는 보조 축이지만 별도 관리
+   서버 설정, 계정, 포트 노출, 패치, 로그, 접근통제 이슈는 `주요정보통신기반시설 기술적 취약점 분석·평가 방법 상세가이드.pdf`와 `소프트웨어_보안약점_진단가이드(2021).pdf`를 중심으로 정리한다. 서버 이슈는 애플리케이션 취약점과 섞지 말고 운영환경 취약점으로 별도 분류하는 것이 좋다.
+
+모바일은 현재 범위가 아니므로 모바일 전용 체크리스트나 모바일 Top 10 문서는 이 README의 우선순위에서 제외한다.
+
+## 6) 자동화 관점에서 어떻게 참조할지
+
+### finding 분류 기준
+
+1. 웹 화면, 세션, 브라우저 흐름, 폼 처리, 파일 업로드, XSS, CSRF, 인증 우회 등은 `OWASP Top Ten 2025.pdf`를 1차 분류 기준으로 사용한다.
+2. 엔드포인트, 토큰, 객체 ID, 스키마, 데이터 과다 노출, 속도 제한, 인가 검증 부족 등은 `owasp-api-security-top-10.pdf`를 1차 분류 기준으로 사용한다.
+3. 보안 통제 요구사항까지 연결해야 하는 finding은 `OWASP_Application_Security_Verification_Standard_5.0.0_en.pdf`로 2차 매핑한다.
+4. 언어 구현 결함은 `Javascript_시큐어코딩_가이드(2023년_개정본).pdf` 또는 `Python_시큐어코딩_가이드(2023년_개정본).pdf`를 선택해 코드 레벨 근거를 붙인다.
+5. 서버, 운영체제, 미들웨어, 계정, 서비스 설정 이슈는 `주요정보통신기반시설 기술적 취약점 분석·평가 방법 상세가이드.pdf`를 우선 사용하고, 필요 시 `소프트웨어_보안약점_진단가이드(2021).pdf`를 함께 본다.
+
+자동화 스크립트나 LLM이 finding을 생성할 때는 문서명을 일반화하지 말고 실제 파일명을 그대로 남기는 것이 좋다. 예를 들어 "OWASP 기준"이라고 뭉뚱그리지 말고 `OWASP Top Ten 2025.pdf` 또는 `OWASP_Application_Security_Verification_Standard_5.0.0_en.pdf`처럼 파일 단위로 추적 가능하게 기록한다.
+
+### 대응방안/보완권고 작성 기준
+
+1. 보완권고 초안은 "원인", "영향", "권고", "검증 방법", "참고 기준 문서"의 다섯 요소를 기본 틀로 삼는다.
+2. 원인 설명은 서비스 구조를 기준으로 작성하고, 권고 문구는 해당 기준 문서의 통제 취지에 맞춰 재서술한다. 문장만 추상적으로 복사하지 말고 현재 애플리케이션 구조, 인증 방식, 배포 방식, 언어 스택에 맞게 구체화해야 한다.
+3. 구현 예시나 세부 조치가 필요하면 `CheatSheetSeries-master.zip`과 언어별 시큐어코딩 가이드를 우선 참조한다. 분류 문서와 구현 가이드를 분리해서 쓰면 권고가 더 실무적으로 정리된다.
+4. 서버 보완권고는 애플리케이션 수정과 운영환경 조치를 분리해 작성한다. 예를 들어 코드 수정 사항과 설정 변경 사항을 같은 문단에 혼합하지 않는 것이 좋다.
+
+### 웹/API/서버 확장 시 참고 위치
+
+- Web 범위가 확장되면 `OWASP Top Ten 2025.pdf`와 `OWASP_Application_Security_Verification_Standard_5.0.0_en.pdf`를 기준 축으로 유지한다.
+- API 범위가 커지면 `owasp-api-security-top-10.pdf`와 `OWASP-Testing-Guide-v5-master.zip`의 API 관련 문서를 먼저 확인한다.
+- Server 범위가 커지면 `주요정보통신기반시설 기술적 취약점 분석·평가 방법 상세가이드.pdf`를 중심으로 운영환경 점검 항목을 세분화한다.
+- 언어 스택이 JavaScript 또는 Python 중심으로 확장되면 각 시큐어코딩 가이드를 보완권고 템플릿과 직접 연결한다.
+
+## 7) 운영 원칙
+
+1. 원본 문서는 수정하지 않는다.
+   PDF와 ZIP은 원문 보관 자산으로 취급하며, 파일명 변경이나 내용 수정 없이 유지한다. 필요한 설명이나 분류는 이 `README.md` 또는 별도 파생 문서에서 관리한다.
+
+2. 새 문서 추가 시 `README.md`도 함께 갱신한다.
+   파일만 추가하고 운영 기준 문서가 갱신되지 않으면 자동화와 보고서 작성에서 참조 기준이 흔들린다. 새 파일이 들어오면 최소한 문서 성격, 활용 목적, 우선순위 반영 여부를 같이 기록한다.
+
+3. 중복 파일은 목적 없이 누적하지 않는다.
+   동일 문서의 언어판, 연도별 판본, 중복 다운로드본이 생기면 어떤 파일을 기준본으로 쓸지 명확히 정해야 한다. 유지 이유가 없는 중복은 정리하고, 병행 보관이 필요하면 README에 이유를 남긴다.
+
+4. 압축파일과 raw 원문은 "보관용"과 "활용용"을 구분한다.
+   현재의 `CheatSheetSeries-master.zip`과 `OWASP-Testing-Guide-v5-master.zip`은 raw 원문 보관본으로 본다. 압축 해제본이나 가공본이 필요하면 원본 ZIP은 그대로 두고 별도 파생 위치를 만든 뒤, README에 추가된 위치와 목적을 명시한다.
+
+5. engagement별 산출물은 이 폴더에 두지 않는다.
+   스캔 결과, 캡처 이미지, 개별 고객 환경 증적, 임시 노트는 기준 문서와 분리해야 한다. 이 폴더는 재사용 가능한 기준 문서만 관리하는 것을 원칙으로 한다.
+
+## 추천 다음 단계
+
+`OWASP Top Ten 2025.pdf`와 `owasp-api-security-top-10.pdf`를 기준으로 finding taxonomy를 먼저 고정하는 것이 좋다. 그 다음 `OWASP_Application_Security_Verification_Standard_5.0.0_en.pdf`로 control mapping을 붙이고, 실제 보완권고 템플릿은 `CheatSheetSeries-master.zip`과 `Javascript_시큐어코딩_가이드(2023년_개정본).pdf`, `Python_시큐어코딩_가이드(2023년_개정본).pdf`를 묶어 remediation template로 정리하면 운영 효율이 높다.

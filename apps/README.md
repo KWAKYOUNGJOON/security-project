@@ -1,18 +1,12 @@
-﻿# apps(앱)
+# apps(앱)
 
-Path
-- apps
+Executable components for the security assessment workspace.
 
-Description
-Executable project components, including report-template and report-automation.
+## Current apps
 
-Current implementation scope
-- Web
+- `report-template/`: existing Web report rendering assets and tests
+- `report-automation/`: minimal Python automation scaffold for report payload preparation
 
-Target scope
-- Web + API + Server
+## Design rule
 
-Notes
-- Actual folder names use English only.
-- Documentation may use the English(한글) notation.
-- Stabilize the web workflow first, then expand to API and server support.
+Keep rendering logic and automation logic separate. The current Web workflow depends on both apps, but they serve different roles and should stay loosely coupled.

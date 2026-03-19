@@ -1,18 +1,17 @@
-﻿# engagements(진단건)
+# engagements(진단건)
 
-Path
-- engagements
+Per-target assessment workspaces.
 
-Description
-Per-target workspaces for scoped assessments, evidence, and reports.
+## Usage
 
-Current implementation scope
-- Web
+Each engagement folder should keep the operational record for a single assessment:
+- scope
+- targets
+- recon notes
+- raw and normalized scans
+- evidence
+- findings
+- report drafts and finals
+- working notes
 
-Target scope
-- Web + API + Server
-
-Notes
-- Actual folder names use English only.
-- Documentation may use the English(한글) notation.
-- Stabilize the web workflow first, then expand to API and server support.
+Use `sample-folder/` as the starting pattern for phase-1 Web engagements.

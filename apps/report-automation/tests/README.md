@@ -1,18 +1,11 @@
-﻿# tests(테스트)
+# tests(테스트)
 
-Path
-- apps\report-automation\tests
+Automation tests for the phase-1 report pipeline.
 
-Description
-Tests for parsing, normalization, generation, and integration stability.
+## Current test
 
-Current implementation scope
-- Web
+- `test_smoke.py`: verifies that the local CLI and the end-to-end pipeline run successfully without external services
 
-Target scope
-- Web + API + Server
+## Guidance
 
-Notes
-- Actual folder names use English only.
-- Documentation may use the English(한글) notation.
-- Stabilize the web workflow first, then expand to API and server support.
+Keep tests lightweight, deterministic, and dependency-free during phase 1.

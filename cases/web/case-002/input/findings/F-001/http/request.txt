@@ -1,0 +1,5 @@
+POST /login HTTP/1.1
+Host: portal.example.com
+Content-Type: application/x-www-form-urlencoded
+
+username=test@example.com&password=wrong-password

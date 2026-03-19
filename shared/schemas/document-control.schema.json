@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Document Control Input",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "document_control"
+  ],
+  "properties": {
+    "document_control": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "history": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "version",
+              "date",
+              "author",
+              "change"
+            ],
+            "properties": {
+              "version": {
+                "type": "string"
+              },
+              "date": {
+                "type": "string"
+              },
+              "author": {
+                "type": "string"
+              },
+              "change": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "approvals": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "role",
+              "name",
+              "status"
+            ],
+            "properties": {
+              "role": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "note": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

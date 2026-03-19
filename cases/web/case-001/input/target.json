@@ -1,0 +1,8 @@
+{
+  "case_id": "web-case-001",
+  "service_name": "예시 서비스명",
+  "base_url": "https://example.com",
+  "target_url": "https://example.com/login",
+  "environment": "staging",
+  "auth_context": "unauthenticated"
+}

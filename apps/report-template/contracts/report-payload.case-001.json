@@ -1,0 +1,304 @@
+{
+  "document": {
+    "title": "웹 취약점 진단 결과 보고서",
+    "version": "v1.0",
+    "date": "2026-03-19",
+    "classification": "internal"
+  },
+  "document_control": {
+    "history": [
+      {
+        "version": "v1.0",
+        "date": "2026-03-19",
+        "author": "홍길동",
+        "change": "초안 작성"
+      }
+    ],
+    "approvals": [
+      {
+        "role": "작성",
+        "name": "홍길동",
+        "status": "작성 완료",
+        "note": "Analyst"
+      }
+    ]
+  },
+  "engagement": {
+    "project_name": "phase-1 web sample",
+    "customer_name": "Example Customer",
+    "scope_type": "web",
+    "targets": [
+      {
+        "target_id": null,
+        "service_name": "예시 서비스명",
+        "base_url": "https://example.com",
+        "account_level": "unauthenticated",
+        "criticality": null,
+        "note": "sample target",
+        "environment": "staging",
+        "auth_context": "unauthenticated"
+      }
+    ],
+    "schedule": [
+      {
+        "phase": "정보 수집",
+        "date": "2026-03-18",
+        "deliverable": "대상 정보 정리",
+        "content": "대상 URL 및 진단 조건 확인"
+      },
+      {
+        "phase": "웹 취약점 진단",
+        "date": "2026-03-19",
+        "deliverable": "취약점 재현 및 보고서 초안",
+        "content": "수동 검증과 증빙 수집 수행"
+      }
+    ],
+    "team": [
+      {
+        "company": "Example Security",
+        "name": "홍길동",
+        "role": "Analyst",
+        "scope": "수동 검증 및 결과 분석",
+        "contact": "analyst@example.com"
+      }
+    ],
+    "location": {
+      "name": "Seoul",
+      "address": "Seoul, Republic of Korea",
+      "ip": "-",
+      "access_method": "local file based evidence",
+      "note": "로컬 증빙 기준 샘플 케이스"
+    }
+  },
+  "overview": {
+    "purpose_text": "본 웹 취약점 진단은 Example Customer의 phase-1 web sample 서비스에 대한 보안 위험을 식별하기 위해 수행되었습니다.",
+    "purpose_note": "고객사와 합의된 Web 범위만 수동 검증 대상으로 포함합니다.",
+    "constraints": {
+      "assumptions": "staging 환경과 비인가 상태를 기준으로 점검을 수행했습니다.",
+      "assumptions_status": "적용",
+      "exclusions": "운영 시스템 및 Web 외 범위는 제외했습니다.",
+      "exclusions_status": "적용",
+      "limitations": "외부 SaaS/API 호출 없이 로컬 파일 기반 증빙만 사용했습니다.",
+      "limitations_status": "적용"
+    },
+    "scope": {
+      "type": "웹 애플리케이션 취약점 진단",
+      "method": "수동 분석 기반 검증",
+      "account_condition": "unauthenticated",
+      "environment": "staging"
+    }
+  },
+  "tool_inventory": [],
+  "summary": {
+    "total_findings": 1,
+    "by_severity": {
+      "high": 1,
+      "medium": 0,
+      "low": 0
+    },
+    "by_target": [
+      {
+        "target_id": null,
+        "system_name": "예시 서비스명",
+        "target_url": "https://example.com",
+        "total_findings": 1,
+        "high": 1,
+        "medium": 0,
+        "low": 0
+      }
+    ],
+    "comment": "총 1건의 취약점이 발견되었으며, 대상은 1개 시스템입니다.",
+    "priorities": [
+      {
+        "rank": "1순위",
+        "management_id": "VUL-001",
+        "title": "로그인 실패 횟수 제한 미흡",
+        "severity": "high",
+        "owner": null,
+        "due_date": null
+      }
+    ]
+  },
+  "target_sections": [
+    {
+      "target_id": null,
+      "system_name": "예시 서비스명",
+      "target_url": "https://example.com",
+      "total_findings": 1,
+      "by_severity": {
+        "high": 1,
+        "medium": 0,
+        "low": 0
+      },
+      "findings": [
+        {
+          "management_id": "VUL-001",
+          "finding_name": "로그인 실패 횟수 제한 미흡",
+          "code": "AU",
+          "severity": "high",
+          "status": "미조치"
+        }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "management_id": "VUL-001",
+      "taxonomy": {
+        "name": "web-kisa-2026",
+        "version": "2026"
+      },
+      "canonical_key": "automated_attack",
+      "target_id": null,
+      "system_name": "예시 서비스명",
+      "target_url": "https://example.com",
+      "finding_name": "로그인 실패 횟수 제한 미흡",
+      "code": "AU",
+      "severity": "high",
+      "result": "취약",
+      "affected_url": "https://example.com/login",
+      "summary": "로그인 실패 횟수 제한 또는 CAPTCHA가 없어 반복 요청이 가능함",
+      "description": "로그인 기능에서 반복 인증 시도에 대한 제한이 없어 자동화 공격이 가능합니다.\n\nAuthentication endpoint accepted repeated failed login attempts without throttling.\n\nNo CAPTCHA or account lockout was observed after repeated failures.",
+      "cause": "로그인 실패 횟수 제한, CAPTCHA, 계정 잠금 정책이 부재합니다.\n\nNo CAPTCHA or account lockout was observed after repeated failures.",
+      "impact": "계정 존재 여부 식별 및 무차별 대입 공격 가능",
+      "risk_rationale": "인증 없이 접근 가능한 로그인 기능에서 반복 요청 제한이 없어 자동화 공격 성공 가능성이 높습니다.",
+      "risk_difficulty": "낮음",
+      "risk_asset": "인증 기능 및 사용자 계정",
+      "risk_precondition": "비인가 상태에서 로그인 페이지 접근 가능",
+      "repro_parameters": "-",
+      "repro_request": "POST /login HTTP/1.1 / Host: example.com / Content-Type: application/x-www-form-urlencoded / Body: username=test@example.com&password=wrong-password",
+      "repro_response": "HTTP/1.1 200 OK / Content-Type: application/json / Body: {\"message\":\"Invalid username or password\",\"captchaRequired\":false,\"lockout\":false}",
+      "reproduction_steps": [
+        "로그인 페이지 접속",
+        "반복 로그인 시도",
+        "통제 부재 확인"
+      ],
+      "preconditions": [
+        "비인가 상태 접근 가능"
+      ],
+      "evidence": [
+        {
+          "finding_id": "VUL-001",
+          "type": "request",
+          "label": "HTTP Request",
+          "path": "cases/web/case-001/input/http/request.txt",
+          "caption": "재현 요청 전문",
+          "sha256": "0e3481b5e50e700a5529d81466c0a2857c25cf6c9b3788c85098ec72344ec61b"
+        },
+        {
+          "finding_id": "VUL-001",
+          "type": "response",
+          "label": "HTTP Response",
+          "path": "cases/web/case-001/input/http/response.txt",
+          "caption": "재현 응답 전문",
+          "sha256": "d6294e1c5263ceddf52efede48940e36fd55da45649595c2146487d4b9dcb4fb"
+        },
+        {
+          "finding_id": "VUL-001",
+          "type": "screenshot",
+          "label": "로그인 반복 요청 화면",
+          "path": "cases/web/case-001/input/evidence/screenshot-01.png",
+          "caption": "로그인 반복 요청 화면",
+          "sha256": "737238a1dfb461721c4e4f2c9dcf4fa25e01519bccd2feb9d8bea79f4c070e39"
+        },
+        {
+          "finding_id": "VUL-001",
+          "type": "screenshot",
+          "label": "응답 결과 확인 화면",
+          "path": "cases/web/case-001/input/evidence/screenshot-02.png",
+          "caption": "응답 결과 확인 화면",
+          "sha256": "c36122c040f7bc2f061c06f12ec69311ea63bc3bb60864098eb4dfa354f51a01"
+        }
+      ],
+      "remediation": [
+        "rate limit 적용",
+        "CAPTCHA 또는 2차 검증 적용",
+        "계정 잠금 정책 검토"
+      ],
+      "references": [
+        "OWASP Automated Threats to Web Applications",
+        "내부 점검 코드 AU"
+      ],
+      "status": "미조치",
+      "found_at": "2026.03.19",
+      "due_date": null,
+      "owner": null,
+      "reviewer": null,
+      "notes": "로컬 샘플 케이스",
+      "false_positive": false,
+      "decision_basis": "반복 로그인 시도 시 별도의 CAPTCHA 또는 계정 잠금 정책이 동작하지 않음을 확인했습니다.",
+      "exception_note": "",
+      "request_file": "cases/web/case-001/input/http/request.txt",
+      "request_file_sha256": "0e3481b5e50e700a5529d81466c0a2857c25cf6c9b3788c85098ec72344ec61b",
+      "response_file": "cases/web/case-001/input/http/response.txt",
+      "response_file_sha256": "d6294e1c5263ceddf52efede48940e36fd55da45649595c2146487d4b9dcb4fb",
+      "source": {
+        "tool": "HexStrike",
+        "parser": "web_hexstrike",
+        "raw_file": "cases/web/case-001/input/raw/hexstrike-result.json",
+        "raw_file_sha256": "424cd452842bd326bbcc753c457f60741bd1a86c24955bfb53804001ad95386d",
+        "manual_finding_file": "cases/web/case-001/input/manual-finding.yaml",
+        "manual_finding_sha256": "5b92360d63e09717050e5597c6f8b014d84960b24c59ce1f06ddfccf7f15d65f"
+      }
+    }
+  ],
+  "remediation_plan": {
+    "short_term": [
+      "rate limit 적용",
+      "CAPTCHA 또는 2차 검증 적용",
+      "계정 잠금 정책 검토"
+    ],
+    "mid_term": [],
+    "long_term": []
+  },
+  "appendix": {
+    "evidence": [
+      {
+        "finding_id": "VUL-001",
+        "type": "request",
+        "label": "HTTP Request",
+        "path": "cases/web/case-001/input/http/request.txt",
+        "caption": "재현 요청 전문",
+        "sha256": "0e3481b5e50e700a5529d81466c0a2857c25cf6c9b3788c85098ec72344ec61b"
+      },
+      {
+        "finding_id": "VUL-001",
+        "type": "response",
+        "label": "HTTP Response",
+        "path": "cases/web/case-001/input/http/response.txt",
+        "caption": "재현 응답 전문",
+        "sha256": "d6294e1c5263ceddf52efede48940e36fd55da45649595c2146487d4b9dcb4fb"
+      },
+      {
+        "finding_id": "VUL-001",
+        "type": "screenshot",
+        "label": "로그인 반복 요청 화면",
+        "path": "cases/web/case-001/input/evidence/screenshot-01.png",
+        "caption": "로그인 반복 요청 화면",
+        "sha256": "737238a1dfb461721c4e4f2c9dcf4fa25e01519bccd2feb9d8bea79f4c070e39"
+      },
+      {
+        "finding_id": "VUL-001",
+        "type": "screenshot",
+        "label": "응답 결과 확인 화면",
+        "path": "cases/web/case-001/input/evidence/screenshot-02.png",
+        "caption": "응답 결과 확인 화면",
+        "sha256": "c36122c040f7bc2f061c06f12ec69311ea63bc3bb60864098eb4dfa354f51a01"
+      }
+    ],
+    "checklist": [
+      {
+        "taxonomy": {
+          "name": "web-kisa-2026",
+          "version": "2026"
+        },
+        "code": "AU",
+        "title_ko": "자동화 공격",
+        "severity": "high",
+        "canonical_key": "automated_attack",
+        "status": "취약",
+        "finding_id": "VUL-001"
+      }
+    ]
+  }
+}

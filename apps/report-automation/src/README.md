@@ -1,18 +1,17 @@
-﻿# src(소스코드)
+# src(소스코드)
 
-Path
-- apps\report-automation\src
+Source code for the phase-1 report automation pipeline.
 
-Description
-Primary source code for the automation workflow.
+## Pipeline stages
 
-Current implementation scope
-- Web
+- `collectors/`: fetch or assemble source snapshots
+- `parsers/`: translate raw source payloads into structured records
+- `normalizers/`: reshape records into a stable internal finding model
+- `enrichers/`: add reporting metadata such as severity mapping
+- `generators/`: build report-ready payloads
+- `integrations/`: adapter modules for external systems
+- `cli/`: local command-line entry points
 
-Target scope
-- Web + API + Server
+## Current status
 
-Notes
-- Actual folder names use English only.
-- Documentation may use the English(한글) notation.
-- Stabilize the web workflow first, then expand to API and server support.
+The current implementation is intentionally minimal and Web-only. It exists to prove the local pipeline shape without introducing external dependencies or pretending that production integrations already exist.

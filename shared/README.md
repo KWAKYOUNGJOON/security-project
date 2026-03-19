@@ -1,18 +1,14 @@
-﻿# shared(공통자원)
+# shared(공통자원)
 
-Path
-- shared
+Reusable repository assets shared across apps and workflows.
 
-Description
-Shared resources used by multiple apps and workflows.
+## Current shared areas
 
-Current implementation scope
-- Web
+- `schemas/`: canonical data shape guidance
+- `mappings/`: classification and reference mappings
+- `prompts/`: reusable prompt assets
+- `utils/`: shared helper code when reuse is justified
 
-Target scope
-- Web + API + Server
+## Rule
 
-Notes
-- Actual folder names use English only.
-- Documentation may use the English(한글) notation.
-- Stabilize the web workflow first, then expand to API and server support.
+Only place reusable material here. Engagement-specific evidence, outputs, or notes should stay in `engagements/`.

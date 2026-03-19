@@ -1,0 +1,15 @@
+{
+  "project_name": "security-project",
+  "current_scope": "web",
+  "target_scope": [
+    "web",
+    "api",
+    "server"
+  ],
+  "primary_integration": "HexStrike-AI",
+  "integration": {
+    "base_url": "stub://hexstrike-ai",
+    "project_key": "sample-web-engagement",
+    "use_live_service": false
+  }
+}

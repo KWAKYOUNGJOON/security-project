@@ -1,0 +1,413 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Normalized Web Finding",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "finding_id",
+    "platform",
+    "title",
+    "target",
+    "source",
+    "classification",
+    "summary",
+    "description",
+    "cause",
+    "affected",
+    "evidence",
+    "reproduction",
+    "impact",
+    "risk",
+    "remediation",
+    "references",
+    "status",
+    "false_positive",
+    "unmapped_fields"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "finding_id": {
+      "type": "string"
+    },
+    "platform": {
+      "type": "string",
+      "const": "web"
+    },
+    "title": {
+      "type": "string"
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "case_id",
+        "target_id",
+        "service_name",
+        "base_url",
+        "target_url",
+        "environment",
+        "auth_context"
+      ],
+      "properties": {
+        "case_id": {
+          "type": "string"
+        },
+        "target_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "service_name": {
+          "type": "string"
+        },
+        "base_url": {
+          "type": "string"
+        },
+        "target_url": {
+          "type": "string"
+        },
+        "environment": {
+          "type": "string"
+        },
+        "auth_context": {
+          "type": "string"
+        },
+        "criticality": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tool",
+        "raw_file",
+        "raw_file_sha256",
+        "manual_finding_file",
+        "manual_finding_sha256",
+        "parser",
+        "raw"
+      ],
+      "properties": {
+        "tool": {
+          "type": "string"
+        },
+        "raw_file": {
+          "type": "string"
+        },
+        "raw_file_sha256": {
+          "type": "string"
+        },
+        "manual_finding_file": {
+          "type": "string"
+        },
+        "manual_finding_sha256": {
+          "type": "string"
+        },
+        "parser": {
+          "type": "string"
+        },
+        "raw": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "classification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "taxonomy",
+        "code",
+        "title_ko",
+        "severity",
+        "canonical_key"
+      ],
+      "properties": {
+        "taxonomy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "version"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            }
+          }
+        },
+        "code": {
+          "type": "string"
+        },
+        "title_ko": {
+          "type": "string"
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ]
+        },
+        "canonical_key": {
+          "type": "string"
+        }
+      }
+    },
+    "summary": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "cause": {
+      "type": "string"
+    },
+    "affected": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "system_name",
+        "url",
+        "method",
+        "parameter"
+      ],
+      "properties": {
+        "system_name": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string"
+        },
+        "parameter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "request_file",
+        "request_file_sha256",
+        "response_file",
+        "response_file_sha256",
+        "screenshots"
+      ],
+      "properties": {
+        "request_file": {
+          "type": "string"
+        },
+        "request_file_sha256": {
+          "type": "string"
+        },
+        "response_file": {
+          "type": "string"
+        },
+        "response_file_sha256": {
+          "type": "string"
+        },
+        "screenshots": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "file",
+              "caption",
+              "sha256"
+            ],
+            "properties": {
+              "file": {
+                "type": "string"
+              },
+              "caption": {
+                "type": "string"
+              },
+              "sha256": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "reproduction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "preconditions",
+        "steps",
+        "request_summary",
+        "response_summary"
+      ],
+      "properties": {
+        "preconditions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "request_summary": {
+          "type": "string"
+        },
+        "response_summary": {
+          "type": "string"
+        }
+      }
+    },
+    "impact": {
+      "type": "string"
+    },
+    "risk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rationale",
+        "difficulty",
+        "asset",
+        "precondition"
+      ],
+      "properties": {
+        "rationale": {
+          "type": "string"
+        },
+        "difficulty": {
+          "type": "string"
+        },
+        "asset": {
+          "type": "string"
+        },
+        "precondition": {
+          "type": "string"
+        }
+      }
+    },
+    "remediation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "summary",
+        "actions",
+        "short_term",
+        "mid_term",
+        "long_term"
+      ],
+      "properties": {
+        "summary": {
+          "type": "string"
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "short_term": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "mid_term": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "long_term": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "references": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "decision_basis": {
+      "type": "string"
+    },
+    "exception_note": {
+      "type": "string"
+    },
+    "false_positive": {
+      "type": "boolean"
+    },
+    "status": {
+      "type": "string"
+    },
+    "owner": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "reviewer": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "due_date": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "notes": {
+      "type": "string"
+    },
+    "unmapped_fields": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "root",
+        "finding"
+      ],
+      "properties": {
+        "root": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "finding": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    }
+  }
+}

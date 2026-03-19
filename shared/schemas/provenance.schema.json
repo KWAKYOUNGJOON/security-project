@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Case Provenance Ledger",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "case_id",
+    "generated_at",
+    "inputs",
+    "outputs"
+  ],
+  "properties": {
+    "case_id": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "role",
+          "path",
+          "sha256"
+        ],
+        "properties": {
+          "role": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "finding_key": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "sha256"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

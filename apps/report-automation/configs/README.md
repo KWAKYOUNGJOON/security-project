@@ -1,18 +1,11 @@
-﻿# configs(설정파일)
+# configs(설정파일)
 
-Path
-- apps\report-automation\configs
+Configuration files for the report automation scaffold.
 
-Description
-Configuration files for profiles, severity rules, targets, and paths.
+## Current file
 
-Current implementation scope
-- Web
+- `default.yaml`: default local configuration for the phase-1 Web pipeline
 
-Target scope
-- Web + API + Server
+## Format note
 
-Notes
-- Actual folder names use English only.
-- Documentation may use the English(한글) notation.
-- Stabilize the web workflow first, then expand to API and server support.
+The phase-1 config is stored as JSON-compatible YAML so it can be loaded with the Python standard library only.

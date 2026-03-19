@@ -1,0 +1,4 @@
+GET /debug?debug=true HTTP/1.1
+Host: portal.example.com
+Accept: application/json
+

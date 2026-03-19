@@ -1,0 +1,7 @@
+POST /login HTTP/1.1
+Host: example.com
+User-Agent: HexStrike/2026.03
+Content-Type: application/x-www-form-urlencoded
+Accept: application/json
+
+username=test@example.com&password=wrong-password

@@ -1,18 +1,14 @@
-﻿# architecture(구조설계)
+# architecture(구조설계)
 
-Path
-- docs\architecture
+Architecture notes for the security assessment workspace.
 
-Description
-Architecture decisions, folder policies, data flow, and design notes.
+## Key documents
 
-Current implementation scope
-- Web
+- [project-overview.md](project-overview.md): explains the current Web-only phase-1 baseline and the long-term expansion path
+- [folder-policy.md](folder-policy.md): defines what belongs in each major repository area
 
-Target scope
-- Web + API + Server
+## Direction
 
-Notes
-- Actual folder names use English only.
-- Documentation may use the English(한글) notation.
-- Stabilize the web workflow first, then expand to API and server support.
+- Keep the current implementation stable for Web engagements.
+- Separate rendering concerns from automation concerns.
+- Expand toward API and Server support by adding new modules and data definitions instead of overloading the Web path.

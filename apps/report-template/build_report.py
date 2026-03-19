@@ -1767,11 +1767,179 @@ def render_checklist_item_rows(dataset: dict[str, object]) -> str:
                     "risk_label": item.get("risk_label", ""),
                     "risk_badge_class": risk_badge_class(risk_key),
                     "result_field": sanitize_data_field(f"checklist.result.{raw_text(item.get('code')).lower()}"),
-                    "result_text": "[양호/취약/해당없음]",
+                    "result_text": item.get("result_text", "[양호/취약/해당없음]"),
                 },
             )
         )
     return "\n".join(rows)
+
+
+def dataset_lookup(dataset: dict[str, object], path: str, default: object = "") -> object:
+    current: object = dataset
+    for key in path.split("."):
+        if isinstance(current, dict):
+            if key not in current:
+                return default
+            current = current[key]
+            continue
+        if isinstance(current, list) and key.isdigit():
+            index = int(key)
+            if index >= len(current):
+                return default
+            current = current[index]
+            continue
+        return default
+    return current
+
+
+def render_dataset_text(dataset: dict[str, object], path: str, default: object = "") -> str:
+    return escape_html_text(dataset_lookup(dataset, path, default))
+
+
+def render_document_history_rows(dataset: dict[str, object]) -> str:
+    rows: list[str] = []
+    history_rows = dataset_lookup(dataset, "document.history", [])
+    for item in history_rows if isinstance(history_rows, list) else []:
+        rows.append(
+            f"""<tr class="auto-repeat" data-repeat="document-history">
+            <td align="center" class="auto-field">{escape_html_text(item.get('version', ''))}</td>
+            <td align="center" class="auto-field">{escape_html_text(item.get('date', ''))}</td>
+            <td align="center" class="auto-field">{escape_html_text(item.get('author', ''))}</td>
+            <td class="auto-field">{escape_html_text(item.get('change_log', ''))}</td>
+          </tr>"""
+        )
+    return "\n".join(rows)
+
+
+def render_approval_line_rows(dataset: dict[str, object]) -> str:
+    rows: list[str] = []
+    approval_rows = dataset_lookup(dataset, "document.approvals", [])
+    for item in approval_rows if isinstance(approval_rows, list) else []:
+        rows.append(
+            f"""<tr class="auto-repeat" data-repeat="approval-line">
+            <td align="center">{escape_html_text(item.get('kind', ''))}</td>
+            <td align="center" class="auto-field">{escape_html_text(item.get('department', ''))}</td>
+            <td align="center" class="auto-field">{escape_html_text(item.get('name', ''))}</td>
+            <td align="center" class="auto-field">{escape_html_text(item.get('status', ''))}</td>
+            <td class="auto-field">{escape_html_text(item.get('note', ''))}</td>
+          </tr>"""
+        )
+    return "\n".join(rows)
+
+
+def render_target_system_rows(dataset: dict[str, object]) -> str:
+    rows: list[str] = []
+    targets = dataset_lookup(dataset, "engagement.targets", [])
+    for index, item in enumerate(targets if isinstance(targets, list) else [], start=1):
+        rows.append(
+            f"""<tr class="auto-repeat" data-repeat="target-system">
+            <td align="center">{index}</td>
+            <td class="auto-field">{escape_html_text(item.get('service_name', ''))}</td>
+            <td class="auto-field">{escape_html_text(item.get('base_url', ''))}</td>
+            <td align="center" class="auto-field">{escape_html_text(item.get('account_level', ''))}</td>
+            <td class="auto-field">{escape_html_text(item.get('note', ''))}</td>
+          </tr>"""
+        )
+    return "\n".join(rows)
+
+
+def render_schedule_step_rows(dataset: dict[str, object]) -> str:
+    rows: list[str] = []
+    schedule_items = dataset_lookup(dataset, "engagement.schedule", [])
+    for item in schedule_items if isinstance(schedule_items, list) else []:
+        rows.append(
+            f"""<tr class="auto-repeat" data-repeat="schedule-step">
+            <td align="center">{escape_html_text(item.get('phase', ''))}</td>
+            <td align="center" class="auto-field">{escape_html_text(item.get('date', ''))}</td>
+            <td align="center" class="auto-field">{escape_html_text(item.get('deliverable', ''))}</td>
+            <td class="auto-field">{escape_html_text(item.get('content', ''))}</td>
+          </tr>"""
+        )
+    return "\n".join(rows)
+
+
+def render_team_member_rows(dataset: dict[str, object]) -> str:
+    rows: list[str] = []
+    members = dataset_lookup(dataset, "engagement.team", [])
+    for item in members if isinstance(members, list) else []:
+        rows.append(
+            f"""<tr class="auto-repeat" data-repeat="team-member">
+            <td align="center" class="auto-field">{escape_html_text(item.get('company', ''))}</td>
+            <td align="center" class="auto-field">{escape_html_text(item.get('name', ''))}</td>
+            <td align="center" class="auto-field">{escape_html_text(item.get('role', ''))}</td>
+            <td class="auto-field">{escape_html_text(item.get('scope', ''))}</td>
+            <td align="center" class="auto-field">{escape_html_text(item.get('contact', ''))}</td>
+          </tr>"""
+        )
+    return "\n".join(rows)
+
+
+def render_assessment_location_rows(dataset: dict[str, object]) -> str:
+    item = dataset_lookup(dataset, "engagement.location", {})
+    if not isinstance(item, dict):
+        return ""
+    return (
+        f"""<tr class="auto-repeat" data-repeat="assessment-location">
+            <td align="center" class="auto-field">{escape_html_text(item.get('name', ''))}</td>
+            <td class="auto-field">{escape_html_text(item.get('address', ''))}</td>
+            <td align="center" class="auto-field">{escape_html_text(item.get('ip', ''))}</td>
+            <td align="center" class="auto-field">{escape_html_text(item.get('access_method', ''))}</td>
+            <td class="auto-field">{escape_html_text(item.get('note', ''))}</td>
+          </tr>"""
+    )
+
+
+def render_summary_total_row(dataset: dict[str, object]) -> str:
+    checklist_items = dataset_lookup(dataset, "diagnostic_overview.checklist_items", [])
+    total_checks = len(checklist_items) if isinstance(checklist_items, list) else 0
+    finding_count = int(dataset_lookup(dataset, "summary.total_findings", len(dataset.get("findings", []))) or 0)
+    ok_count = max(total_checks - finding_count, 0)
+    return (
+        f"""<tr style="font-weight: bold; background: #eef2f8">
+            <td align="center">합계</td>
+            <td align="center" class="auto-field">{total_checks}</td>
+            <td align="center" class="auto-field">{finding_count}</td>
+            <td align="center" class="auto-field">{ok_count}</td>
+            <td align="center" class="auto-field">0</td>
+          </tr>"""
+    )
+
+
+def render_summary_risk_rows(dataset: dict[str, object]) -> str:
+    counts = dataset_lookup(dataset, "summary.by_severity", {})
+    if not isinstance(counts, dict):
+        counts = {}
+    total = sum(int(counts.get(key, 0) or 0) for key in ("high", "medium", "low"))
+
+    def rate(value: int) -> str:
+        return "0%" if total == 0 else f"{(value / total) * 100:.0f}%"
+
+    high = int(counts.get("high", 0) or 0)
+    mid = int(counts.get("medium", 0) or 0)
+    low = int(counts.get("low", 0) or 0)
+    rows = [
+        ('high', '상', high, rate(high), 'badge-high'),
+        ('mid', '중', mid, rate(mid), 'badge-mid'),
+        ('low', '하', low, rate(low), 'badge-low'),
+        ('ok', '양호', 0, '0%', 'badge-ok'),
+    ]
+    rendered = []
+    for risk_key, label, count, ratio, badge_class in rows:
+        rendered.append(
+            f"""<tr data-risk="{risk_key}">
+              <td align="center"><span class="badge {badge_class}" data-risk="{risk_key}">{label}</span></td>
+              <td align="center" class="auto-field">{count}</td>
+              <td align="center" class="auto-field">{ratio}</td>
+            </tr>"""
+        )
+    rendered.append(
+        f"""<tr style="font-weight: bold">
+              <td align="center">합계</td>
+              <td align="center" class="auto-field">{total}</td>
+              <td align="center" class="auto-field">100%</td>
+            </tr>"""
+    )
+    return "\n".join(rendered)
 
 
 def render_summary_system_rows(dataset: dict[str, object]) -> str:
@@ -2483,12 +2651,39 @@ def render_partial(path: Path, dataset: dict[str, object]) -> str:
 
 PARTIAL_RENDERERS = {
     "cover-logo-html": render_cover_logo_html,
+    "document-title": lambda dataset: render_dataset_text(dataset, "document.title", "웹 취약점 진단 결과 보고서"),
+    "meta-client-name": lambda dataset: render_dataset_text(dataset, "engagement.customer_name", "{{기관명}}"),
+    "meta-vendor-name": lambda dataset: render_dataset_text(dataset, "engagement.team.0.company", "{{수행기관명}}"),
+    "meta-report-date": lambda dataset: render_dataset_text(dataset, "document.date", "{{작성일}}"),
+    "meta-version": lambda dataset: render_dataset_text(dataset, "document.version", "{{문서버전}}"),
+    "meta-classification": lambda dataset: render_dataset_text(dataset, "document.classification", "{{문서등급}}"),
+    "overview-purpose-text": lambda dataset: render_dataset_text(dataset, "overview.purpose_text", "{{기관명}} 목적 문구"),
+    "overview-purpose-note": lambda dataset: render_dataset_text(dataset, "overview.purpose_note", "[purpose note]"),
+    "document-history-rows": render_document_history_rows,
+    "approval-line-rows": render_approval_line_rows,
+    "constraint-assumptions": lambda dataset: render_dataset_text(dataset, "overview.constraints.assumptions", "[assumptions]"),
+    "constraint-assumptions-status": lambda dataset: render_dataset_text(dataset, "overview.constraints.assumptions_status", "[적용]"),
+    "constraint-exclusions": lambda dataset: render_dataset_text(dataset, "overview.constraints.exclusions", "[exclusions]"),
+    "constraint-exclusions-status": lambda dataset: render_dataset_text(dataset, "overview.constraints.exclusions_status", "[해당없음]"),
+    "constraint-limitations": lambda dataset: render_dataset_text(dataset, "overview.constraints.limitations", "[limitations]"),
+    "constraint-limitations-status": lambda dataset: render_dataset_text(dataset, "overview.constraints.limitations_status", "[해당없음]"),
+    "scope-type": lambda dataset: render_dataset_text(dataset, "overview.scope.type", "웹 애플리케이션 취약점 진단"),
+    "scope-method": lambda dataset: render_dataset_text(dataset, "overview.scope.method", "블랙박스 기반 점검"),
+    "scope-account-condition": lambda dataset: render_dataset_text(dataset, "overview.scope.account_condition", "[계정 조건]"),
+    "scope-environment": lambda dataset: render_dataset_text(dataset, "overview.scope.environment", "[환경]"),
+    "target-system-rows": render_target_system_rows,
+    "schedule-step-rows": render_schedule_step_rows,
+    "team-member-rows": render_team_member_rows,
+    "assessment-location-rows": render_assessment_location_rows,
     "toc-sections": render_toc_sections,
     "index-sections": render_index_sections,
     "tool-list-rows": render_tool_list_rows,
     "checklist-item-rows": render_checklist_item_rows,
     "summary-system-rows": render_summary_system_rows,
     "summary-finding-rows": render_summary_finding_rows,
+    "summary-total-row": render_summary_total_row,
+    "summary-risk-rows": render_summary_risk_rows,
+    "summary-comment-text": lambda dataset: render_dataset_text(dataset, "summary.comment", "[summary comment]"),
     "priority-item-rows": render_priority_item_rows,
     "finding-sections": render_finding_sections,
     "countermeasure-sections": render_countermeasure_sections,

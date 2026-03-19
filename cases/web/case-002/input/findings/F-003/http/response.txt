@@ -1,0 +1,4 @@
+HTTP/1.1 302 Found
+Content-Type: text/html
+
+<html><body>User created</body></html>

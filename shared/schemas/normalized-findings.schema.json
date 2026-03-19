@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Normalized Web Findings",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "platform",
+    "case_id",
+    "findings"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "platform": {
+      "type": "string",
+      "const": "web"
+    },
+    "case_id": {
+      "type": "string"
+    },
+    "findings": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "finding_id",
+          "platform",
+          "title",
+          "target",
+          "source",
+          "classification",
+          "summary",
+          "description",
+          "impact",
+          "remediation",
+          "evidence"
+        ]
+      }
+    }
+  }
+}

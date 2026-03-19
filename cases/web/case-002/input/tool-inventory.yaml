@@ -1,0 +1,11 @@
+tool_inventory:
+  - name: HexStrike
+    purpose: raw scan source
+    category: scanner
+    source_type: raw_scan
+    note: finding raw results
+  - name: Burp Suite
+    purpose: manual verification
+    category: proxy
+    source_type: analyst_declared
+    note: request replay and response review
