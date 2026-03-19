@@ -29,6 +29,7 @@
         "additionalProperties": true,
         "required": [
           "finding_id",
+          "review_key",
           "platform",
           "title",
           "target",

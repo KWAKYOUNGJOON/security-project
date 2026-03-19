@@ -119,6 +119,13 @@
       }
     ]
   },
+  "review_summary": {
+    "total_reviewed": 0,
+    "overridden_count": 0,
+    "suppressed_count": 0,
+    "resolved_count": 0,
+    "accepted_risk_count": 0
+  },
   "target_sections": [
     {
       "target_id": null,
@@ -143,6 +150,7 @@
   ],
   "findings": [
     {
+      "review_key": "rk-aa9892df42c1b2a9",
       "management_id": "VUL-001",
       "taxonomy": {
         "name": "web-kisa-2026",
@@ -232,6 +240,14 @@
       "request_file_sha256": "0e3481b5e50e700a5529d81466c0a2857c25cf6c9b3788c85098ec72344ec61b",
       "response_file": "cases/web/case-001/input/http/response.txt",
       "response_file_sha256": "d6294e1c5263ceddf52efede48940e36fd55da45649595c2146487d4b9dcb4fb",
+      "review": {
+        "included_in_report": true,
+        "overridden_fields": [],
+        "resolution": null,
+        "suppression": null,
+        "exception": null,
+        "review_history": []
+      },
       "source": {
         "tool": "HexStrike",
         "parser": "web_hexstrike",

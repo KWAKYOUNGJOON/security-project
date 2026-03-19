@@ -1,0 +1,39 @@
+{
+  "tool": {
+    "name": "HexStrike",
+    "version": "2026.03"
+  },
+  "scan": {
+    "scan_id": "scan-case-002-f003",
+    "started_at": "2026-03-20T01:20:00Z"
+  },
+  "findings": [
+    {
+      "id": "HX-F003",
+      "name": "Weak password policy in admin portal",
+      "severity": "Low",
+      "endpoint": "https://admin.example.com/users/new",
+      "path": "/users/new",
+      "method": "POST",
+      "parameter": "password",
+      "description": "The admin user creation form accepted weak passwords such as 12345678.",
+      "observation": "No minimum complexity enforcement was observed.",
+      "impact": "Administrator accounts can be protected with guessable passwords.",
+      "remediation": [
+        "Increase password length requirement",
+        "Enforce complexity policy",
+        "Consider MFA for administrator accounts"
+      ],
+      "request": {
+        "path": "/users/new",
+        "content_type": "application/x-www-form-urlencoded"
+      },
+      "response": {
+        "status_code": 302,
+        "message": "User created"
+      },
+      "confidence": "low"
+    }
+  ],
+  "unparsed_root_field": "admin-preserve"
+}

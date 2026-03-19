@@ -176,6 +176,13 @@
       }
     ]
   },
+  "review_summary": {
+    "total_reviewed": 0,
+    "overridden_count": 0,
+    "suppressed_count": 0,
+    "resolved_count": 0,
+    "accepted_risk_count": 0
+  },
   "target_sections": [
     {
       "target_id": "TGT-002",
@@ -227,6 +234,7 @@
   ],
   "findings": [
     {
+      "review_key": "rk-62ff26b59a34af41",
       "management_id": "F-001",
       "taxonomy": {
         "name": "web-kisa-2026",
@@ -307,6 +315,14 @@
       "request_file_sha256": "82935aa6bc19d6c9ad05ff7c9441543892c4abecf017998d47607f75a3d2d3f2",
       "response_file": "cases/web/case-002/input/findings/F-001/http/response.txt",
       "response_file_sha256": "ba3b2d9eb043e28b28863de39f8b107ff6502e932dd9fda666a537d3b04c7e92",
+      "review": {
+        "included_in_report": true,
+        "overridden_fields": [],
+        "resolution": null,
+        "suppression": null,
+        "exception": null,
+        "review_history": []
+      },
       "source": {
         "tool": "HexStrike",
         "parser": "web_hexstrike",
@@ -317,6 +333,7 @@
       }
     },
     {
+      "review_key": "rk-9070cca125628d68",
       "management_id": "F-002",
       "taxonomy": {
         "name": "web-kisa-2026",
@@ -396,6 +413,14 @@
       "request_file_sha256": "a42d20ccdbd20f0a0678b6ad4aeb78b11f9f6f976080c253ff5765bbcfcbb924",
       "response_file": "cases/web/case-002/input/findings/F-002/http/response.txt",
       "response_file_sha256": "e4c628836dd50c67360e608e6db896c83d405e8ad0c99e35d4ef9fc912292f61",
+      "review": {
+        "included_in_report": true,
+        "overridden_fields": [],
+        "resolution": null,
+        "suppression": null,
+        "exception": null,
+        "review_history": []
+      },
       "source": {
         "tool": "HexStrike",
         "parser": "web_hexstrike",
@@ -406,6 +431,7 @@
       }
     },
     {
+      "review_key": "rk-b7beb8d731308e28",
       "management_id": "F-003",
       "taxonomy": {
         "name": "web-kisa-2026",
@@ -486,6 +512,14 @@
       "request_file_sha256": "820baa85dd211391bc5aa21a140b9336cc066f62d59e1629376d2fe93f20b62a",
       "response_file": "cases/web/case-002/input/findings/F-003/http/response.txt",
       "response_file_sha256": "3536b79f939e6cca5c5aa0000ccb8a7482035a096eb2b4b5ba33e5425553b581",
+      "review": {
+        "included_in_report": true,
+        "overridden_fields": [],
+        "resolution": null,
+        "suppression": null,
+        "exception": null,
+        "review_history": []
+      },
       "source": {
         "tool": "HexStrike",
         "parser": "web_hexstrike",

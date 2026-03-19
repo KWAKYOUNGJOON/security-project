@@ -1,0 +1,732 @@
+{
+  "schema_version": "1.0",
+  "platform": "web",
+  "case_id": "case-003",
+  "source_artifact": "cases/web/case-003/derived/normalized-findings.json",
+  "findings": [
+    {
+      "schema_version": "1.0",
+      "finding_id": "F-001",
+      "platform": "web",
+      "title": "로그인 시도 제한 미흡",
+      "target": {
+        "case_id": "case-003",
+        "target_id": "TGT-001",
+        "service_name": "Portal Service",
+        "base_url": "https://portal.example.com",
+        "target_url": "https://portal.example.com/login",
+        "environment": "staging",
+        "auth_context": "authenticated",
+        "criticality": "high"
+      },
+      "source": {
+        "tool": "HexStrike",
+        "raw_file": "cases/web/case-003/input/findings/F-001/raw/hexstrike-result.json",
+        "raw_file_sha256": "4846cb2438c5d8d92e56375f7229c57aae41f4eb943a48d0c7014a907a3c2680",
+        "manual_finding_file": "cases/web/case-003/input/findings/F-001/manual-finding.yaml",
+        "manual_finding_sha256": "b9938fab361c87e46e0c82dd13b26353557d6db3cee8c2c703c947852cac93f9",
+        "parser": "web_hexstrike",
+        "raw": {
+          "tool": {
+            "name": "HexStrike",
+            "version": "2026.03"
+          },
+          "scan": {
+            "scan_id": "scan-case-002-f001",
+            "started_at": "2026-03-20T01:00:00Z"
+          },
+          "findings": [
+            {
+              "id": "HX-F001",
+              "name": "Portal login brute force protection missing",
+              "severity": "High",
+              "endpoint": "https://portal.example.com/login",
+              "path": "/login",
+              "method": "POST",
+              "parameter": null,
+              "description": "Portal login endpoint accepted repeated failed login attempts without throttling.",
+              "observation": "No CAPTCHA or account lockout was observed after repeated failures.",
+              "impact": "Credential stuffing and account enumeration become feasible.",
+              "remediation": [
+                "Apply rate limiting",
+                "Add CAPTCHA after repeated failures",
+                "Review account lockout policy"
+              ],
+              "request": {
+                "path": "/login",
+                "content_type": "application/x-www-form-urlencoded"
+              },
+              "response": {
+                "status_code": 200,
+                "message": "Invalid username or password"
+              },
+              "confidence": "high"
+            }
+          ],
+          "unparsed_root_field": "portal-preserve"
+        }
+      },
+      "classification": {
+        "taxonomy": {
+          "name": "web-kisa-2026",
+          "version": "2026"
+        },
+        "code": "AU",
+        "title_ko": "로그인 시도 제한 미흡",
+        "severity": "medium",
+        "canonical_key": "automated_attack"
+      },
+      "summary": "로그인 실패 횟수 제한 또는 CAPTCHA가 없어 반복 요청이 가능함",
+      "description": "포털 로그인 기능에서 반복 인증 시도 제한이 없어 자동화 공격이 가능합니다.\n\nPortal login endpoint accepted repeated failed login attempts without throttling.\n\nNo CAPTCHA or account lockout was observed after repeated failures.",
+      "cause": "로그인 실패 횟수 제한과 CAPTCHA 정책이 부재합니다.\n\nNo CAPTCHA or account lockout was observed after repeated failures.",
+      "affected": {
+        "system_name": "Portal Service",
+        "url": "https://portal.example.com/login",
+        "method": "POST",
+        "parameter": null
+      },
+      "evidence": {
+        "request_file": "cases/web/case-003/input/findings/F-001/http/request.txt",
+        "request_file_sha256": "82935aa6bc19d6c9ad05ff7c9441543892c4abecf017998d47607f75a3d2d3f2",
+        "response_file": "cases/web/case-003/input/findings/F-001/http/response.txt",
+        "response_file_sha256": "ba3b2d9eb043e28b28863de39f8b107ff6502e932dd9fda666a537d3b04c7e92",
+        "screenshots": [
+          {
+            "file": "cases/web/case-003/input/findings/F-001/evidence/screenshot-01.png",
+            "caption": "포털 로그인 반복 요청 화면",
+            "sha256": "737238a1dfb461721c4e4f2c9dcf4fa25e01519bccd2feb9d8bea79f4c070e39"
+          }
+        ]
+      },
+      "reproduction": {
+        "preconditions": [
+          "인증 전 로그인 페이지 접근 가능"
+        ],
+        "steps": [
+          "포털 로그인 페이지 접속",
+          "동일 계정으로 반복 로그인 시도",
+          "별도 차단이 없음을 확인"
+        ],
+        "request_summary": "POST /login HTTP/1.1 / Host: portal.example.com / Content-Type: application/x-www-form-urlencoded / Body: username=test@example.com&password=wrong-password",
+        "response_summary": "HTTP/1.1 200 OK / Content-Type: application/json / Body: {\"message\":\"Invalid username or password\",\"captchaRequired\":false,\"lockout\":false}"
+      },
+      "impact": "계정 존재 여부 식별 및 무차별 대입 공격 가능",
+      "risk": {
+        "rationale": "인증 전 반복 요청 제한이 없어 자동화 공격 성공 가능성이 높습니다.",
+        "difficulty": "낮음",
+        "asset": "사용자 계정 및 인증 기능",
+        "precondition": "로그인 페이지 공개 노출"
+      },
+      "remediation": {
+        "summary": "로그인 실패 횟수 제한과 CAPTCHA를 적용합니다.",
+        "actions": [
+          "로그인 rate limit 적용",
+          "CAPTCHA 적용",
+          "계정 잠금 정책 검토"
+        ],
+        "short_term": [
+          "로그인 rate limit 적용",
+          "CAPTCHA 적용"
+        ],
+        "mid_term": [
+          "계정 잠금 정책 검토"
+        ],
+        "long_term": []
+      },
+      "references": [
+        "OWASP Automated Threats to Web Applications"
+      ],
+      "decision_basis": "반복 로그인 요청 시 lockout과 CAPTCHA가 동작하지 않음을 확인했습니다.",
+      "exception_note": "",
+      "false_positive": false,
+      "status": "open",
+      "owner": "Portal Team",
+      "reviewer": "Example Reviewer",
+      "due_date": "2026-03-27",
+      "notes": "portal target finding",
+      "unmapped_fields": {
+        "root": {
+          "unparsed_root_field": "portal-preserve"
+        },
+        "finding": {
+          "confidence": "high"
+        }
+      },
+      "review_key": "rk-8dbc9e44fc5e4261",
+      "review": {
+        "included_in_report": true,
+        "overridden_fields": [
+          "classification.severity",
+          "classification.title_ko",
+          "title"
+        ],
+        "resolution": null,
+        "suppression": null,
+        "exception": null,
+        "review_history": [
+          {
+            "order": 1,
+            "review_key": "rk-8dbc9e44fc5e4261",
+            "action_type": "override",
+            "changed_fields": [
+              "classification.severity",
+              "classification.title_ko",
+              "title"
+            ],
+            "reason": "실제 영향도는 high보다 낮다고 재평가",
+            "reviewer": "analyst-1",
+            "reviewed_at": "2026-03-19T10:00:00",
+            "result": "applied"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "finding_id": "F-002",
+      "platform": "web",
+      "title": "디버그 응답 정보 노출",
+      "target": {
+        "case_id": "case-003",
+        "target_id": "TGT-001",
+        "service_name": "Portal Service",
+        "base_url": "https://portal.example.com",
+        "target_url": "https://portal.example.com/debug",
+        "environment": "staging",
+        "auth_context": "authenticated",
+        "criticality": "high"
+      },
+      "source": {
+        "tool": "HexStrike",
+        "raw_file": "cases/web/case-003/input/findings/F-002/raw/hexstrike-result.json",
+        "raw_file_sha256": "8b3d5f9f63d16cecbd4be0b0488986febe79e6b067625bd10f379e190d550e91",
+        "manual_finding_file": "cases/web/case-003/input/findings/F-002/manual-finding.yaml",
+        "manual_finding_sha256": "dfd7a8a1725306b1f7ddbbf25b8dd642dfb5d3b26eb89426f6bdd36e57c21ff5",
+        "parser": "web_hexstrike",
+        "raw": {
+          "tool": {
+            "name": "HexStrike",
+            "version": "2026.03"
+          },
+          "scan": {
+            "scan_id": "scan-case-002-f002",
+            "started_at": "2026-03-20T01:10:00Z"
+          },
+          "findings": [
+            {
+              "id": "HX-F002",
+              "name": "Debug information disclosure",
+              "severity": "Medium",
+              "endpoint": "https://portal.example.com/debug",
+              "path": "/debug",
+              "method": "GET",
+              "parameter": "debug",
+              "description": "The debug endpoint exposed stack trace and internal file path information.",
+              "observation": "Internal exception details were returned in the HTTP response body.",
+              "impact": "Implementation details become visible to authenticated users.",
+              "remediation": [
+                "Disable debug output in production",
+                "Use generic error responses"
+              ],
+              "request": {
+                "path": "/debug",
+                "content_type": "application/json"
+              },
+              "response": {
+                "status_code": 500,
+                "message": "Stack trace leaked"
+              },
+              "confidence": "medium"
+            }
+          ],
+          "unparsed_root_field": "portal-debug-preserve"
+        }
+      },
+      "classification": {
+        "taxonomy": {
+          "name": "web-kisa-2026",
+          "version": "2026"
+        },
+        "code": "IL",
+        "title_ko": "정보 누출",
+        "severity": "medium",
+        "canonical_key": "information_disclosure"
+      },
+      "summary": "오류 응답에 디버그 정보가 포함되어 내부 구현이 노출됨",
+      "description": "포털 디버그 엔드포인트에서 내부 경로와 예외 메시지가 응답으로 노출됩니다.\n\nThe debug endpoint exposed stack trace and internal file path information.\n\nInternal exception details were returned in the HTTP response body.",
+      "cause": "운영 차단이 필요한 디버그 기능이 외부에서 접근 가능합니다.\n\nInternal exception details were returned in the HTTP response body.",
+      "affected": {
+        "system_name": "Portal Service",
+        "url": "https://portal.example.com/debug",
+        "method": "GET",
+        "parameter": "debug"
+      },
+      "evidence": {
+        "request_file": "cases/web/case-003/input/findings/F-002/http/request.txt",
+        "request_file_sha256": "a42d20ccdbd20f0a0678b6ad4aeb78b11f9f6f976080c253ff5765bbcfcbb924",
+        "response_file": "cases/web/case-003/input/findings/F-002/http/response.txt",
+        "response_file_sha256": "e4c628836dd50c67360e608e6db896c83d405e8ad0c99e35d4ef9fc912292f61",
+        "screenshots": [
+          {
+            "file": "cases/web/case-003/input/findings/F-002/evidence/screenshot-01.png",
+            "caption": "포털 디버그 정보 노출 화면",
+            "sha256": "c36122c040f7bc2f061c06f12ec69311ea63bc3bb60864098eb4dfa354f51a01"
+          }
+        ]
+      },
+      "reproduction": {
+        "preconditions": [
+          "인증 후 디버그 페이지 접근 가능"
+        ],
+        "steps": [
+          "디버그 엔드포인트 요청",
+          "오류 조건 유발",
+          "응답 내 내부 경로 및 예외 메시지 확인"
+        ],
+        "request_summary": "GET /debug?debug=true HTTP/1.1 / Host: portal.example.com",
+        "response_summary": "HTTP/1.1 500 Internal Server Error / Content-Type: application/json / Body: {\"error\":\"Traceback ... /srv/portal/app.py:42\",\"exception\":\"RuntimeError\"}"
+      },
+      "impact": "내부 구조 파악을 통한 후속 공격 난이도 감소",
+      "risk": {
+        "rationale": "내부 경로와 예외 정보가 직접 노출되어 공격자에게 유의미한 힌트를 제공합니다.",
+        "difficulty": "보통",
+        "asset": "애플리케이션 내부 구현 정보",
+        "precondition": "인증된 사용자 접근 가능"
+      },
+      "remediation": {
+        "summary": "디버그 응답을 비활성화하고 일반화된 오류 응답을 사용합니다.",
+        "actions": [
+          "운영 환경 디버그 응답 제거",
+          "오류 처리 공통 정책 적용"
+        ],
+        "short_term": [
+          "운영 환경 디버그 응답 제거"
+        ],
+        "mid_term": [
+          "오류 처리 공통 정책 적용"
+        ],
+        "long_term": []
+      },
+      "references": [
+        "OWASP Error Handling Cheat Sheet"
+      ],
+      "decision_basis": "응답 본문에 파일 경로와 예외 타입이 포함되는 것을 확인했습니다.",
+      "exception_note": "",
+      "false_positive": false,
+      "status": "in_progress",
+      "owner": "Portal Team",
+      "reviewer": "Example Reviewer",
+      "due_date": "2026-03-31",
+      "notes": "portal debug exposure",
+      "unmapped_fields": {
+        "root": {
+          "unparsed_root_field": "portal-debug-preserve"
+        },
+        "finding": {
+          "confidence": "medium"
+        }
+      },
+      "review_key": "rk-847ab2216d780e71",
+      "review": {
+        "included_in_report": false,
+        "overridden_fields": [],
+        "resolution": null,
+        "suppression": {
+          "action": "exclude_from_report",
+          "reason_code": "duplicate",
+          "reason": "동일 대상과 원인의 중복 finding으로 본문에서 제외",
+          "reviewer": "analyst-1",
+          "reviewed_at": "2026-03-19T10:05:00"
+        },
+        "exception": null,
+        "review_history": [
+          {
+            "order": 4,
+            "review_key": "rk-847ab2216d780e71",
+            "action_type": "suppression",
+            "changed_fields": [
+              "review.suppression",
+              "review.included_in_report"
+            ],
+            "reason": "동일 대상과 원인의 중복 finding으로 본문에서 제외",
+            "reviewer": "analyst-1",
+            "reviewed_at": "2026-03-19T10:05:00",
+            "result": "duplicate"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "finding_id": "F-003",
+      "platform": "web",
+      "title": "관리자 계정 비밀번호 복잡도 정책 미흡",
+      "target": {
+        "case_id": "case-003",
+        "target_id": "TGT-002",
+        "service_name": "Admin Service",
+        "base_url": "https://admin.example.com",
+        "target_url": "https://admin.example.com/users/new",
+        "environment": "production-like",
+        "auth_context": "authenticated",
+        "criticality": "critical"
+      },
+      "source": {
+        "tool": "HexStrike",
+        "raw_file": "cases/web/case-003/input/findings/F-003/raw/hexstrike-result.json",
+        "raw_file_sha256": "99e4e438af22414138b66809ac8eac2c46ee4efa3f1704027bfbf85d8bb5a92e",
+        "manual_finding_file": "cases/web/case-003/input/findings/F-003/manual-finding.yaml",
+        "manual_finding_sha256": "efe7d5ee9cdddfeda3cf6b2f254380fdf59279c9b3029a45b4944e6ad21f9674",
+        "parser": "web_hexstrike",
+        "raw": {
+          "tool": {
+            "name": "HexStrike",
+            "version": "2026.03"
+          },
+          "scan": {
+            "scan_id": "scan-case-002-f003",
+            "started_at": "2026-03-20T01:20:00Z"
+          },
+          "findings": [
+            {
+              "id": "HX-F003",
+              "name": "Weak password policy in admin portal",
+              "severity": "Low",
+              "endpoint": "https://admin.example.com/users/new",
+              "path": "/users/new",
+              "method": "POST",
+              "parameter": "password",
+              "description": "The admin user creation form accepted weak passwords such as 12345678.",
+              "observation": "No minimum complexity enforcement was observed.",
+              "impact": "Administrator accounts can be protected with guessable passwords.",
+              "remediation": [
+                "Increase password length requirement",
+                "Enforce complexity policy",
+                "Consider MFA for administrator accounts"
+              ],
+              "request": {
+                "path": "/users/new",
+                "content_type": "application/x-www-form-urlencoded"
+              },
+              "response": {
+                "status_code": 302,
+                "message": "User created"
+              },
+              "confidence": "low"
+            }
+          ],
+          "unparsed_root_field": "admin-preserve"
+        }
+      },
+      "classification": {
+        "taxonomy": {
+          "name": "web-kisa-2026",
+          "version": "2026"
+        },
+        "code": "BF",
+        "title_ko": "약한 비밀번호 정책",
+        "severity": "low",
+        "canonical_key": "weak_password_policy"
+      },
+      "summary": "관리자 신규 계정 생성 시 약한 비밀번호가 허용됨",
+      "description": "관리자 사용자 생성 화면에서 길이와 복잡도 제한이 충분하지 않아 약한 비밀번호가 허용됩니다.\n\nThe admin user creation form accepted weak passwords such as 12345678.\n\nNo minimum complexity enforcement was observed.",
+      "cause": "관리자 계정 정책에 최소 길이와 복잡도 검증이 부재합니다.\n\nNo minimum complexity enforcement was observed.",
+      "affected": {
+        "system_name": "Admin Service",
+        "url": "https://admin.example.com/users/new",
+        "method": "POST",
+        "parameter": "password"
+      },
+      "evidence": {
+        "request_file": "cases/web/case-003/input/findings/F-003/http/request.txt",
+        "request_file_sha256": "820baa85dd211391bc5aa21a140b9336cc066f62d59e1629376d2fe93f20b62a",
+        "response_file": "cases/web/case-003/input/findings/F-003/http/response.txt",
+        "response_file_sha256": "3536b79f939e6cca5c5aa0000ccb8a7482035a096eb2b4b5ba33e5425553b581",
+        "screenshots": [
+          {
+            "file": "cases/web/case-003/input/findings/F-003/evidence/screenshot-01.png",
+            "caption": "관리자 계정 생성 화면",
+            "sha256": "737238a1dfb461721c4e4f2c9dcf4fa25e01519bccd2feb9d8bea79f4c070e39"
+          }
+        ]
+      },
+      "reproduction": {
+        "preconditions": [
+          "관리자 계정 생성 권한 필요"
+        ],
+        "steps": [
+          "신규 사용자 생성 화면 진입",
+          "단순 비밀번호로 계정 생성 시도",
+          "저장이 허용되는지 확인"
+        ],
+        "request_summary": "POST /users/new HTTP/1.1 / Host: admin.example.com / Content-Type: application/x-www-form-urlencoded / Body: username=admin2&password=12345678",
+        "response_summary": "HTTP/1.1 302 Found / Content-Type: text/html / Body: <html><body>User created</body></html>"
+      },
+      "impact": "관리자 계정 탈취 위험 증가",
+      "risk": {
+        "rationale": "관리자 계정이 약한 비밀번호로 생성되면 추측 공격에 취약해집니다.",
+        "difficulty": "보통",
+        "asset": "관리자 계정",
+        "precondition": "관리자 계정 생성 기능 접근 가능"
+      },
+      "remediation": {
+        "summary": "비밀번호 길이와 복잡도 정책을 강화합니다.",
+        "actions": [
+          "최소 길이 정책 강화",
+          "복잡도 및 재사용 제한 정책 적용",
+          "관리자 계정 MFA 의무화 검토"
+        ],
+        "short_term": [
+          "최소 길이 정책 강화"
+        ],
+        "mid_term": [
+          "복잡도 및 재사용 제한 정책 적용"
+        ],
+        "long_term": [
+          "관리자 계정 MFA 의무화 검토"
+        ]
+      },
+      "references": [
+        "NIST Password Guidance"
+      ],
+      "decision_basis": "단순 문자열 비밀번호가 정책 검증 없이 저장되는 것을 확인했습니다.",
+      "exception_note": "",
+      "false_positive": false,
+      "status": "accepted",
+      "owner": "Admin Team",
+      "reviewer": "Example Reviewer",
+      "due_date": "2026-04-03",
+      "notes": "admin password policy",
+      "unmapped_fields": {
+        "root": {
+          "unparsed_root_field": "admin-preserve"
+        },
+        "finding": {
+          "confidence": "low"
+        }
+      },
+      "review_key": "rk-4f650da43d5ad29e",
+      "review": {
+        "included_in_report": true,
+        "overridden_fields": [],
+        "resolution": {
+          "resolution": "accepted_risk",
+          "final_status": "accepted",
+          "reason": "운영상 단기 조치가 어려워 예외 승인 후 위험 수용",
+          "reviewer": "reviewer-1",
+          "reviewed_at": "2026-03-19T10:10:00"
+        },
+        "suppression": null,
+        "exception": {
+          "exception_type": "accepted_risk",
+          "approved_by": "security-committee",
+          "expires_at": "2026-06-30",
+          "note": "분기 내 정책 개선 전까지 운영 예외 승인"
+        },
+        "review_history": [
+          {
+            "order": 2,
+            "review_key": "rk-4f650da43d5ad29e",
+            "action_type": "resolution",
+            "changed_fields": [
+              "review.resolution",
+              "status"
+            ],
+            "reason": "운영상 단기 조치가 어려워 예외 승인 후 위험 수용",
+            "reviewer": "reviewer-1",
+            "reviewed_at": "2026-03-19T10:10:00",
+            "result": "accepted"
+          },
+          {
+            "order": 5,
+            "review_key": "rk-4f650da43d5ad29e",
+            "action_type": "exception",
+            "changed_fields": [
+              "review.exception"
+            ],
+            "reason": "분기 내 정책 개선 전까지 운영 예외 승인",
+            "reviewer": "security-committee",
+            "reviewed_at": "2026-06-30",
+            "result": "tagged"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "finding_id": "F-004",
+      "platform": "web",
+      "title": "검색어 반사형 출력 의심",
+      "target": {
+        "case_id": "case-003",
+        "target_id": "TGT-001",
+        "service_name": "Portal Service",
+        "base_url": "https://portal.example.com",
+        "target_url": "https://portal.example.com/search?query=%3Csvg%2Fonload%3Dalert(1)%3E",
+        "environment": "staging",
+        "auth_context": "authenticated",
+        "criticality": "high"
+      },
+      "source": {
+        "tool": "HexStrike",
+        "raw_file": "cases/web/case-003/input/findings/F-004/raw/hexstrike-result.json",
+        "raw_file_sha256": "2f03a0be655ce5ce9c4295e99071e414730ec6e9fa68f18731e4b9f7a36b5200",
+        "manual_finding_file": "cases/web/case-003/input/findings/F-004/manual-finding.yaml",
+        "manual_finding_sha256": "b33271e9f73255ef687bc9e7794572862a6d0b72ba34d6519c6402d179b60e9f",
+        "parser": "web_hexstrike",
+        "raw": {
+          "tool": {
+            "name": "HexStrike",
+            "version": "2026.03"
+          },
+          "scan": {
+            "scan_id": "scan-case-003-f004",
+            "started_at": "2026-03-20T01:30:00Z"
+          },
+          "findings": [
+            {
+              "id": "HX-F004",
+              "name": "Potential reflected search output",
+              "severity": "Low",
+              "endpoint": "https://portal.example.com/search?query=%3Csvg%2Fonload%3Dalert(1)%3E",
+              "path": "/search",
+              "method": "GET",
+              "parameter": "query",
+              "description": "The search endpoint reflected the supplied query parameter in the response body.",
+              "observation": "The reflected marker appeared HTML-encoded in the rendered result area.",
+              "impact": "If output encoding fails, the feature could enable script execution in the browser.",
+              "remediation": [
+                "Apply context-aware output encoding",
+                "Verify reflected output handling with browser execution checks"
+              ],
+              "request": {
+                "path": "/search",
+                "content_type": "text/html"
+              },
+              "response": {
+                "status_code": 200,
+                "message": "Encoded search marker returned"
+              },
+              "confidence": "low"
+            }
+          ],
+          "unparsed_root_field": "portal-search-preserve"
+        }
+      },
+      "classification": {
+        "taxonomy": {
+          "name": "web-kisa-2026",
+          "version": "2026"
+        },
+        "code": "IL",
+        "title_ko": "정보 누출",
+        "severity": "low",
+        "canonical_key": "information_disclosure"
+      },
+      "summary": "검색어가 응답 본문에 반사되어 스크립트 실행 가능성이 의심됨",
+      "description": "검색 결과 페이지에서 입력한 검색어가 응답 본문에 반사됩니다.\n\nThe search endpoint reflected the supplied query parameter in the response body.\n\nThe reflected marker appeared HTML-encoded in the rendered result area.",
+      "cause": "검색어 출력 시 인코딩 적용 여부를 추가 확인해야 합니다.\n\nThe reflected marker appeared HTML-encoded in the rendered result area.",
+      "affected": {
+        "system_name": "Portal Service",
+        "url": "https://portal.example.com/search?query=%3Csvg%2Fonload%3Dalert(1)%3E",
+        "method": "GET",
+        "parameter": "query"
+      },
+      "evidence": {
+        "request_file": "cases/web/case-003/input/findings/F-004/http/request.txt",
+        "request_file_sha256": "8de66be73303705051c38a2df3b6e8c72aa28d72baf646f8f84cc71b8a54cfee",
+        "response_file": "cases/web/case-003/input/findings/F-004/http/response.txt",
+        "response_file_sha256": "3628eb880a6c332102abc2a9dd77a6dadb81652c5e4cc63fbdd25060622b110d",
+        "screenshots": [
+          {
+            "file": "cases/web/case-003/input/findings/F-004/evidence/screenshot-01.png",
+            "caption": "검색 결과 반사 출력 화면",
+            "sha256": "c36122c040f7bc2f061c06f12ec69311ea63bc3bb60864098eb4dfa354f51a01"
+          }
+        ]
+      },
+      "reproduction": {
+        "preconditions": [
+          "인증 후 검색 기능 접근 가능"
+        ],
+        "steps": [
+          "검색 페이지에 스크립트 형태 문자열 입력",
+          "검색 요청 전송",
+          "응답에 입력 문자열이 반사되는지 확인"
+        ],
+        "request_summary": "GET /search?query=%3Csvg%2Fonload%3Dalert(1)%3E HTTP/1.1 / Host: portal.example.com",
+        "response_summary": "HTTP/1.1 200 OK / Content-Type: text/html; charset=utf-8 / Body: <html><body><div class=\"search-term\">&lt;svg/onload=alert(1)&gt;</div><div class=\"result-count\">0 results</div></body></html>"
+      },
+      "impact": "입력값 반사가 실제 스크립트 실행으로 이어질 경우 세션 탈취가 가능함",
+      "risk": {
+        "rationale": "반사 출력이 존재하면 XSS 취약점 가능성을 의심할 수 있습니다.",
+        "difficulty": "보통",
+        "asset": "사용자 세션 및 브라우저 컨텍스트",
+        "precondition": "인증된 사용자 접근 가능"
+      },
+      "remediation": {
+        "summary": "출력 인코딩을 적용하고 반사 출력 검증 기준을 명확히 합니다.",
+        "actions": [
+          "출력 인코딩 검토",
+          "검색 UI 출력 검증 기준 정리"
+        ],
+        "short_term": [
+          "출력 인코딩 검토"
+        ],
+        "mid_term": [
+          "검색 UI 출력 검증 기준 정리"
+        ],
+        "long_term": []
+      },
+      "references": [
+        "OWASP Cross Site Scripting Prevention Cheat Sheet"
+      ],
+      "decision_basis": "검색어가 HTML 이스케이프되어 보이는지 추가 확인이 필요합니다.",
+      "exception_note": "",
+      "false_positive": true,
+      "status": "excluded",
+      "owner": "Portal Team",
+      "reviewer": "Example Reviewer",
+      "due_date": "2026-03-31",
+      "notes": "portal reflected search sample",
+      "unmapped_fields": {
+        "root": {
+          "unparsed_root_field": "portal-search-preserve"
+        },
+        "finding": {
+          "confidence": "low"
+        }
+      },
+      "review_key": "rk-922ee3b7b127c547",
+      "review": {
+        "included_in_report": false,
+        "overridden_fields": [],
+        "resolution": {
+          "resolution": "false_positive",
+          "final_status": "excluded",
+          "reason": "반사 문자열이 HTML 이스케이프되어 실행되지 않음",
+          "reviewer": "reviewer-1",
+          "reviewed_at": "2026-03-19T10:15:00"
+        },
+        "suppression": null,
+        "exception": null,
+        "review_history": [
+          {
+            "order": 3,
+            "review_key": "rk-922ee3b7b127c547",
+            "action_type": "resolution",
+            "changed_fields": [
+              "review.resolution",
+              "false_positive",
+              "status"
+            ],
+            "reason": "반사 문자열이 HTML 이스케이프되어 실행되지 않음",
+            "reviewer": "reviewer-1",
+            "reviewed_at": "2026-03-19T10:15:00",
+            "result": "excluded"
+          }
+        ]
+      }
+    }
+  ]
+}

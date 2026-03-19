@@ -26,12 +26,14 @@ def build_web_report_payload(
         raise ValueError("At least one normalized finding is required")
 
     ordered_findings = sorted(normalized_findings, key=_finding_sort_key)
+    reportable_findings = [finding for finding in ordered_findings if _included_in_report(finding)]
     document_meta = _document_payload(case_inputs.engagement_metadata)
     document_control = _document_control_payload(case_inputs.document_control)
     engagement_payload = _engagement_payload(case_inputs, ordered_findings)
     overview_payload = _overview_payload(case_inputs.engagement_metadata, ordered_findings)
     tool_inventory = [dict(item) for item in case_inputs.tool_inventory]
-    finding_entries = [_finding_entry(finding, document_meta["date"]) for finding in ordered_findings]
+    review_summary = _review_summary(ordered_findings)
+    finding_entries = [_finding_entry(finding, document_meta["date"]) for finding in reportable_findings]
     by_target = _by_target_summary(finding_entries)
     target_sections = _target_sections(finding_entries)
 
@@ -45,15 +47,16 @@ def build_web_report_payload(
             "total_findings": len(finding_entries),
             "by_severity": _severity_counts(finding_entries),
             "by_target": by_target,
-            "comment": _summary_comment(finding_entries, by_target),
+            "comment": _summary_comment(finding_entries, by_target, review_summary),
             "priorities": _priority_items(finding_entries),
         },
+        "review_summary": review_summary,
         "target_sections": target_sections,
         "findings": finding_entries,
-        "remediation_plan": _remediation_plan(ordered_findings),
+        "remediation_plan": _remediation_plan(reportable_findings),
         "appendix": {
             "evidence": _appendix_evidence(finding_entries),
-            "checklist": _checklist_items(ordered_findings),
+            "checklist": _checklist_items(reportable_findings),
         },
     }
 
@@ -184,10 +187,12 @@ def _location_payload(value: Mapping[str, Any]) -> dict[str, str]:
 def _finding_entry(normalized_finding: Mapping[str, Any], document_date: str) -> dict[str, Any]:
     severity = _severity(normalized_finding)
     finding_name = str(normalized_finding.get("title") or normalized_finding["classification"]["title_ko"])
-    result_text = "오탐" if normalized_finding["false_positive"] else "취약"
-    status_text = "오탐" if normalized_finding["false_positive"] else _status_text(normalized_finding.get("status"))
+    review = _review_payload(normalized_finding)
+    result_text = _finding_result_text(normalized_finding, review)
+    status_text = _finding_status_text(normalized_finding, review)
     evidence_items = _build_evidence_items(normalized_finding)
     return {
+        "review_key": normalized_finding["review_key"],
         "management_id": normalized_finding["finding_id"],
         "taxonomy": dict(normalized_finding["classification"]["taxonomy"]),
         "canonical_key": normalized_finding["classification"]["canonical_key"],
@@ -228,6 +233,7 @@ def _finding_entry(normalized_finding: Mapping[str, Any], document_date: str) ->
         "request_file_sha256": normalized_finding["evidence"]["request_file_sha256"],
         "response_file": normalized_finding["evidence"]["response_file"],
         "response_file_sha256": normalized_finding["evidence"]["response_file_sha256"],
+        "review": review,
         "source": {
             "tool": normalized_finding["source"]["tool"],
             "parser": normalized_finding["source"]["parser"],
@@ -258,9 +264,63 @@ def _status_text(value: object) -> str:
     status = str(value or "").strip().lower()
     if status == "closed":
         return "완료"
+    if status == "accepted":
+        return "수용"
+    if status == "excluded":
+        return "제외"
     if status == "in_progress":
         return "조치중"
     return "미조치"
+
+
+def _included_in_report(normalized_finding: Mapping[str, Any]) -> bool:
+    review = normalized_finding.get("review")
+    if not isinstance(review, Mapping):
+        return True
+    return bool(review.get("included_in_report", True))
+
+
+def _review_payload(normalized_finding: Mapping[str, Any]) -> dict[str, Any]:
+    review = normalized_finding.get("review")
+    if not isinstance(review, Mapping):
+        return {
+            "included_in_report": True,
+            "overridden_fields": [],
+            "resolution": None,
+            "suppression": None,
+            "exception": None,
+            "review_history": [],
+        }
+    return {
+        "included_in_report": bool(review.get("included_in_report", True)),
+        "overridden_fields": [str(item) for item in review.get("overridden_fields") or []],
+        "resolution": _optional_review_mapping(review.get("resolution")),
+        "suppression": _optional_review_mapping(review.get("suppression")),
+        "exception": _optional_review_mapping(review.get("exception")),
+        "review_history": [dict(item) for item in review.get("review_history") or []],
+    }
+
+
+def _optional_review_mapping(value: Any) -> dict[str, Any] | None:
+    return dict(value) if isinstance(value, Mapping) else None
+
+
+def _finding_result_text(normalized_finding: Mapping[str, Any], review: Mapping[str, Any]) -> str:
+    resolution = review.get("resolution")
+    if isinstance(resolution, Mapping) and str(resolution.get("resolution")) == "false_positive":
+        return "오탐"
+    if bool(normalized_finding["false_positive"]):
+        return "오탐"
+    return "취약"
+
+
+def _finding_status_text(normalized_finding: Mapping[str, Any], review: Mapping[str, Any]) -> str:
+    resolution = review.get("resolution")
+    if isinstance(resolution, Mapping) and str(resolution.get("resolution")) == "accepted_risk":
+        return "수용"
+    if bool(normalized_finding["false_positive"]):
+        return "오탐"
+    return _status_text(normalized_finding.get("status"))
 
 
 def _repro_parameters(normalized_finding: Mapping[str, Any]) -> str:
@@ -367,14 +427,32 @@ def _target_sections(finding_entries: Sequence[Mapping[str, Any]]) -> list[dict[
 def _summary_comment(
     finding_entries: Sequence[Mapping[str, Any]],
     by_target: Sequence[Mapping[str, Any]],
+    review_summary: Mapping[str, Any],
 ) -> str:
     false_positive_count = sum(1 for item in finding_entries if item["false_positive"])
-    if false_positive_count == len(finding_entries):
-        return f"총 {len(finding_entries)}건의 수동 판정 항목이 정리되었으며 모두 오탐으로 분류되었습니다."
-    return (
-        f"총 {len(finding_entries)}건의 취약점이 발견되었으며, "
-        f"대상은 {len(by_target)}개 시스템입니다."
-    )
+    if finding_entries and false_positive_count == len(finding_entries):
+        base_comment = f"총 {len(finding_entries)}건의 수동 판정 항목이 정리되었으며 모두 오탐으로 분류되었습니다."
+    elif finding_entries:
+        base_comment = (
+            f"총 {len(finding_entries)}건의 취약점이 발견되었으며, "
+            f"대상은 {len(by_target)}개 시스템입니다."
+        )
+    else:
+        base_comment = "수동 검토 결과 본문에 유지된 취약점은 없으며, 조치 완료 또는 제외 상태만 기록되었습니다."
+
+    if int(review_summary.get("total_reviewed", 0) or 0) == 0:
+        return base_comment
+
+    parts: list[str] = [base_comment]
+    if int(review_summary.get("overridden_count", 0) or 0):
+        parts.append(f"재평가 override {int(review_summary['overridden_count'])}건이 반영되었습니다.")
+    if int(review_summary.get("suppressed_count", 0) or 0):
+        parts.append(f"보고서 본문에서 제외된 항목은 {int(review_summary['suppressed_count'])}건입니다.")
+    if int(review_summary.get("resolved_count", 0) or 0):
+        parts.append(f"resolution 상태가 지정된 항목은 {int(review_summary['resolved_count'])}건입니다.")
+    if int(review_summary.get("accepted_risk_count", 0) or 0):
+        parts.append(f"위험 수용 항목은 {int(review_summary['accepted_risk_count'])}건입니다.")
+    return " ".join(parts)
 
 
 def _priority_items(finding_entries: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
@@ -427,11 +505,41 @@ def _checklist_items(normalized_findings: Sequence[Mapping[str, Any]]) -> list[d
             "title_ko": finding["classification"]["title_ko"],
             "severity": _severity(finding),
             "canonical_key": finding["classification"]["canonical_key"],
-            "status": "오탐" if finding["false_positive"] else "취약",
+            "status": _checklist_status_text(finding),
             "finding_id": finding["finding_id"],
         }
         for finding in normalized_findings
     ]
+
+
+def _checklist_status_text(normalized_finding: Mapping[str, Any]) -> str:
+    review = _review_payload(normalized_finding)
+    resolution = review.get("resolution")
+    if isinstance(resolution, Mapping):
+        resolution_value = str(resolution.get("resolution"))
+        if resolution_value == "accepted_risk":
+            return "위험수용"
+        if resolution_value == "false_positive":
+            return "오탐"
+    if bool(normalized_finding["false_positive"]):
+        return "오탐"
+    return "취약"
+
+
+def _review_summary(normalized_findings: Sequence[Mapping[str, Any]]) -> dict[str, int]:
+    reviews = [_review_payload(finding) for finding in normalized_findings]
+    return {
+        "total_reviewed": sum(1 for review in reviews if review["review_history"]),
+        "overridden_count": sum(1 for review in reviews if review["overridden_fields"]),
+        "suppressed_count": sum(1 for review in reviews if review["suppression"] is not None),
+        "resolved_count": sum(1 for review in reviews if review["resolution"] is not None),
+        "accepted_risk_count": sum(
+            1
+            for review in reviews
+            if isinstance(review["resolution"], Mapping)
+            and str(review["resolution"].get("resolution")) == "accepted_risk"
+        ),
+    }
 
 
 def _display_date(value: str) -> str:

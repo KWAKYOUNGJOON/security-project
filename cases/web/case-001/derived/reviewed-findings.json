@@ -1,0 +1,182 @@
+{
+  "schema_version": "1.0",
+  "platform": "web",
+  "case_id": "web-case-001",
+  "source_artifact": "cases/web/case-001/derived/normalized-findings.json",
+  "findings": [
+    {
+      "schema_version": "1.0",
+      "finding_id": "VUL-001",
+      "platform": "web",
+      "title": "로그인 실패 횟수 제한 미흡",
+      "target": {
+        "case_id": "web-case-001",
+        "target_id": null,
+        "service_name": "예시 서비스명",
+        "base_url": "https://example.com",
+        "target_url": "https://example.com/login",
+        "environment": "staging",
+        "auth_context": "unauthenticated",
+        "criticality": null
+      },
+      "source": {
+        "tool": "HexStrike",
+        "raw_file": "cases/web/case-001/input/raw/hexstrike-result.json",
+        "raw_file_sha256": "424cd452842bd326bbcc753c457f60741bd1a86c24955bfb53804001ad95386d",
+        "manual_finding_file": "cases/web/case-001/input/manual-finding.yaml",
+        "manual_finding_sha256": "5b92360d63e09717050e5597c6f8b014d84960b24c59ce1f06ddfccf7f15d65f",
+        "parser": "web_hexstrike",
+        "raw": {
+          "tool": {
+            "name": "HexStrike",
+            "version": "2026.03"
+          },
+          "scan": {
+            "scan_id": "scan-web-001",
+            "started_at": "2026-03-19T12:00:00Z"
+          },
+          "engagement": {
+            "name": "sample-web-engagement"
+          },
+          "findings": [
+            {
+              "id": "HX-001",
+              "name": "Login brute force protection missing",
+              "severity": "High",
+              "endpoint": "https://example.com/login",
+              "path": "/login",
+              "method": "POST",
+              "parameter": null,
+              "description": "Authentication endpoint accepted repeated failed login attempts without throttling.",
+              "observation": "No CAPTCHA or account lockout was observed after repeated failures.",
+              "impact": "Credential stuffing and account enumeration become feasible.",
+              "remediation": [
+                "Apply rate limiting",
+                "Add CAPTCHA after repeated failures",
+                "Review account lockout policy"
+              ],
+              "request": {
+                "path": "/login",
+                "content_type": "application/x-www-form-urlencoded"
+              },
+              "response": {
+                "status_code": 200,
+                "message": "Invalid username or password"
+              },
+              "confidence": "medium",
+              "unexpected_signal": {
+                "matcher": "manual-observation",
+                "repeatable": true
+              }
+            }
+          ],
+          "unparsed_root_field": "preserve-me"
+        }
+      },
+      "classification": {
+        "taxonomy": {
+          "name": "web-kisa-2026",
+          "version": "2026"
+        },
+        "code": "AU",
+        "title_ko": "자동화 공격",
+        "severity": "high",
+        "canonical_key": "automated_attack"
+      },
+      "summary": "로그인 실패 횟수 제한 또는 CAPTCHA가 없어 반복 요청이 가능함",
+      "description": "로그인 기능에서 반복 인증 시도에 대한 제한이 없어 자동화 공격이 가능합니다.\n\nAuthentication endpoint accepted repeated failed login attempts without throttling.\n\nNo CAPTCHA or account lockout was observed after repeated failures.",
+      "cause": "로그인 실패 횟수 제한, CAPTCHA, 계정 잠금 정책이 부재합니다.\n\nNo CAPTCHA or account lockout was observed after repeated failures.",
+      "affected": {
+        "system_name": "예시 서비스명",
+        "url": "https://example.com/login",
+        "method": "POST",
+        "parameter": null
+      },
+      "evidence": {
+        "request_file": "cases/web/case-001/input/http/request.txt",
+        "request_file_sha256": "0e3481b5e50e700a5529d81466c0a2857c25cf6c9b3788c85098ec72344ec61b",
+        "response_file": "cases/web/case-001/input/http/response.txt",
+        "response_file_sha256": "d6294e1c5263ceddf52efede48940e36fd55da45649595c2146487d4b9dcb4fb",
+        "screenshots": [
+          {
+            "file": "cases/web/case-001/input/evidence/screenshot-01.png",
+            "caption": "로그인 반복 요청 화면",
+            "sha256": "737238a1dfb461721c4e4f2c9dcf4fa25e01519bccd2feb9d8bea79f4c070e39"
+          },
+          {
+            "file": "cases/web/case-001/input/evidence/screenshot-02.png",
+            "caption": "응답 결과 확인 화면",
+            "sha256": "c36122c040f7bc2f061c06f12ec69311ea63bc3bb60864098eb4dfa354f51a01"
+          }
+        ]
+      },
+      "reproduction": {
+        "preconditions": [
+          "비인가 상태 접근 가능"
+        ],
+        "steps": [
+          "로그인 페이지 접속",
+          "반복 로그인 시도",
+          "통제 부재 확인"
+        ],
+        "request_summary": "POST /login HTTP/1.1 / Host: example.com / Content-Type: application/x-www-form-urlencoded / Body: username=test@example.com&password=wrong-password",
+        "response_summary": "HTTP/1.1 200 OK / Content-Type: application/json / Body: {\"message\":\"Invalid username or password\",\"captchaRequired\":false,\"lockout\":false}"
+      },
+      "impact": "계정 존재 여부 식별 및 무차별 대입 공격 가능",
+      "risk": {
+        "rationale": "인증 없이 접근 가능한 로그인 기능에서 반복 요청 제한이 없어 자동화 공격 성공 가능성이 높습니다.",
+        "difficulty": "낮음",
+        "asset": "인증 기능 및 사용자 계정",
+        "precondition": "비인가 상태에서 로그인 페이지 접근 가능"
+      },
+      "remediation": {
+        "summary": "로그인 실패 횟수 제한 및 CAPTCHA 적용",
+        "actions": [
+          "rate limit 적용",
+          "CAPTCHA 또는 2차 검증 적용",
+          "계정 잠금 정책 검토"
+        ],
+        "short_term": [
+          "rate limit 적용",
+          "CAPTCHA 또는 2차 검증 적용",
+          "계정 잠금 정책 검토"
+        ],
+        "mid_term": [],
+        "long_term": []
+      },
+      "references": [
+        "OWASP Automated Threats to Web Applications",
+        "내부 점검 코드 AU"
+      ],
+      "decision_basis": "반복 로그인 시도 시 별도의 CAPTCHA 또는 계정 잠금 정책이 동작하지 않음을 확인했습니다.",
+      "exception_note": "",
+      "false_positive": false,
+      "status": "open",
+      "owner": null,
+      "reviewer": null,
+      "due_date": null,
+      "notes": "로컬 샘플 케이스",
+      "unmapped_fields": {
+        "root": {
+          "unparsed_root_field": "preserve-me"
+        },
+        "finding": {
+          "confidence": "medium",
+          "unexpected_signal": {
+            "matcher": "manual-observation",
+            "repeatable": true
+          }
+        }
+      },
+      "review_key": "rk-aa9892df42c1b2a9",
+      "review": {
+        "included_in_report": true,
+        "overridden_fields": [],
+        "resolution": null,
+        "suppression": null,
+        "exception": null,
+        "review_history": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "tool": {
+    "name": "HexStrike",
+    "version": "2026.03"
+  },
+  "scan": {
+    "scan_id": "scan-case-002-f001",
+    "started_at": "2026-03-20T01:00:00Z"
+  },
+  "findings": [
+    {
+      "id": "HX-F001",
+      "name": "Portal login brute force protection missing",
+      "severity": "High",
+      "endpoint": "https://portal.example.com/login",
+      "path": "/login",
+      "method": "POST",
+      "parameter": null,
+      "description": "Portal login endpoint accepted repeated failed login attempts without throttling.",
+      "observation": "No CAPTCHA or account lockout was observed after repeated failures.",
+      "impact": "Credential stuffing and account enumeration become feasible.",
+      "remediation": [
+        "Apply rate limiting",
+        "Add CAPTCHA after repeated failures",
+        "Review account lockout policy"
+      ],
+      "request": {
+        "path": "/login",
+        "content_type": "application/x-www-form-urlencoded"
+      },
+      "response": {
+        "status_code": 200,
+        "message": "Invalid username or password"
+      },
+      "confidence": "high"
+    }
+  ],
+  "unparsed_root_field": "portal-preserve"
+}

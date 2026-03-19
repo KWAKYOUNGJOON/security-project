@@ -1,0 +1,73 @@
+{
+  "case_id": "case-003",
+  "generated_at": "2026-03-19T17:10:17Z",
+  "source_artifact": "cases/web/case-003/derived/normalized-findings.json",
+  "actions": [
+    {
+      "order": 1,
+      "review_key": "rk-8dbc9e44fc5e4261",
+      "action_type": "override",
+      "changed_fields": [
+        "classification.severity",
+        "classification.title_ko",
+        "title"
+      ],
+      "reason": "실제 영향도는 high보다 낮다고 재평가",
+      "reviewer": "analyst-1",
+      "reviewed_at": "2026-03-19T10:00:00",
+      "result": "applied"
+    },
+    {
+      "order": 2,
+      "review_key": "rk-4f650da43d5ad29e",
+      "action_type": "resolution",
+      "changed_fields": [
+        "review.resolution",
+        "status"
+      ],
+      "reason": "운영상 단기 조치가 어려워 예외 승인 후 위험 수용",
+      "reviewer": "reviewer-1",
+      "reviewed_at": "2026-03-19T10:10:00",
+      "result": "accepted"
+    },
+    {
+      "order": 3,
+      "review_key": "rk-922ee3b7b127c547",
+      "action_type": "resolution",
+      "changed_fields": [
+        "review.resolution",
+        "false_positive",
+        "status"
+      ],
+      "reason": "반사 문자열이 HTML 이스케이프되어 실행되지 않음",
+      "reviewer": "reviewer-1",
+      "reviewed_at": "2026-03-19T10:15:00",
+      "result": "excluded"
+    },
+    {
+      "order": 4,
+      "review_key": "rk-847ab2216d780e71",
+      "action_type": "suppression",
+      "changed_fields": [
+        "review.suppression",
+        "review.included_in_report"
+      ],
+      "reason": "동일 대상과 원인의 중복 finding으로 본문에서 제외",
+      "reviewer": "analyst-1",
+      "reviewed_at": "2026-03-19T10:05:00",
+      "result": "duplicate"
+    },
+    {
+      "order": 5,
+      "review_key": "rk-4f650da43d5ad29e",
+      "action_type": "exception",
+      "changed_fields": [
+        "review.exception"
+      ],
+      "reason": "분기 내 정책 개선 전까지 운영 예외 승인",
+      "reviewer": "security-committee",
+      "reviewed_at": "2026-06-30",
+      "result": "tagged"
+    }
+  ]
+}

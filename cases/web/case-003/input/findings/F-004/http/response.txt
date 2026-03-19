@@ -1,0 +1,4 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+
+<html><body><div class="search-term">&lt;svg/onload=alert(1)&gt;</div><div class="result-count">0 results</div></body></html>

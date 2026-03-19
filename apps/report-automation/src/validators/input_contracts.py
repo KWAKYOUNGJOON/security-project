@@ -57,3 +57,43 @@ def validate_document_control(
     """Validate the document-control document."""
 
     validate_schema_file(document_control_document, schema_dir / "document-control.schema.json")
+
+
+def validate_review_overrides(
+    review_overrides: list[dict[str, Any]],
+    *,
+    schema_dir: Path,
+) -> None:
+    """Validate the review override input document."""
+
+    validate_schema_file(review_overrides, schema_dir / "review-override.schema.json")
+
+
+def validate_review_suppressions(
+    review_suppressions: list[dict[str, Any]],
+    *,
+    schema_dir: Path,
+) -> None:
+    """Validate the review suppression input document."""
+
+    validate_schema_file(review_suppressions, schema_dir / "review-suppression.schema.json")
+
+
+def validate_review_resolutions(
+    review_resolutions: list[dict[str, Any]],
+    *,
+    schema_dir: Path,
+) -> None:
+    """Validate the review resolution input document."""
+
+    validate_schema_file(review_resolutions, schema_dir / "review-resolution.schema.json")
+
+
+def validate_review_exceptions(
+    review_exceptions: list[dict[str, Any]],
+    *,
+    schema_dir: Path,
+) -> None:
+    """Validate the review exception input document."""
+
+    validate_schema_file(review_exceptions, schema_dir / "review-exception.schema.json")

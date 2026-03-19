@@ -5,6 +5,7 @@
   "additionalProperties": false,
   "required": [
     "schema_version",
+    "review_key",
     "finding_id",
     "platform",
     "title",
@@ -29,6 +30,9 @@
     "schema_version": {
       "type": "string",
       "const": "1.0"
+    },
+    "review_key": {
+      "type": "string"
     },
     "finding_id": {
       "type": "string"
@@ -140,11 +144,11 @@
             "name",
             "version"
           ],
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "version": {
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "version": {
               "type": "string"
             }
           }
@@ -154,6 +158,12 @@
         },
         "title_ko": {
           "type": "string"
+        },
+        "title_en": {
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "severity": {
           "type": "string",

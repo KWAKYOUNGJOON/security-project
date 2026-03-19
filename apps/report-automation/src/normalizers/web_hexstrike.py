@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import logging
 from typing import Any, Mapping
 from urllib.parse import urljoin
@@ -69,6 +70,7 @@ def normalize_web_hexstrike_findings(case_inputs: CaseInputs) -> list[dict[str, 
         for finding_inputs in case_inputs.findings
     ]
     normalized_findings.sort(key=_finding_sort_key)
+    _assert_unique_review_keys(normalized_findings)
     LOGGER.info(
         "Normalized case %s into %s finding(s)",
         case_inputs.case_dir.name,
@@ -124,7 +126,7 @@ def _normalize_one_finding(case_inputs: CaseInputs, finding_inputs: FindingInput
         for index, path in enumerate(finding_inputs.screenshot_files, start=1)
     ]
 
-    return {
+    normalized_finding = {
         "schema_version": "1.0",
         "finding_id": str(manual.get("finding_id") or finding_inputs.finding_key),
         "platform": "web",
@@ -229,6 +231,8 @@ def _normalize_one_finding(case_inputs: CaseInputs, finding_inputs: FindingInput
             },
         },
     }
+    normalized_finding["review_key"] = _review_key(normalized_finding)
+    return normalized_finding
 
 
 def _resolve_target(
@@ -341,6 +345,47 @@ def _finding_sort_key(finding: Mapping[str, Any]) -> tuple[int, str, str, str]:
 def _normalized_severity(value: Any) -> str:
     raw = str(value or "").strip().lower()
     return SEVERITY_ALIASES.get(raw, "unknown")
+
+
+def _review_key(finding: Mapping[str, Any]) -> str:
+    parts = [
+        _normalized_review_component(finding["classification"]["taxonomy"]["name"]),
+        _normalized_review_component(finding["classification"]["taxonomy"]["version"]),
+        _normalized_review_component(finding["classification"]["canonical_key"]),
+        _normalized_review_component(finding["target"]["service_name"]),
+        _normalized_review_component(finding["target"]["base_url"]),
+        _normalized_review_component(finding["affected"]["url"]),
+        _normalized_review_method(finding["affected"]["method"]),
+        _normalized_review_component(finding["affected"].get("parameter")),
+        _normalized_review_component(finding["source"]["tool"]),
+        _normalized_review_component(finding["source"]["raw_file"]),
+    ]
+    digest = hashlib.sha256("\x1f".join(parts).encode("utf-8")).hexdigest()[:16]
+    return f"rk-{digest}"
+
+
+def _normalized_review_component(value: Any) -> str:
+    text = str(value or "").strip()
+    if text.startswith(("http://", "https://")):
+        return text.rstrip("/").lower()
+    return " ".join(text.split()).lower()
+
+
+def _normalized_review_method(value: Any) -> str:
+    return str(value or "").strip().upper()
+
+
+def _assert_unique_review_keys(normalized_findings: list[dict[str, Any]]) -> None:
+    seen: dict[str, str] = {}
+    for finding in normalized_findings:
+        review_key = str(finding["review_key"])
+        existing = seen.get(review_key)
+        if existing is not None:
+            raise CaseDataError(
+                "Duplicate review_key detected for "
+                f"{finding['finding_id']} and {existing}: {review_key}"
+            )
+        seen[review_key] = str(finding["finding_id"])
 
 
 def _tool_name(raw_scan: Mapping[str, Any]) -> str:

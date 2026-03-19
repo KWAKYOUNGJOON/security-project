@@ -1,0 +1,11 @@
+document_control:
+  history:
+    - version: v3.0
+      date: 2026-03-20
+      author: Example Analyst
+      change: Manual review workflow sample
+  approvals:
+    - role: Reviewer
+      name: Example Reviewer
+      status: approved
+      note: reviewed sample approval

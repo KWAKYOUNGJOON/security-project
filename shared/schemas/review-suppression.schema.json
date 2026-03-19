@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Review Suppression Input",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "review_key",
+      "action",
+      "reason_code",
+      "reason",
+      "reviewer",
+      "reviewed_at"
+    ],
+    "properties": {
+      "review_key": {
+        "type": "string"
+      },
+      "action": {
+        "type": "string",
+        "enum": [
+          "exclude_from_report"
+        ]
+      },
+      "reason_code": {
+        "type": "string",
+        "enum": [
+          "duplicate",
+          "out_of_scope",
+          "noise",
+          "test_artifact",
+          "withdrawn"
+        ]
+      },
+      "reason": {
+        "type": "string"
+      },
+      "reviewer": {
+        "type": "string"
+      },
+      "reviewed_at": {
+        "type": "string"
+      }
+    }
+  }
+}

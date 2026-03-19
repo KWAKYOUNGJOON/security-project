@@ -13,7 +13,7 @@
 
 The current deterministic local flow is:
 
-`raw scan result -> normalized finding(s) -> report payload -> report-template preview`
+`raw scan result -> normalized finding(s) -> reviewed finding(s) -> report payload -> report-template preview`
 
 `apps/report-template/build_report.py` remains the renderer entrypoint. `apps/report-automation` owns validation, normalization, aggregation, provenance, and bridge shaping.
 
@@ -24,7 +24,9 @@ Run from `apps/report-automation`:
 ```powershell
 python -m src.cli.main build-all --case cases/web/case-001
 python -m src.cli.main build-all --case cases/web/case-002
+python -m src.cli.main build-all --case cases/web/case-003
 python -m src.cli.main normalize --case cases/web/case-001
+python -m src.cli.main apply-review --case cases/web/case-003
 python -m src.cli.main build-payload --case cases/web/case-001
 python -m src.cli.main render-report --case cases/web/case-001
 ```
@@ -39,7 +41,7 @@ python -m src.cli.main --output ..\..\outputs\exports\sample-report-payload.json
 Regression-focused test set:
 
 ```powershell
-python -m unittest tests.test_smoke tests.test_schema_validation tests.test_manual_finding_schema tests.test_taxonomy_mapping tests.test_web_case_e2e tests.test_web_case_multi_e2e tests.test_provenance_ledger tests.test_tool_inventory_contract tests.test_document_control_optional tests.test_web_case_golden
+python -m unittest tests.test_smoke tests.test_schema_validation tests.test_manual_finding_schema tests.test_taxonomy_mapping tests.test_web_case_e2e tests.test_web_case_multi_e2e tests.test_provenance_ledger tests.test_tool_inventory_contract tests.test_document_control_optional tests.test_web_case_golden tests.test_review_key_stability tests.test_review_override tests.test_review_suppression tests.test_review_resolution tests.test_review_no_input_backward_compat tests.test_web_case_review_e2e tests.test_review_golden
 ```
 
 ## Case Models
@@ -77,6 +79,26 @@ cases/web/case-002/
       F-003/
 ```
 
+Review-enabled report unit:
+
+```text
+cases/web/case-003/
+  input/
+    engagement.yaml
+    document-control.yaml          # optional
+    tool-inventory.yaml            # optional
+    findings/
+      F-001/...
+      F-002/...
+      F-003/...
+      F-004/...
+  review/
+    overrides.yaml                 # optional
+    suppressions.yaml              # optional
+    resolutions.yaml               # optional
+    exceptions.yaml                # optional
+```
+
 Loader behavior:
 
 - If `input/findings/*` exists, multi-finding mode is used.
@@ -97,6 +119,10 @@ Explicit optional:
 
 - `document-control.yaml`
 - `tool-inventory.yaml`
+- `review/overrides.yaml`
+- `review/suppressions.yaml`
+- `review/resolutions.yaml`
+- `review/exceptions.yaml`
 
 Validation rules:
 
@@ -104,7 +130,18 @@ Validation rules:
 - `engagement.yaml` is validated by `shared/schemas/engagement-metadata.schema.json`
 - `document-control.yaml` is validated by `shared/schemas/document-control.schema.json`
 - `tool-inventory.yaml` is validated by `shared/schemas/tool-inventory.schema.json`
+- `review/overrides.yaml` is validated by `shared/schemas/review-override.schema.json`
+- `review/suppressions.yaml` is validated by `shared/schemas/review-suppression.schema.json`
+- `review/resolutions.yaml` is validated by `shared/schemas/review-resolution.schema.json`
+- `review/exceptions.yaml` is validated by `shared/schemas/review-exception.schema.json`
 - required metadata is not synthesized silently; validation must fail or the field must be explicitly optional
+
+Review input format:
+
+- `overrides.yaml`: `review_key`, `changes`, `reason`, `reviewer`, `reviewed_at`
+- `suppressions.yaml`: `review_key`, `action=exclude_from_report`, `reason_code`, `reason`, `reviewer`, `reviewed_at`
+- `resolutions.yaml`: `review_key`, `resolution`, `final_status`, `reason`, `reviewer`, `reviewed_at`
+- `exceptions.yaml`: `review_key`, `exception_type`, `approved_by`, `expires_at`, `note`
 
 Tool inventory policy:
 
@@ -122,6 +159,7 @@ Document control policy:
 
 - `classification.code` is not a stable internal identifier by itself
 - each normalized finding carries:
+  - `review_key`
   - `classification.taxonomy.name`
   - `classification.taxonomy.version`
   - `classification.canonical_key`
@@ -129,6 +167,23 @@ Document control policy:
 - collisions are resolved by `canonical_key`
 - example: `SF` means `session_fixation` in `web-legacy-template@1.0`, but `ssrf` in `web-kisa-2026@2026`
 - KISA mappings are reference taxonomies, not an automatic good/bad rule engine
+
+Review key policy:
+
+- `review_key` is generated during normalization from a fingerprint of taxonomy, canonical key, target/service URL context, HTTP method/parameter, tool name, and raw source path
+- it is immutable once written into `normalized-findings.json`
+- review matching is exact by `review_key`; missing keys fail fast
+- duplicate `review_key` values inside one case are rejected
+
+Review application policy:
+
+- review is a separate post-normalization layer; `normalized-findings.json` is never mutated in place
+- application order is fixed: `overrides -> resolutions -> suppressions -> exceptions`
+- duplicate actions of the same type for one `review_key` are rejected
+- if both `resolution` and `suppression` exist for one finding, suppression wins for `included_in_report`
+- `accepted_risk` must map to `final_status=accepted`
+- `fixed` must map to `final_status=closed`
+- `false_positive`, `duplicate`, and `not_applicable` must map to `final_status=excluded`
 
 ## Outputs
 
@@ -138,6 +193,8 @@ Canonical outputs for a case are:
 cases/web/<case-id>/
   derived/
     normalized-findings.json
+    reviewed-findings.json
+    review-log.json
     report-payload.json
     provenance.json
   output/
@@ -155,14 +212,32 @@ Output contracts:
 
 - `normalized-finding.schema.json`: per-finding contract
 - `normalized-findings.schema.json`: case-level wrapper
+- `reviewed-findings.schema.json`: post-review case-level wrapper
+- `review-log.schema.json`: manual review audit trail
 - `report-payload.schema.json`: renderer bridge contract
 - `provenance.schema.json`: input/output ledger contract
 
 Provenance policy:
 
 - `derived/provenance.json` records input and output file paths with `sha256`
-- inputs are tagged by role such as `engagement`, `manual-finding`, `raw`, `http`, `evidence`, `tool-inventory`, and `document-control`
+- inputs are tagged by role such as `engagement`, `manual-finding`, `raw`, `http`, `evidence`, `tool-inventory`, `document-control`, and `review-*`
 - the ledger is for reproducibility and drift detection, not for mutating source files
+- `provenance.json` does not include its own file hash in `outputs`; the self-hash exclusion policy remains intentional
+
+Reviewed artifact policy:
+
+- `reviewed-findings.json` contains the post-review finding set with per-finding `review` metadata
+- `reviewed.findings[].review.included_in_report` determines whether a finding flows into the payload/detail sections
+- `review-log.json` is the human-diff-friendly audit trail of every reviewer action
+- when review input is absent, reviewed artifacts still exist with empty review histories and `included_in_report=true`
+
+Report inclusion policy:
+
+- report detail sections use reviewed findings, not raw normalized findings
+- suppressed findings are excluded from payload summaries, target sections, detailed findings, evidence appendix, and HTML detail sections
+- `accepted_risk` remains in the report body with status `수용`
+- `fixed` is excluded from the default detail body unless a future retest-specific contract is added
+- review summary counts remain visible in `payload.review_summary` and in the rendered summary comment
 
 ## Hidden Default Policy
 

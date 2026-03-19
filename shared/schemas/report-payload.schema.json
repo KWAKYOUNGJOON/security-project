@@ -10,6 +10,7 @@
     "overview",
     "tool_inventory",
     "summary",
+    "review_summary",
     "target_sections",
     "findings",
     "remediation_plan",
@@ -496,6 +497,34 @@
         }
       }
     },
+    "review_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "total_reviewed",
+        "overridden_count",
+        "suppressed_count",
+        "resolved_count",
+        "accepted_risk_count"
+      ],
+      "properties": {
+        "total_reviewed": {
+          "type": "integer"
+        },
+        "overridden_count": {
+          "type": "integer"
+        },
+        "suppressed_count": {
+          "type": "integer"
+        },
+        "resolved_count": {
+          "type": "integer"
+        },
+        "accepted_risk_count": {
+          "type": "integer"
+        }
+      }
+    },
     "target_sections": {
       "type": "array",
       "items": {
@@ -585,6 +614,7 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
+          "review_key",
           "management_id",
           "taxonomy",
           "canonical_key",
@@ -625,9 +655,13 @@
           "request_file_sha256",
           "response_file",
           "response_file_sha256",
+          "review",
           "source"
         ],
         "properties": {
+          "review_key": {
+            "type": "string"
+          },
           "management_id": {
             "type": "string"
           },
@@ -821,6 +855,57 @@
           },
           "response_file_sha256": {
             "type": "string"
+          },
+          "review": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "included_in_report",
+              "overridden_fields",
+              "resolution",
+              "suppression",
+              "exception",
+              "review_history"
+            ],
+            "properties": {
+              "included_in_report": {
+                "type": "boolean"
+              },
+              "overridden_fields": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "resolution": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "additionalProperties": true
+              },
+              "suppression": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "additionalProperties": true
+              },
+              "exception": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "additionalProperties": true
+              },
+              "review_history": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
           },
           "source": {
             "type": "object",

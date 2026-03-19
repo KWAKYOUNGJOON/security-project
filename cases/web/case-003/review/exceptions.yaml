@@ -1,0 +1,5 @@
+- review_key: rk-4f650da43d5ad29e
+  exception_type: accepted_risk
+  approved_by: security-committee
+  expires_at: 2026-06-30
+  note: 분기 내 정책 개선 전까지 운영 예외 승인

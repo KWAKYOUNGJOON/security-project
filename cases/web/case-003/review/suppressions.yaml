@@ -1,0 +1,6 @@
+- review_key: rk-847ab2216d780e71
+  action: exclude_from_report
+  reason_code: duplicate
+  reason: 동일 대상과 원인의 중복 finding으로 본문에서 제외
+  reviewer: analyst-1
+  reviewed_at: 2026-03-19T10:05:00

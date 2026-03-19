@@ -1,6 +1,6 @@
 {
   "case_id": "case-001",
-  "generated_at": "2026-03-19T16:31:54Z",
+  "generated_at": "2026-03-19T17:10:02Z",
   "inputs": [
     {
       "role": "engagement",
@@ -53,15 +53,23 @@
   "outputs": [
     {
       "path": "cases/web/case-001/derived/normalized-finding.json",
-      "sha256": "d79805e5bc56274a23ea2f3fa5e81e710a1901d77a3f61cdfab084678188a645"
+      "sha256": "e91a2f87a1a9a788d298af55132513691631a37365c681612fedf8447ee88074"
     },
     {
       "path": "cases/web/case-001/derived/normalized-findings.json",
-      "sha256": "660e66574806170eb92921e81f78bb71fcec65db14093f944409d9ba0f7a434a"
+      "sha256": "7d97058d5fc6a83028f95720c08161449ea0feb19623fd47cf2c542d8692a557"
     },
     {
       "path": "cases/web/case-001/derived/report-payload.json",
-      "sha256": "1182d658a24da22c56a955d6257c355e48c2fc9624927290a47b40a397338cd1"
+      "sha256": "2fe4180d2d3ffed3f47b66d5eada6de5045715815b7b30977b0d42b3a366be62"
+    },
+    {
+      "path": "cases/web/case-001/derived/review-log.json",
+      "sha256": "607d0dca06a39267a9d5e514fdf41daab9458f049c40ae36f09be1cccab483aa"
+    },
+    {
+      "path": "cases/web/case-001/derived/reviewed-findings.json",
+      "sha256": "c759c38a3ff0060aade714ce9e5aadf6e5037a6ac9108ea83b974c91bb7bd771"
     },
     {
       "path": "cases/web/case-001/output/report-preview.html",
@@ -69,7 +77,7 @@
     },
     {
       "path": "cases/web/case-001/output/report-preview.pdf",
-      "sha256": "6c52a0ba500e8fefd8c7261a982f8294cad07bf2cb25b0c2a5d8aa08195a9c61"
+      "sha256": "c893aa7169bc45ed18cc3b1e2143274b42dd88e530e93704b86d3fab2e1ee644"
     },
     {
       "path": "cases/web/case-001/output/report-preview.validation.json",

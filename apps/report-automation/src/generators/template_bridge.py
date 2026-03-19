@@ -88,6 +88,7 @@ def build_template_dataset(
         "overview",
         "tool_inventory",
         "summary",
+        "review_summary",
         "target_sections",
         "findings",
         "remediation_plan",
@@ -188,6 +189,7 @@ def build_template_dataset(
             str(finding.get("notes") or "").strip(),
             str(finding.get("decision_basis") or "").strip(),
             str(finding.get("exception_note") or "").strip(),
+            _review_note(finding),
         ]
         note_text = " / ".join(part for part in note_parts if part)
         template_findings.append(
@@ -419,6 +421,39 @@ def _document_dataset(report_payload: Mapping[str, Any]) -> dict[str, Any]:
         for item in document_control["approvals"]
     ]
     return document
+
+
+def _review_note(finding: Mapping[str, Any]) -> str:
+    review = finding.get("review")
+    if not isinstance(review, Mapping):
+        return ""
+
+    parts: list[str] = []
+    if review.get("overridden_fields"):
+        parts.append("review override: " + ", ".join(str(item) for item in review["overridden_fields"]))
+
+    resolution = review.get("resolution")
+    if isinstance(resolution, Mapping):
+        parts.append(
+            "review resolution: "
+            f"{resolution.get('resolution')} ({resolution.get('reason')})"
+        )
+
+    suppression = review.get("suppression")
+    if isinstance(suppression, Mapping):
+        parts.append(
+            "review suppression: "
+            f"{suppression.get('reason_code')} ({suppression.get('reason')})"
+        )
+
+    review_exception = review.get("exception")
+    if isinstance(review_exception, Mapping):
+        parts.append(
+            "review exception: "
+            f"{review_exception.get('exception_type')} / {review_exception.get('note')}"
+        )
+
+    return " / ".join(part for part in parts if part)
 
 
 def _risk_key(severity: str) -> str:

@@ -1,0 +1,62 @@
+document:
+  title: 웹 취약점 진단 결과 보고서
+  version: v3.0
+  date: 2026-03-20
+  classification: internal
+
+engagement:
+  project_name: phase-1 web review sample
+  customer_name: Example Customer
+  scope_type: web
+  location:
+    name: Seoul
+    address: Seoul, Republic of Korea
+    ip: "-"
+    access_method: local file based evidence
+    note: manual review workflow sample
+  targets:
+    - target_id: TGT-001
+      service_name: Portal Service
+      base_url: https://portal.example.com
+      environment: staging
+      auth_context: authenticated
+      account_level: authenticated
+      criticality: high
+      note: customer portal
+    - target_id: TGT-002
+      service_name: Admin Service
+      base_url: https://admin.example.com
+      environment: production-like
+      auth_context: authenticated
+      account_level: authenticated
+      criticality: critical
+      note: administrator portal
+  schedule:
+    - phase: 정보 수집
+      date: 2026-03-19
+      deliverable: 대상 식별 및 범위 확인
+      content: 2개 서비스 및 finding 단위 입력 준비
+    - phase: 웹 취약점 진단
+      date: 2026-03-20
+      deliverable: review 적용 보고서 초안
+      content: normalize 이후 review 적용 및 reviewed payload 생성
+  team:
+    - company: Example Security
+      name: 홍길동
+      role: Lead Analyst
+      scope: 전체 분석 및 보고서 집계
+      contact: lead.analyst@example.com
+    - company: Example Security
+      name: 김영희
+      role: Analyst
+      scope: 수동 재현 및 증빙 수집
+      contact: analyst@example.com
+  purpose: 본 웹 취약점 진단은 Example Customer의 2개 Web 서비스에 대한 reviewed finding 보고서를 생성하기 위해 수행되었습니다.
+  purpose_note: finding 입력은 개별 디렉터리 단위로 관리되며 normalize 이후 manual review 계층을 거쳐 집계됩니다.
+  constraints:
+    assumptions: 입력 파일은 로컬 고정본이며 외부 API 호출은 사용하지 않습니다.
+    assumptions_status: 적용
+    exclusions: API 및 Server 범위는 제외합니다.
+    exclusions_status: 적용
+    limitations: 단일 보고서 unit 내에서 Web finding만 집계합니다.
+    limitations_status: 적용

@@ -11,7 +11,7 @@ class SchemaValidationError(ValueError):
     """Raised when a document does not satisfy a schema."""
 
 
-def validate_schema_file(instance: Mapping[str, Any], schema_path: Path) -> None:
+def validate_schema_file(instance: Any, schema_path: Path) -> None:
     """Validate a JSON-compatible object against a local schema file."""
 
     schema = json.loads(schema_path.read_text(encoding="utf-8"))

@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Review Exception Input",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "review_key",
+      "exception_type",
+      "approved_by",
+      "expires_at",
+      "note"
+    ],
+    "properties": {
+      "review_key": {
+        "type": "string"
+      },
+      "exception_type": {
+        "type": "string"
+      },
+      "approved_by": {
+        "type": "string"
+      },
+      "expires_at": {
+        "type": "string"
+      },
+      "note": {
+        "type": "string"
+      }
+    }
+  }
+}

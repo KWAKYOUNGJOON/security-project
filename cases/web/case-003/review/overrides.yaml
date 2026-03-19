@@ -1,0 +1,7 @@
+- review_key: rk-8dbc9e44fc5e4261
+  changes:
+    severity: medium
+    title_ko: 로그인 시도 제한 미흡
+  reason: 실제 영향도는 high보다 낮다고 재평가
+  reviewer: analyst-1
+  reviewed_at: 2026-03-19T10:00:00

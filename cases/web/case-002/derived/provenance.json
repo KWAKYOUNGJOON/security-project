@@ -1,6 +1,6 @@
 {
   "case_id": "case-002",
-  "generated_at": "2026-03-19T16:32:02Z",
+  "generated_at": "2026-03-19T17:10:09Z",
   "inputs": [
     {
       "role": "document-control",
@@ -111,11 +111,19 @@
   "outputs": [
     {
       "path": "cases/web/case-002/derived/normalized-findings.json",
-      "sha256": "9f7a2b9cbf3456f5fbd74132133ce01792e293ab8d25bee1787835e39595ad5c"
+      "sha256": "b8b97bebf88d90e101b6bb527845d6be34a7c0e269e6c4f6da1f718101aa3c4e"
     },
     {
       "path": "cases/web/case-002/derived/report-payload.json",
-      "sha256": "85a8796956db82b8b04ab371cc69e95f4b4cde50a5bf34b7c906ed8f22ed0617"
+      "sha256": "752d3f47dfc9a17054647b46abd8cb0569d0db0936e18199fab3c69a7ba9db07"
+    },
+    {
+      "path": "cases/web/case-002/derived/review-log.json",
+      "sha256": "9650dbf8a1258ff082b4b59cbd1f470adbdd4b17486198584023ac3225dfdcec"
+    },
+    {
+      "path": "cases/web/case-002/derived/reviewed-findings.json",
+      "sha256": "61ca84bcf57463a858949de4daecfbdf9945b1ac6f9277a43fc77a821c6cc49b"
     },
     {
       "path": "cases/web/case-002/output/report-preview.html",
@@ -123,7 +131,7 @@
     },
     {
       "path": "cases/web/case-002/output/report-preview.pdf",
-      "sha256": "c5357f0cb215ad5bf10d1cac3fd7ce4805914f5845be4a7236e52b09532503ea"
+      "sha256": "563c7f53a2e0d69e071add0b888a998a6b9cc3c34ba6dde3ae1f4b3c1ccc8f7c"
     },
     {
       "path": "cases/web/case-002/output/report-preview.validation.json",

@@ -43,6 +43,8 @@ def _input_records(case_inputs: CaseInputs) -> list[dict[str, str]]:
         records.append(_file_record(case_inputs, role="document-control", path=case_inputs.document_control_file))
     if case_inputs.tool_inventory_file is not None:
         records.append(_file_record(case_inputs, role="tool-inventory", path=case_inputs.tool_inventory_file))
+    for role, path in case_inputs.review.input_files:
+        records.append(_file_record(case_inputs, role=role, path=path))
 
     for finding in case_inputs.findings:
         if finding.target_file is not None:

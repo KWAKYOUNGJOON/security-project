@@ -7,7 +7,7 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any, Mapping, Sequence
 
 if __package__ in {None, ""}:
     APP_ROOT = Path(__file__).resolve().parents[2]
@@ -26,6 +26,7 @@ from src.normalizers.web_hexstrike import (
     normalize_web_hexstrike_case,
     normalize_web_hexstrike_findings,
 )
+from src.review import apply_review
 from src.parsers import parse_hexstrike_snapshot
 from src.validators import validate_schema_file
 
@@ -34,7 +35,7 @@ APP_ROOT = Path(__file__).resolve().parents[2]
 REPO_ROOT = APP_ROOT.parent.parent
 DEFAULT_CONFIG_PATH = APP_ROOT / "configs" / "default.yaml"
 SHARED_SCHEMA_DIR = REPO_ROOT / "shared" / "schemas"
-CASE_COMMANDS = {"normalize", "build-payload", "render-report", "build-all"}
+CASE_COMMANDS = {"normalize", "apply-review", "build-payload", "render-report", "build-all"}
 LOGGER = logging.getLogger(__name__)
 
 
@@ -178,6 +179,8 @@ def _run_case_cli(argv: list[str]) -> int:
     try:
         if args.command == "normalize":
             result = normalize_case_artifact(args.case)
+        elif args.command == "apply-review":
+            result = apply_review_artifact(args.case)
         elif args.command == "build-payload":
             result = build_payload_artifact(args.case)
         elif args.command == "render-report":
@@ -195,7 +198,7 @@ def normalize_case_artifact(case_arg: Path) -> dict[str, str]:
     """Build and write the normalized finding artifact for one case."""
 
     case_dir = resolve_case_directory(case_arg, REPO_ROOT)
-    result = _build_case_stage(case_dir, include_payload=False, include_render=False)
+    result = _build_case_stage(case_dir, include_review=False, include_payload=False, include_render=False)
     return {
         "normalized_path": result["normalized_path"],
         "normalized_findings_path": result["normalized_findings_path"],
@@ -207,11 +210,27 @@ def build_payload_artifact(case_arg: Path) -> dict[str, str]:
     """Build and write the report payload artifact for one case."""
 
     case_dir = resolve_case_directory(case_arg, REPO_ROOT)
-    result = _build_case_stage(case_dir, include_payload=True, include_render=False)
+    result = _build_case_stage(case_dir, include_review=True, include_payload=True, include_render=False)
     return {
         "normalized_path": result["normalized_path"],
         "normalized_findings_path": result["normalized_findings_path"],
+        "reviewed_path": result["reviewed_path"],
+        "review_log_path": result["review_log_path"],
         "payload_path": result["payload_path"],
+        "provenance_path": result["provenance_path"],
+    }
+
+
+def apply_review_artifact(case_arg: Path) -> dict[str, str]:
+    """Build and write the reviewed finding artifact for one case."""
+
+    case_dir = resolve_case_directory(case_arg, REPO_ROOT)
+    result = _build_case_stage(case_dir, include_review=True, include_payload=False, include_render=False)
+    return {
+        "normalized_path": result["normalized_path"],
+        "normalized_findings_path": result["normalized_findings_path"],
+        "reviewed_path": result["reviewed_path"],
+        "review_log_path": result["review_log_path"],
         "provenance_path": result["provenance_path"],
     }
 
@@ -220,10 +239,12 @@ def render_report_artifact(case_arg: Path) -> dict[str, str | None]:
     """Render a report preview for one case."""
 
     case_dir = resolve_case_directory(case_arg, REPO_ROOT)
-    result = _build_case_stage(case_dir, include_payload=True, include_render=True)
+    result = _build_case_stage(case_dir, include_review=True, include_payload=True, include_render=True)
     return {
         "normalized_path": result["normalized_path"],
         "normalized_findings_path": result["normalized_findings_path"],
+        "reviewed_path": result["reviewed_path"],
+        "review_log_path": result["review_log_path"],
         "payload_path": result["payload_path"],
         "provenance_path": result["provenance_path"],
         "html_path": result["html_path"],
@@ -236,12 +257,13 @@ def build_all_artifacts(case_arg: Path) -> dict[str, str | None]:
     """Run normalize, payload build, and report rendering for one case."""
 
     case_dir = resolve_case_directory(case_arg, REPO_ROOT)
-    return _build_case_stage(case_dir, include_payload=True, include_render=True)
+    return _build_case_stage(case_dir, include_review=True, include_payload=True, include_render=True)
 
 
 def _build_case_stage(
     case_dir: Path,
     *,
+    include_review: bool,
     include_payload: bool,
     include_render: bool,
 ) -> dict[str, str | None]:
@@ -264,8 +286,28 @@ def _build_case_stage(
     if legacy_normalized_path is not None:
         output_paths.append(legacy_normalized_path)
 
+    reviewed_findings: Sequence[Mapping[str, Any]] = normalized_findings
+    if include_review:
+        reviewed_bundle, review_log = apply_review(
+            case_inputs,
+            normalized_findings,
+            normalized_artifact_path=case_inputs.repo_relative(normalized_findings_path),
+        )
+        validate_schema_file(reviewed_bundle, SHARED_SCHEMA_DIR / "reviewed-findings.schema.json")
+        validate_schema_file(review_log, SHARED_SCHEMA_DIR / "review-log.schema.json")
+        reviewed_path = case_dir / "derived" / "reviewed-findings.json"
+        review_log_path = case_dir / "derived" / "review-log.json"
+        _write_json(reviewed_path, reviewed_bundle)
+        _write_json(review_log_path, review_log)
+        output_paths.extend([reviewed_path, review_log_path])
+        reviewed_findings = list(reviewed_bundle["findings"])
+        result["reviewed_path"] = str(reviewed_path)
+        result["review_log_path"] = str(review_log_path)
+        LOGGER.info("Wrote reviewed findings to %s", reviewed_path)
+        LOGGER.info("Wrote review log to %s", review_log_path)
+
     if include_payload:
-        payload = build_web_report_payload(normalized_findings, case_inputs)
+        payload = build_web_report_payload(reviewed_findings, case_inputs)
         validate_schema_file(payload, SHARED_SCHEMA_DIR / "report-payload.schema.json")
         payload_path = case_dir / "derived" / "report-payload.json"
         _write_json(payload_path, payload)

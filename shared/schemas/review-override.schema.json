@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Review Override Input",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "review_key",
+      "changes",
+      "reason",
+      "reviewer",
+      "reviewed_at"
+    ],
+    "properties": {
+      "review_key": {
+        "type": "string"
+      },
+      "changes": {
+        "type": "object",
+        "additionalProperties": false,
+        "minProperties": 1,
+        "properties": {
+          "severity": {
+            "type": "string",
+            "enum": [
+              "high",
+              "medium",
+              "low"
+            ]
+          },
+          "title_ko": {
+            "type": "string"
+          },
+          "title_en": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "canonical_key": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "impact": {
+            "type": "string"
+          },
+          "remediation": {
+            "type": "string"
+          }
+        }
+      },
+      "reason": {
+        "type": "string"
+      },
+      "reviewer": {
+        "type": "string"
+      },
+      "reviewed_at": {
+        "type": "string"
+      }
+    }
+  }
+}

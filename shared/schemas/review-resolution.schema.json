@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Review Resolution Input",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "review_key",
+      "resolution",
+      "final_status",
+      "reason",
+      "reviewer",
+      "reviewed_at"
+    ],
+    "properties": {
+      "review_key": {
+        "type": "string"
+      },
+      "resolution": {
+        "type": "string",
+        "enum": [
+          "false_positive",
+          "accepted_risk",
+          "fixed",
+          "duplicate",
+          "not_applicable"
+        ]
+      },
+      "final_status": {
+        "type": "string",
+        "enum": [
+          "closed",
+          "accepted",
+          "excluded"
+        ]
+      },
+      "reason": {
+        "type": "string"
+      },
+      "reviewer": {
+        "type": "string"
+      },
+      "reviewed_at": {
+        "type": "string"
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+- review_key: rk-4f650da43d5ad29e
+  resolution: accepted_risk
+  final_status: accepted
+  reason: 운영상 단기 조치가 어려워 예외 승인 후 위험 수용
+  reviewer: reviewer-1
+  reviewed_at: 2026-03-19T10:10:00
+- review_key: rk-922ee3b7b127c547
+  resolution: false_positive
+  final_status: excluded
+  reason: 반사 문자열이 HTML 이스케이프되어 실행되지 않음
+  reviewer: reviewer-1
+  reviewed_at: 2026-03-19T10:15:00

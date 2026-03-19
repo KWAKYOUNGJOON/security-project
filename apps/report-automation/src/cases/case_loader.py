@@ -11,6 +11,10 @@ from src.validators import (
     validate_document_control,
     validate_engagement_metadata,
     validate_manual_finding,
+    validate_review_exceptions,
+    validate_review_overrides,
+    validate_review_resolutions,
+    validate_review_suppressions,
     validate_tool_inventory,
 )
 
@@ -48,6 +52,45 @@ class FindingInputs:
 
 
 @dataclass(frozen=True)
+class ReviewInputs:
+    """Resolved review-layer inputs for one report unit."""
+
+    overrides: list[dict[str, Any]]
+    suppressions: list[dict[str, Any]]
+    resolutions: list[dict[str, Any]]
+    exceptions: list[dict[str, Any]]
+    overrides_file: Path | None
+    suppressions_file: Path | None
+    resolutions_file: Path | None
+    exceptions_file: Path | None
+
+    @property
+    def has_review_files(self) -> bool:
+        return any(
+            path is not None
+            for path in (
+                self.overrides_file,
+                self.suppressions_file,
+                self.resolutions_file,
+                self.exceptions_file,
+            )
+        )
+
+    @property
+    def input_files(self) -> list[tuple[str, Path]]:
+        files: list[tuple[str, Path]] = []
+        if self.overrides_file is not None:
+            files.append(("review-override", self.overrides_file))
+        if self.suppressions_file is not None:
+            files.append(("review-suppression", self.suppressions_file))
+        if self.resolutions_file is not None:
+            files.append(("review-resolution", self.resolutions_file))
+        if self.exceptions_file is not None:
+            files.append(("review-exception", self.exceptions_file))
+        return files
+
+
+@dataclass(frozen=True)
 class CaseInputs:
     """Resolved case-level inputs for one report unit."""
 
@@ -61,6 +104,7 @@ class CaseInputs:
     engagement_file: Path
     document_control_file: Path | None
     tool_inventory_file: Path | None
+    review: ReviewInputs
     is_multi_finding: bool
 
     def repo_relative(self, path: Path) -> str:
@@ -156,6 +200,7 @@ def load_case_inputs(case_dir: Path, repo_root: Path) -> CaseInputs:
         tool_inventory_file=tool_inventory_file,
         schema_dir=schema_dir,
     )
+    review_inputs = _load_review_inputs(case_dir / "review", schema_dir=schema_dir)
 
     findings_root = input_dir / "findings"
     if findings_root.exists():
@@ -187,6 +232,7 @@ def load_case_inputs(case_dir: Path, repo_root: Path) -> CaseInputs:
         engagement_file=engagement_file.resolve(),
         document_control_file=document_control_file.resolve() if document_control_file.exists() else None,
         tool_inventory_file=tool_inventory_file.resolve() if tool_inventory_file.exists() else None,
+        review=review_inputs,
         is_multi_finding=is_multi_finding,
     )
 
@@ -343,6 +389,50 @@ def _load_document_control(
     }
 
 
+def _load_review_inputs(review_dir: Path, *, schema_dir: Path) -> ReviewInputs:
+    if not review_dir.exists():
+        return ReviewInputs(
+            overrides=[],
+            suppressions=[],
+            resolutions=[],
+            exceptions=[],
+            overrides_file=None,
+            suppressions_file=None,
+            resolutions_file=None,
+            exceptions_file=None,
+        )
+
+    overrides_file = review_dir / "overrides.yaml"
+    suppressions_file = review_dir / "suppressions.yaml"
+    resolutions_file = review_dir / "resolutions.yaml"
+    exceptions_file = review_dir / "exceptions.yaml"
+
+    overrides = _load_sequence_file(overrides_file, description="review/overrides.yaml") if overrides_file.exists() else []
+    suppressions = (
+        _load_sequence_file(suppressions_file, description="review/suppressions.yaml") if suppressions_file.exists() else []
+    )
+    resolutions = (
+        _load_sequence_file(resolutions_file, description="review/resolutions.yaml") if resolutions_file.exists() else []
+    )
+    exceptions = _load_sequence_file(exceptions_file, description="review/exceptions.yaml") if exceptions_file.exists() else []
+
+    validate_review_overrides(overrides, schema_dir=schema_dir)
+    validate_review_suppressions(suppressions, schema_dir=schema_dir)
+    validate_review_resolutions(resolutions, schema_dir=schema_dir)
+    validate_review_exceptions(exceptions, schema_dir=schema_dir)
+
+    return ReviewInputs(
+        overrides=overrides,
+        suppressions=suppressions,
+        resolutions=resolutions,
+        exceptions=exceptions,
+        overrides_file=overrides_file.resolve() if overrides_file.exists() else None,
+        suppressions_file=suppressions_file.resolve() if suppressions_file.exists() else None,
+        resolutions_file=resolutions_file.resolve() if resolutions_file.exists() else None,
+        exceptions_file=exceptions_file.resolve() if exceptions_file.exists() else None,
+    )
+
+
 def _evidence_files(evidence_dir: Path) -> list[Path]:
     screenshot_files = sorted(path for path in evidence_dir.glob("*") if path.is_file())
     if not screenshot_files:
@@ -351,31 +441,38 @@ def _evidence_files(evidence_dir: Path) -> list[Path]:
 
 
 def _load_json_file(path: Path, *, description: str) -> dict[str, Any]:
-    text = path.read_text(encoding="utf-8").strip()
-    if not text:
-        raise CaseDataError(f"{description} is empty: {path}")
-    try:
-        payload = json.loads(text)
-    except json.JSONDecodeError as exc:
-        raise CaseDataError(f"Invalid JSON in {description}: {path}") from exc
+    payload = _load_document(path, description=description)
     if not isinstance(payload, dict):
         raise CaseDataError(f"{description} must contain a JSON object: {path}")
     return payload
 
 
 def _load_mapping_file(path: Path, *, description: str) -> dict[str, Any]:
+    payload = _load_document(path, description=description)
+    if not isinstance(payload, dict):
+        raise CaseDataError(f"{description} must contain an object at the document root: {path}")
+    return payload
+
+
+def _load_sequence_file(path: Path, *, description: str) -> list[dict[str, Any]]:
+    payload = _load_document(path, description=description)
+    if not isinstance(payload, list):
+        raise CaseDataError(f"{description} must contain an array at the document root: {path}")
+    for index, item in enumerate(payload):
+        if not isinstance(item, dict):
+            raise CaseDataError(f"{description} item #{index + 1} must be an object: {path}")
+    return [dict(item) for item in payload]
+
+
+def _load_document(path: Path, *, description: str) -> Any:
     text = path.read_text(encoding="utf-8").strip()
     if not text:
         raise CaseDataError(f"{description} is empty: {path}")
 
     try:
-        payload = json.loads(text)
+        return json.loads(text)
     except json.JSONDecodeError:
-        payload = _parse_simple_yaml(text)
-
-    if not isinstance(payload, dict):
-        raise CaseDataError(f"{description} must contain an object at the document root: {path}")
-    return payload
+        return _parse_simple_yaml(text)
 
 
 def _validate_target_alignment(target: dict[str, Any], engagement_metadata: dict[str, Any]) -> None:

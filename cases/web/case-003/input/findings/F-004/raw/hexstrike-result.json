@@ -1,0 +1,38 @@
+{
+  "tool": {
+    "name": "HexStrike",
+    "version": "2026.03"
+  },
+  "scan": {
+    "scan_id": "scan-case-003-f004",
+    "started_at": "2026-03-20T01:30:00Z"
+  },
+  "findings": [
+    {
+      "id": "HX-F004",
+      "name": "Potential reflected search output",
+      "severity": "Low",
+      "endpoint": "https://portal.example.com/search?query=%3Csvg%2Fonload%3Dalert(1)%3E",
+      "path": "/search",
+      "method": "GET",
+      "parameter": "query",
+      "description": "The search endpoint reflected the supplied query parameter in the response body.",
+      "observation": "The reflected marker appeared HTML-encoded in the rendered result area.",
+      "impact": "If output encoding fails, the feature could enable script execution in the browser.",
+      "remediation": [
+        "Apply context-aware output encoding",
+        "Verify reflected output handling with browser execution checks"
+      ],
+      "request": {
+        "path": "/search",
+        "content_type": "text/html"
+      },
+      "response": {
+        "status_code": 200,
+        "message": "Encoded search marker returned"
+      },
+      "confidence": "low"
+    }
+  ],
+  "unparsed_root_field": "portal-search-preserve"
+}

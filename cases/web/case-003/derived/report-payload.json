@@ -1,0 +1,568 @@
+{
+  "document": {
+    "title": "웹 취약점 진단 결과 보고서",
+    "version": "v3.0",
+    "date": "2026-03-20",
+    "classification": "internal"
+  },
+  "document_control": {
+    "history": [
+      {
+        "version": "v3.0",
+        "date": "2026-03-20",
+        "author": "Example Analyst",
+        "change": "Manual review workflow sample"
+      }
+    ],
+    "approvals": [
+      {
+        "role": "Reviewer",
+        "name": "Example Reviewer",
+        "status": "approved",
+        "note": "reviewed sample approval"
+      }
+    ]
+  },
+  "engagement": {
+    "project_name": "phase-1 web review sample",
+    "customer_name": "Example Customer",
+    "scope_type": "web",
+    "targets": [
+      {
+        "target_id": "TGT-001",
+        "service_name": "Portal Service",
+        "base_url": "https://portal.example.com",
+        "account_level": "authenticated",
+        "criticality": "high",
+        "note": "customer portal",
+        "environment": "staging",
+        "auth_context": "authenticated"
+      },
+      {
+        "target_id": "TGT-002",
+        "service_name": "Admin Service",
+        "base_url": "https://admin.example.com",
+        "account_level": "authenticated",
+        "criticality": "critical",
+        "note": "administrator portal",
+        "environment": "production-like",
+        "auth_context": "authenticated"
+      }
+    ],
+    "schedule": [
+      {
+        "phase": "정보 수집",
+        "date": "2026-03-19",
+        "deliverable": "대상 식별 및 범위 확인",
+        "content": "2개 서비스 및 finding 단위 입력 준비"
+      },
+      {
+        "phase": "웹 취약점 진단",
+        "date": "2026-03-20",
+        "deliverable": "review 적용 보고서 초안",
+        "content": "normalize 이후 review 적용 및 reviewed payload 생성"
+      }
+    ],
+    "team": [
+      {
+        "company": "Example Security",
+        "name": "홍길동",
+        "role": "Lead Analyst",
+        "scope": "전체 분석 및 보고서 집계",
+        "contact": "lead.analyst@example.com"
+      },
+      {
+        "company": "Example Security",
+        "name": "김영희",
+        "role": "Analyst",
+        "scope": "수동 재현 및 증빙 수집",
+        "contact": "analyst@example.com"
+      }
+    ],
+    "location": {
+      "name": "Seoul",
+      "address": "Seoul, Republic of Korea",
+      "ip": "-",
+      "access_method": "local file based evidence",
+      "note": "manual review workflow sample"
+    }
+  },
+  "overview": {
+    "purpose_text": "본 웹 취약점 진단은 Example Customer의 2개 Web 서비스에 대한 reviewed finding 보고서를 생성하기 위해 수행되었습니다.",
+    "purpose_note": "finding 입력은 개별 디렉터리 단위로 관리되며 normalize 이후 manual review 계층을 거쳐 집계됩니다.",
+    "constraints": {
+      "assumptions": "입력 파일은 로컬 고정본이며 외부 API 호출은 사용하지 않습니다.",
+      "assumptions_status": "적용",
+      "exclusions": "API 및 Server 범위는 제외합니다.",
+      "exclusions_status": "적용",
+      "limitations": "단일 보고서 unit 내에서 Web finding만 집계합니다.",
+      "limitations_status": "적용"
+    },
+    "scope": {
+      "type": "웹 애플리케이션 취약점 진단",
+      "method": "수동 분석 기반 검증",
+      "account_condition": "authenticated",
+      "environment": "production-like, staging"
+    }
+  },
+  "tool_inventory": [
+    {
+      "name": "HexStrike",
+      "purpose": "raw scan source",
+      "category": "scanner",
+      "source_type": "raw_scan",
+      "note": "finding raw results"
+    },
+    {
+      "name": "Burp Suite",
+      "purpose": "manual verification",
+      "category": "proxy",
+      "source_type": "analyst_declared",
+      "note": "request replay and response review"
+    }
+  ],
+  "summary": {
+    "total_findings": 2,
+    "by_severity": {
+      "high": 0,
+      "medium": 1,
+      "low": 1
+    },
+    "by_target": [
+      {
+        "target_id": "TGT-002",
+        "system_name": "Admin Service",
+        "target_url": "https://admin.example.com",
+        "total_findings": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 1
+      },
+      {
+        "target_id": "TGT-001",
+        "system_name": "Portal Service",
+        "target_url": "https://portal.example.com",
+        "total_findings": 1,
+        "high": 0,
+        "medium": 1,
+        "low": 0
+      }
+    ],
+    "comment": "총 2건의 취약점이 발견되었으며, 대상은 2개 시스템입니다. 재평가 override 1건이 반영되었습니다. 보고서 본문에서 제외된 항목은 1건입니다. resolution 상태가 지정된 항목은 2건입니다. 위험 수용 항목은 1건입니다.",
+    "priorities": [
+      {
+        "rank": "1순위",
+        "management_id": "F-001",
+        "title": "로그인 시도 제한 미흡",
+        "severity": "medium",
+        "owner": "Portal Team",
+        "due_date": "2026-03-27"
+      },
+      {
+        "rank": "2순위",
+        "management_id": "F-003",
+        "title": "관리자 계정 비밀번호 복잡도 정책 미흡",
+        "severity": "low",
+        "owner": "Admin Team",
+        "due_date": "2026-04-03"
+      }
+    ]
+  },
+  "review_summary": {
+    "total_reviewed": 4,
+    "overridden_count": 1,
+    "suppressed_count": 1,
+    "resolved_count": 2,
+    "accepted_risk_count": 1
+  },
+  "target_sections": [
+    {
+      "target_id": "TGT-002",
+      "system_name": "Admin Service",
+      "target_url": "https://admin.example.com",
+      "total_findings": 1,
+      "by_severity": {
+        "high": 0,
+        "medium": 0,
+        "low": 1
+      },
+      "findings": [
+        {
+          "management_id": "F-003",
+          "finding_name": "관리자 계정 비밀번호 복잡도 정책 미흡",
+          "code": "BF",
+          "severity": "low",
+          "status": "수용"
+        }
+      ]
+    },
+    {
+      "target_id": "TGT-001",
+      "system_name": "Portal Service",
+      "target_url": "https://portal.example.com",
+      "total_findings": 1,
+      "by_severity": {
+        "high": 0,
+        "medium": 1,
+        "low": 0
+      },
+      "findings": [
+        {
+          "management_id": "F-001",
+          "finding_name": "로그인 시도 제한 미흡",
+          "code": "AU",
+          "severity": "medium",
+          "status": "미조치"
+        }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "review_key": "rk-8dbc9e44fc5e4261",
+      "management_id": "F-001",
+      "taxonomy": {
+        "name": "web-kisa-2026",
+        "version": "2026"
+      },
+      "canonical_key": "automated_attack",
+      "target_id": "TGT-001",
+      "system_name": "Portal Service",
+      "target_url": "https://portal.example.com",
+      "finding_name": "로그인 시도 제한 미흡",
+      "code": "AU",
+      "severity": "medium",
+      "result": "취약",
+      "affected_url": "https://portal.example.com/login",
+      "summary": "로그인 실패 횟수 제한 또는 CAPTCHA가 없어 반복 요청이 가능함",
+      "description": "포털 로그인 기능에서 반복 인증 시도 제한이 없어 자동화 공격이 가능합니다.\n\nPortal login endpoint accepted repeated failed login attempts without throttling.\n\nNo CAPTCHA or account lockout was observed after repeated failures.",
+      "cause": "로그인 실패 횟수 제한과 CAPTCHA 정책이 부재합니다.\n\nNo CAPTCHA or account lockout was observed after repeated failures.",
+      "impact": "계정 존재 여부 식별 및 무차별 대입 공격 가능",
+      "risk_rationale": "인증 전 반복 요청 제한이 없어 자동화 공격 성공 가능성이 높습니다.",
+      "risk_difficulty": "낮음",
+      "risk_asset": "사용자 계정 및 인증 기능",
+      "risk_precondition": "로그인 페이지 공개 노출",
+      "repro_parameters": "-",
+      "repro_request": "POST /login HTTP/1.1 / Host: portal.example.com / Content-Type: application/x-www-form-urlencoded / Body: username=test@example.com&password=wrong-password",
+      "repro_response": "HTTP/1.1 200 OK / Content-Type: application/json / Body: {\"message\":\"Invalid username or password\",\"captchaRequired\":false,\"lockout\":false}",
+      "reproduction_steps": [
+        "포털 로그인 페이지 접속",
+        "동일 계정으로 반복 로그인 시도",
+        "별도 차단이 없음을 확인"
+      ],
+      "preconditions": [
+        "인증 전 로그인 페이지 접근 가능"
+      ],
+      "evidence": [
+        {
+          "finding_id": "F-001",
+          "type": "request",
+          "label": "HTTP Request",
+          "path": "cases/web/case-003/input/findings/F-001/http/request.txt",
+          "caption": "재현 요청 전문",
+          "sha256": "82935aa6bc19d6c9ad05ff7c9441543892c4abecf017998d47607f75a3d2d3f2"
+        },
+        {
+          "finding_id": "F-001",
+          "type": "response",
+          "label": "HTTP Response",
+          "path": "cases/web/case-003/input/findings/F-001/http/response.txt",
+          "caption": "재현 응답 전문",
+          "sha256": "ba3b2d9eb043e28b28863de39f8b107ff6502e932dd9fda666a537d3b04c7e92"
+        },
+        {
+          "finding_id": "F-001",
+          "type": "screenshot",
+          "label": "포털 로그인 반복 요청 화면",
+          "path": "cases/web/case-003/input/findings/F-001/evidence/screenshot-01.png",
+          "caption": "포털 로그인 반복 요청 화면",
+          "sha256": "737238a1dfb461721c4e4f2c9dcf4fa25e01519bccd2feb9d8bea79f4c070e39"
+        }
+      ],
+      "remediation": [
+        "로그인 rate limit 적용",
+        "CAPTCHA 적용",
+        "계정 잠금 정책 검토"
+      ],
+      "references": [
+        "OWASP Automated Threats to Web Applications"
+      ],
+      "status": "미조치",
+      "found_at": "2026.03.20",
+      "due_date": "2026-03-27",
+      "owner": "Portal Team",
+      "reviewer": "Example Reviewer",
+      "notes": "portal target finding",
+      "false_positive": false,
+      "decision_basis": "반복 로그인 요청 시 lockout과 CAPTCHA가 동작하지 않음을 확인했습니다.",
+      "exception_note": "",
+      "request_file": "cases/web/case-003/input/findings/F-001/http/request.txt",
+      "request_file_sha256": "82935aa6bc19d6c9ad05ff7c9441543892c4abecf017998d47607f75a3d2d3f2",
+      "response_file": "cases/web/case-003/input/findings/F-001/http/response.txt",
+      "response_file_sha256": "ba3b2d9eb043e28b28863de39f8b107ff6502e932dd9fda666a537d3b04c7e92",
+      "review": {
+        "included_in_report": true,
+        "overridden_fields": [
+          "classification.severity",
+          "classification.title_ko",
+          "title"
+        ],
+        "resolution": null,
+        "suppression": null,
+        "exception": null,
+        "review_history": [
+          {
+            "order": 1,
+            "review_key": "rk-8dbc9e44fc5e4261",
+            "action_type": "override",
+            "changed_fields": [
+              "classification.severity",
+              "classification.title_ko",
+              "title"
+            ],
+            "reason": "실제 영향도는 high보다 낮다고 재평가",
+            "reviewer": "analyst-1",
+            "reviewed_at": "2026-03-19T10:00:00",
+            "result": "applied"
+          }
+        ]
+      },
+      "source": {
+        "tool": "HexStrike",
+        "parser": "web_hexstrike",
+        "raw_file": "cases/web/case-003/input/findings/F-001/raw/hexstrike-result.json",
+        "raw_file_sha256": "4846cb2438c5d8d92e56375f7229c57aae41f4eb943a48d0c7014a907a3c2680",
+        "manual_finding_file": "cases/web/case-003/input/findings/F-001/manual-finding.yaml",
+        "manual_finding_sha256": "b9938fab361c87e46e0c82dd13b26353557d6db3cee8c2c703c947852cac93f9"
+      }
+    },
+    {
+      "review_key": "rk-4f650da43d5ad29e",
+      "management_id": "F-003",
+      "taxonomy": {
+        "name": "web-kisa-2026",
+        "version": "2026"
+      },
+      "canonical_key": "weak_password_policy",
+      "target_id": "TGT-002",
+      "system_name": "Admin Service",
+      "target_url": "https://admin.example.com",
+      "finding_name": "관리자 계정 비밀번호 복잡도 정책 미흡",
+      "code": "BF",
+      "severity": "low",
+      "result": "취약",
+      "affected_url": "https://admin.example.com/users/new",
+      "summary": "관리자 신규 계정 생성 시 약한 비밀번호가 허용됨",
+      "description": "관리자 사용자 생성 화면에서 길이와 복잡도 제한이 충분하지 않아 약한 비밀번호가 허용됩니다.\n\nThe admin user creation form accepted weak passwords such as 12345678.\n\nNo minimum complexity enforcement was observed.",
+      "cause": "관리자 계정 정책에 최소 길이와 복잡도 검증이 부재합니다.\n\nNo minimum complexity enforcement was observed.",
+      "impact": "관리자 계정 탈취 위험 증가",
+      "risk_rationale": "관리자 계정이 약한 비밀번호로 생성되면 추측 공격에 취약해집니다.",
+      "risk_difficulty": "보통",
+      "risk_asset": "관리자 계정",
+      "risk_precondition": "관리자 계정 생성 기능 접근 가능",
+      "repro_parameters": "password",
+      "repro_request": "POST /users/new HTTP/1.1 / Host: admin.example.com / Content-Type: application/x-www-form-urlencoded / Body: username=admin2&password=12345678",
+      "repro_response": "HTTP/1.1 302 Found / Content-Type: text/html / Body: <html><body>User created</body></html>",
+      "reproduction_steps": [
+        "신규 사용자 생성 화면 진입",
+        "단순 비밀번호로 계정 생성 시도",
+        "저장이 허용되는지 확인"
+      ],
+      "preconditions": [
+        "관리자 계정 생성 권한 필요"
+      ],
+      "evidence": [
+        {
+          "finding_id": "F-003",
+          "type": "request",
+          "label": "HTTP Request",
+          "path": "cases/web/case-003/input/findings/F-003/http/request.txt",
+          "caption": "재현 요청 전문",
+          "sha256": "820baa85dd211391bc5aa21a140b9336cc066f62d59e1629376d2fe93f20b62a"
+        },
+        {
+          "finding_id": "F-003",
+          "type": "response",
+          "label": "HTTP Response",
+          "path": "cases/web/case-003/input/findings/F-003/http/response.txt",
+          "caption": "재현 응답 전문",
+          "sha256": "3536b79f939e6cca5c5aa0000ccb8a7482035a096eb2b4b5ba33e5425553b581"
+        },
+        {
+          "finding_id": "F-003",
+          "type": "screenshot",
+          "label": "관리자 계정 생성 화면",
+          "path": "cases/web/case-003/input/findings/F-003/evidence/screenshot-01.png",
+          "caption": "관리자 계정 생성 화면",
+          "sha256": "737238a1dfb461721c4e4f2c9dcf4fa25e01519bccd2feb9d8bea79f4c070e39"
+        }
+      ],
+      "remediation": [
+        "최소 길이 정책 강화",
+        "복잡도 및 재사용 제한 정책 적용",
+        "관리자 계정 MFA 의무화 검토"
+      ],
+      "references": [
+        "NIST Password Guidance"
+      ],
+      "status": "수용",
+      "found_at": "2026.03.20",
+      "due_date": "2026-04-03",
+      "owner": "Admin Team",
+      "reviewer": "Example Reviewer",
+      "notes": "admin password policy",
+      "false_positive": false,
+      "decision_basis": "단순 문자열 비밀번호가 정책 검증 없이 저장되는 것을 확인했습니다.",
+      "exception_note": "",
+      "request_file": "cases/web/case-003/input/findings/F-003/http/request.txt",
+      "request_file_sha256": "820baa85dd211391bc5aa21a140b9336cc066f62d59e1629376d2fe93f20b62a",
+      "response_file": "cases/web/case-003/input/findings/F-003/http/response.txt",
+      "response_file_sha256": "3536b79f939e6cca5c5aa0000ccb8a7482035a096eb2b4b5ba33e5425553b581",
+      "review": {
+        "included_in_report": true,
+        "overridden_fields": [],
+        "resolution": {
+          "resolution": "accepted_risk",
+          "final_status": "accepted",
+          "reason": "운영상 단기 조치가 어려워 예외 승인 후 위험 수용",
+          "reviewer": "reviewer-1",
+          "reviewed_at": "2026-03-19T10:10:00"
+        },
+        "suppression": null,
+        "exception": {
+          "exception_type": "accepted_risk",
+          "approved_by": "security-committee",
+          "expires_at": "2026-06-30",
+          "note": "분기 내 정책 개선 전까지 운영 예외 승인"
+        },
+        "review_history": [
+          {
+            "order": 2,
+            "review_key": "rk-4f650da43d5ad29e",
+            "action_type": "resolution",
+            "changed_fields": [
+              "review.resolution",
+              "status"
+            ],
+            "reason": "운영상 단기 조치가 어려워 예외 승인 후 위험 수용",
+            "reviewer": "reviewer-1",
+            "reviewed_at": "2026-03-19T10:10:00",
+            "result": "accepted"
+          },
+          {
+            "order": 5,
+            "review_key": "rk-4f650da43d5ad29e",
+            "action_type": "exception",
+            "changed_fields": [
+              "review.exception"
+            ],
+            "reason": "분기 내 정책 개선 전까지 운영 예외 승인",
+            "reviewer": "security-committee",
+            "reviewed_at": "2026-06-30",
+            "result": "tagged"
+          }
+        ]
+      },
+      "source": {
+        "tool": "HexStrike",
+        "parser": "web_hexstrike",
+        "raw_file": "cases/web/case-003/input/findings/F-003/raw/hexstrike-result.json",
+        "raw_file_sha256": "99e4e438af22414138b66809ac8eac2c46ee4efa3f1704027bfbf85d8bb5a92e",
+        "manual_finding_file": "cases/web/case-003/input/findings/F-003/manual-finding.yaml",
+        "manual_finding_sha256": "efe7d5ee9cdddfeda3cf6b2f254380fdf59279c9b3029a45b4944e6ad21f9674"
+      }
+    }
+  ],
+  "remediation_plan": {
+    "short_term": [
+      "로그인 rate limit 적용",
+      "CAPTCHA 적용",
+      "최소 길이 정책 강화"
+    ],
+    "mid_term": [
+      "계정 잠금 정책 검토",
+      "복잡도 및 재사용 제한 정책 적용"
+    ],
+    "long_term": [
+      "관리자 계정 MFA 의무화 검토"
+    ]
+  },
+  "appendix": {
+    "evidence": [
+      {
+        "finding_id": "F-001",
+        "type": "request",
+        "label": "HTTP Request",
+        "path": "cases/web/case-003/input/findings/F-001/http/request.txt",
+        "caption": "재현 요청 전문",
+        "sha256": "82935aa6bc19d6c9ad05ff7c9441543892c4abecf017998d47607f75a3d2d3f2"
+      },
+      {
+        "finding_id": "F-001",
+        "type": "response",
+        "label": "HTTP Response",
+        "path": "cases/web/case-003/input/findings/F-001/http/response.txt",
+        "caption": "재현 응답 전문",
+        "sha256": "ba3b2d9eb043e28b28863de39f8b107ff6502e932dd9fda666a537d3b04c7e92"
+      },
+      {
+        "finding_id": "F-001",
+        "type": "screenshot",
+        "label": "포털 로그인 반복 요청 화면",
+        "path": "cases/web/case-003/input/findings/F-001/evidence/screenshot-01.png",
+        "caption": "포털 로그인 반복 요청 화면",
+        "sha256": "737238a1dfb461721c4e4f2c9dcf4fa25e01519bccd2feb9d8bea79f4c070e39"
+      },
+      {
+        "finding_id": "F-003",
+        "type": "request",
+        "label": "HTTP Request",
+        "path": "cases/web/case-003/input/findings/F-003/http/request.txt",
+        "caption": "재현 요청 전문",
+        "sha256": "820baa85dd211391bc5aa21a140b9336cc066f62d59e1629376d2fe93f20b62a"
+      },
+      {
+        "finding_id": "F-003",
+        "type": "response",
+        "label": "HTTP Response",
+        "path": "cases/web/case-003/input/findings/F-003/http/response.txt",
+        "caption": "재현 응답 전문",
+        "sha256": "3536b79f939e6cca5c5aa0000ccb8a7482035a096eb2b4b5ba33e5425553b581"
+      },
+      {
+        "finding_id": "F-003",
+        "type": "screenshot",
+        "label": "관리자 계정 생성 화면",
+        "path": "cases/web/case-003/input/findings/F-003/evidence/screenshot-01.png",
+        "caption": "관리자 계정 생성 화면",
+        "sha256": "737238a1dfb461721c4e4f2c9dcf4fa25e01519bccd2feb9d8bea79f4c070e39"
+      }
+    ],
+    "checklist": [
+      {
+        "taxonomy": {
+          "name": "web-kisa-2026",
+          "version": "2026"
+        },
+        "code": "AU",
+        "title_ko": "로그인 시도 제한 미흡",
+        "severity": "medium",
+        "canonical_key": "automated_attack",
+        "status": "취약",
+        "finding_id": "F-001"
+      },
+      {
+        "taxonomy": {
+          "name": "web-kisa-2026",
+          "version": "2026"
+        },
+        "code": "BF",
+        "title_ko": "약한 비밀번호 정책",
+        "severity": "low",
+        "canonical_key": "weak_password_policy",
+        "status": "위험수용",
+        "finding_id": "F-003"
+      }
+    ]
+  }
+}

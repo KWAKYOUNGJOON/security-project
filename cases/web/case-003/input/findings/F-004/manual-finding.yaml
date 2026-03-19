@@ -1,0 +1,48 @@
+finding_id: F-004
+target_ref: TGT-001
+taxonomy:
+  name: web-kisa-2026
+  version: "2026"
+code: IL
+title_ko: 정보 누출
+severity: low
+finding_name: 검색어 반사형 출력 의심
+summary: 검색어가 응답 본문에 반사되어 스크립트 실행 가능성이 의심됨
+description: 검색 결과 페이지에서 입력한 검색어가 응답 본문에 반사됩니다.
+cause: 검색어 출력 시 인코딩 적용 여부를 추가 확인해야 합니다.
+affected:
+  url: https://portal.example.com/search?query=%3Csvg%2Fonload%3Dalert(1)%3E
+  method: GET
+  parameter: query
+reproduction:
+  preconditions:
+    - 인증 후 검색 기능 접근 가능
+  steps:
+    - 검색 페이지에 스크립트 형태 문자열 입력
+    - 검색 요청 전송
+    - 응답에 입력 문자열이 반사되는지 확인
+impact: 입력값 반사가 실제 스크립트 실행으로 이어질 경우 세션 탈취가 가능함
+risk:
+  rationale: 반사 출력이 존재하면 XSS 취약점 가능성을 의심할 수 있습니다.
+  difficulty: 보통
+  asset: 사용자 세션 및 브라우저 컨텍스트
+  precondition: 인증된 사용자 접근 가능
+remediation:
+  summary: 출력 인코딩을 적용하고 반사 출력 검증 기준을 명확히 합니다.
+  short_term:
+    - 출력 인코딩 검토
+  mid_term:
+    - 검색 UI 출력 검증 기준 정리
+  long_term: []
+references:
+  - OWASP Cross Site Scripting Prevention Cheat Sheet
+decision_basis: 검색어가 HTML 이스케이프되어 보이는지 추가 확인이 필요합니다.
+exception_note: ""
+false_positive: false
+status: open
+owner: Portal Team
+reviewer: Example Reviewer
+notes: portal reflected search sample
+due_date: 2026-03-31
+screenshot_captions:
+  screenshot-01.png: 검색 결과 반사 출력 화면

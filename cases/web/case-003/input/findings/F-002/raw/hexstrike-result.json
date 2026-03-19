@@ -1,0 +1,38 @@
+{
+  "tool": {
+    "name": "HexStrike",
+    "version": "2026.03"
+  },
+  "scan": {
+    "scan_id": "scan-case-002-f002",
+    "started_at": "2026-03-20T01:10:00Z"
+  },
+  "findings": [
+    {
+      "id": "HX-F002",
+      "name": "Debug information disclosure",
+      "severity": "Medium",
+      "endpoint": "https://portal.example.com/debug",
+      "path": "/debug",
+      "method": "GET",
+      "parameter": "debug",
+      "description": "The debug endpoint exposed stack trace and internal file path information.",
+      "observation": "Internal exception details were returned in the HTTP response body.",
+      "impact": "Implementation details become visible to authenticated users.",
+      "remediation": [
+        "Disable debug output in production",
+        "Use generic error responses"
+      ],
+      "request": {
+        "path": "/debug",
+        "content_type": "application/json"
+      },
+      "response": {
+        "status_code": 500,
+        "message": "Stack trace leaked"
+      },
+      "confidence": "medium"
+    }
+  ],
+  "unparsed_root_field": "portal-debug-preserve"
+}

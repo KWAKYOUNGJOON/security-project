@@ -1,0 +1,48 @@
+finding_id: F-002
+target_ref: TGT-001
+taxonomy:
+  name: web-kisa-2026
+  version: "2026"
+code: IL
+title_ko: 정보 누출
+severity: medium
+finding_name: 디버그 응답 정보 노출
+summary: 오류 응답에 디버그 정보가 포함되어 내부 구현이 노출됨
+description: 포털 디버그 엔드포인트에서 내부 경로와 예외 메시지가 응답으로 노출됩니다.
+cause: 운영 차단이 필요한 디버그 기능이 외부에서 접근 가능합니다.
+affected:
+  url: https://portal.example.com/debug
+  method: GET
+  parameter: debug
+reproduction:
+  preconditions:
+    - 인증 후 디버그 페이지 접근 가능
+  steps:
+    - 디버그 엔드포인트 요청
+    - 오류 조건 유발
+    - 응답 내 내부 경로 및 예외 메시지 확인
+impact: 내부 구조 파악을 통한 후속 공격 난이도 감소
+risk:
+  rationale: 내부 경로와 예외 정보가 직접 노출되어 공격자에게 유의미한 힌트를 제공합니다.
+  difficulty: 보통
+  asset: 애플리케이션 내부 구현 정보
+  precondition: 인증된 사용자 접근 가능
+remediation:
+  summary: 디버그 응답을 비활성화하고 일반화된 오류 응답을 사용합니다.
+  short_term:
+    - 운영 환경 디버그 응답 제거
+  mid_term:
+    - 오류 처리 공통 정책 적용
+  long_term: []
+references:
+  - OWASP Error Handling Cheat Sheet
+decision_basis: 응답 본문에 파일 경로와 예외 타입이 포함되는 것을 확인했습니다.
+exception_note: ""
+false_positive: false
+status: in_progress
+owner: Portal Team
+reviewer: Example Reviewer
+notes: portal debug exposure
+due_date: 2026-03-31
+screenshot_captions:
+  screenshot-01.png: 포털 디버그 정보 노출 화면
