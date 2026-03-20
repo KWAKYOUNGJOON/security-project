@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.0",
+  "platform": "web",
+  "integration": "hexstrike-ai",
+  "run_id": "run-juice-001",
+  "mode": "live-local-lab",
+  "status": "summary-only-live-smoke-validated",
+  "source": "hexstrike-ai",
+  "target_name": "OWASP Juice Shop",
+  "target_url": "http://192.168.10.130:3000",
+  "observed_entry_route": "http://192.168.10.130:3000/#/",
+  "approved_scope": "local-lab-target-only",
+  "contains_real_scan_data": true,
+  "validator_target": true,
+  "purpose": "low-impact smoke run for exporter/pipeline verification",
+  "baseline_files": [
+    "raw/runtime-baseline.json"
+  ],
+  "raw_payloads": [
+    "raw/hexstrike-result.json"
+  ],
+  "notes_file": "notes.md",
+  "derived": {
+    "live_raw_shape_summary": "derived/live-raw-shape-summary.json",
+    "format_observation": "derived/format-observation.json",
+    "shape_bridge_report": "derived/shape-bridge-report.json",
+    "synthetic_live_delta": "derived/synthetic-vs-live-delta.json",
+    "provenance": "derived/provenance.json",
+    "validator_result": "derived/validate-live-hexstrike.txt"
+  },
+  "scanner_entrypoint_status": "real-scanner-entrypoint-confirmed",
+  "validation_status": "success-summary-only-adapter-linkage-only",
+  "comparison_status": "persisted-live-vs-synthetic-delta",
+  "promotion_status": "blocked-summary-only-live-payload",
+  "live_smoke_run": {
+    "execution_mode": "mcp-tool",
+    "tool": "burpsuite_alternative_scan",
+    "parameters": {
+      "target": "http://192.168.10.130:3000",
+      "scan_type": "passive",
+      "headless": true,
+      "max_depth": 1,
+      "max_pages": 1
+    },
+    "result_summary": {
+      "success": true,
+      "pages_analyzed": 0,
+      "total_vulnerabilities": 0,
+      "security_score": 100
+    }
+  },
+  "blockers": [
+    "Validator success for this run means smoke linkage evidence only. It does not mean report readiness or case promotion readiness.",
+    "The live raw payload is summary-only and still contains no per-finding request, response, or evidence records.",
+    "This run remains intake-only. Do not promote into cases until a future approved live capture yields finding-level detail and the delta is reviewed again."
+  ],
+  "execution_evidence": {
+    "runtime_discovery_dir": "raw/runtime-discovery",
+    "validator_output": "derived/validate-live-hexstrike.txt",
+    "shape_summary": "derived/live-raw-shape-summary.json",
+    "shape_bridge_report": "derived/shape-bridge-report.json",
+    "synthetic_live_delta": "derived/synthetic-vs-live-delta.json"
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KISA Webserver Checklist Item",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "platform",
+    "service_name",
+    "hostname",
+    "item_id",
+    "item_key",
+    "title",
+    "raw_status",
+    "applicability",
+    "summary",
+    "guideline_reference",
+    "source_file",
+    "timestamp"
+  ],
+  "properties": {
+    "platform": {
+      "type": ["string", "null"]
+    },
+    "service_name": {
+      "type": ["string", "null"]
+    },
+    "hostname": {
+      "type": ["string", "null"]
+    },
+    "item_id": {
+      "type": ["string", "null"]
+    },
+    "item_key": {
+      "type": ["string", "null"]
+    },
+    "title": {
+      "type": ["string", "null"]
+    },
+    "raw_status": {
+      "type": ["string", "null"]
+    },
+    "applicability": {
+      "type": ["string", "null"]
+    },
+    "summary": {
+      "type": ["string", "null"]
+    },
+    "guideline_reference": {
+      "type": ["string", "null"]
+    },
+    "source_file": {
+      "type": ["string", "null"]
+    },
+    "timestamp": {
+      "type": ["string", "null"]
+    }
+  }
+}

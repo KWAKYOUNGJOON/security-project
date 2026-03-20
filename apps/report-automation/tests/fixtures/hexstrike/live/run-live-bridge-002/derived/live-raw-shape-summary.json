@@ -1,0 +1,46 @@
+{
+  "raw_file": "apps/report-automation/tests/fixtures/hexstrike/live/run-live-bridge-002/raw/hexstrike-result.json",
+  "top_level_keys": [
+    "scan_type",
+    "success",
+    "summary",
+    "target",
+    "timestamp"
+  ],
+  "summary_total_vulnerabilities": 2,
+  "detail_records_present": false,
+  "wrapper_detected": false,
+  "wrapper_type": "none",
+  "possible_payload_path": "$",
+  "finding_count_detection_method": "$.summary.total_vulnerabilities",
+  "candidate_paths_for_tool_scan_engagement_findings": {
+    "tool": [
+      "$.tool",
+      "manifest.json:$.source",
+      "raw/runtime-baseline.json:$.execution_feasibility.selected_smoke_entrypoint"
+    ],
+    "scan": [
+      "$.scan",
+      "$.scan_type",
+      "$.timestamp",
+      "$.summary"
+    ],
+    "engagement": [
+      "$.engagement",
+      "$.target"
+    ],
+    "findings": [
+      "$.findings",
+      "$.summary.total_vulnerabilities",
+      "$.summary.vulnerability_breakdown"
+    ]
+  },
+  "candidate_request_response_paths": [],
+  "candidate_evidence_paths": [],
+  "unknown_topology_notes": [
+    "No MCP response wrapper, content array, stringified JSON blob, or result/payload envelope was found at the root.",
+    "The payload reports vulnerabilities only through summary counters, so per-finding objects cannot be derived safely."
+  ],
+  "adapter_feasibility": "no",
+  "detail_coverage_status": "positive_total_without_finding_objects"
+}

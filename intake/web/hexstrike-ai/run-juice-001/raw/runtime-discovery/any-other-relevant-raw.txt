@@ -1,0 +1,9 @@
+# source=mcp execute_command
+# cwd=/home/kali/hexstrike-ai
+Name: selenium
+Version: 4.41.0
+Location: /home/kali/hexstrike-ai/hexstrike-env/lib/python3.13/site-packages
+---
+Name: mcp
+Version: 1.26.0
+Location: /home/kali/hexstrike-ai/hexstrike-env/lib/python3.13/site-packages

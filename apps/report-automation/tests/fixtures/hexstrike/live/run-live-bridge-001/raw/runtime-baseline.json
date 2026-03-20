@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "platform": "web",
+  "integration": "hexstrike-ai",
+  "run_id": "run-live-bridge-001",
+  "mode": "live-local-lab",
+  "captured_at": "2026-03-20T04:48:23.6184172+09:00",
+  "source": "HexStrike-AI",
+  "target_name": "Redacted Live Target",
+  "target_url": "http://example.invalid:3000",
+  "execution_feasibility": {
+    "classification": "real scanner entrypoint confirmed",
+    "selected_smoke_parameters": {
+      "target": "http://example.invalid:3000",
+      "scan_type": "passive",
+      "headless": true,
+      "max_depth": 1,
+      "max_pages": 1
+    }
+  },
+  "local_shell": {
+    "python_version": "Python 3.14.3"
+  }
+}

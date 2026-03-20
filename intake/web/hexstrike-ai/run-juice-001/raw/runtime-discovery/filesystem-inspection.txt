@@ -1,0 +1,52 @@
+# source=mcp execute_command
+# cwd=/home/kali/hexstrike-ai
+## pwd
+/home/kali/hexstrike-ai
+
+## ls -la
+합계 26788
+drwxrwxr-x  5 kali kali     4096  3월 19일  03:18 .
+drwx------ 20 kali kali     4096  3월 19일  14:27 ..
+drwxrwxr-x  7 kali kali     4096  3월 19일  02:46 .git
+-rw-rw-r--  1 kali kali     1099  3월 19일  02:46 LICENSE
+-rw-rw-r--  1 kali kali    30508  3월 19일  02:46 README.md
+-rw-rw-r--  1 kali kali      386  3월 19일  02:46 hexstrike-ai-mcp.json
+-rw-rw-r--  1 kali kali   217937  3월 19일  02:46 hexstrike_mcp.py
+-rw-rw-r--  1 kali kali   734576  3월 19일  02:46 hexstrike_server.py
+-rw-rw-r--  1 kali kali     4077  3월 19일  02:46 requirements.txt
+
+## relevant files
+./README.md
+./hexstrike-env/pwntools-doc/README.md
+
+## venv bins (excerpt)
+hexstrike-env/bin/fastmcp
+hexstrike-env/bin/mcp
+hexstrike-env/bin/pip
+hexstrike-env/bin/pip3
+hexstrike-env/bin/python
+hexstrike-env/bin/python3
+hexstrike-env/bin/uvicorn
+
+## hexstrike-ai-mcp.json
+{
+  "mcpServers": {
+    "hexstrike-ai": {
+      "command": "python3",
+      "args": [
+        "/path/hexstrike_mcp.py",
+        "--server",
+        "http://IPADDRESS:8888"
+      ],
+      "description": "HexStrike AI v6.0 - Advanced Cybersecurity Automation Platform. Turn off alwaysAllow if you dont want autonomous execution!",
+      "timeout": 300,
+      "alwaysAllow": []
+    }
+  }
+}
+
+## README excerpts
+python3 hexstrike_server.py
+python3 hexstrike_server.py --debug
+python3 hexstrike_server.py --port 8888
+python3 hexstrike_mcp.py --debug

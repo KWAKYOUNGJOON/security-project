@@ -1,0 +1,146 @@
+{
+  "schema_version": "1.0",
+  "run_id": "run-juice-001",
+  "integration": "hexstrike-ai",
+  "mode": "live-local-lab",
+  "adapter_version": "1.1",
+  "runtime_baseline_path": "intake/web/hexstrike-ai/run-juice-001/raw/runtime-baseline.json",
+  "bridge_contract": {
+    "adapter_scope": "summary-only-zero-finding-live-smoke",
+    "success_conditions": [
+      "actual live payload shape is summary-only and matches the confirmed root keys",
+      "summary.total_vulnerabilities is a non-negative integer",
+      "summary.total_vulnerabilities equals 0",
+      "finding-level objects are absent in the raw payload",
+      "summary.vulnerability_breakdown is missing, empty, or contains only zero counts"
+    ],
+    "fail_fast_conditions": [
+      "summary.total_vulnerabilities is missing, null, non-numeric, or negative",
+      "summary.total_vulnerabilities is greater than 0 while finding-level objects are absent",
+      "summary.vulnerability_breakdown contains positive counts while total_vulnerabilities is 0",
+      "summary.vulnerability_breakdown contains ambiguous or non-numeric counts"
+    ],
+    "preservation_guarantees": [
+      "raw payload is not overwritten",
+      "raw top-level unknown fields stay observable through format-observation unknown_fields",
+      "parser_warnings, unknown_fields, and detected_top_level_keys remain intact",
+      "no guessed finding object, request, response, or evidence fields are invented"
+    ]
+  },
+  "status": {
+    "linkage_status": "pass",
+    "validation_status": "success",
+    "observation_kind": "summary-only-live-smoke",
+    "report_ready": false,
+    "promotable_to_cases": false,
+    "reason_codes": [
+      "summary_only_payload",
+      "zero_vuln_smoke_bridge",
+      "no_finding_level_payload",
+      "no_request_response_evidence"
+    ],
+    "blocker_codes": [
+      "promotion_blocked_summary_only",
+      "finding_level_detail_required",
+      "request_response_evidence_required"
+    ],
+    "required_for_promotion": [
+      "finding_level_payload",
+      "per_finding_request_response",
+      "per_finding_evidence",
+      "reviewed_live_delta_after_future_capture"
+    ],
+    "evidence_presence": false,
+    "request_response_presence": false,
+    "finding_detail_presence": false,
+    "summary_only_payload": true,
+    "adapter_applied": true
+  },
+  "raw_top_level_keys": [
+    "scan_type",
+    "success",
+    "summary",
+    "target",
+    "timestamp"
+  ],
+  "canonical_root_groups": [
+    "tool",
+    "scan",
+    "engagement",
+    "findings"
+  ],
+  "unmapped_fields": [],
+  "null_filled_required_fields": [],
+  "adapter_warnings": [],
+  "coverage_gaps": [
+    "No per-finding request/response/evidence records were present in the smoke payload."
+  ],
+  "guessed_fields_absent": true,
+  "payloads": [
+    {
+      "source_path": "intake/web/hexstrike-ai/run-juice-001/raw/hexstrike-result.json",
+      "known_live_shape": true,
+      "adapter_applied": true,
+      "summary_only_payload": true,
+      "summary_total_vulnerabilities": 0,
+      "summary_breakdown_state": "empty",
+      "finding_detail_presence": false,
+      "request_response_presence": false,
+      "evidence_presence": false,
+      "raw_top_level_keys": [
+        "scan_type",
+        "success",
+        "summary",
+        "target",
+        "timestamp"
+      ],
+      "canonical_mapped_fields": {
+        "tool.integration": "manifest.integration",
+        "tool.source": "manifest.source",
+        "tool.entrypoint": "manifest.live_smoke_run.tool or runtime-baseline.execution_feasibility.selected_smoke_entrypoint",
+        "tool.execution_mode": "manifest.live_smoke_run.execution_mode",
+        "scan.scan_type": "raw.scan_type",
+        "scan.success": "raw.success",
+        "scan.timestamp": "raw.timestamp",
+        "scan.summary": "raw.summary",
+        "scan.parameters": "manifest.live_smoke_run.parameters or runtime-baseline.execution_feasibility.selected_smoke_parameters",
+        "engagement.run_id": "manifest.run_id",
+        "engagement.target": "raw.target or manifest.target_url",
+        "engagement.mode": "manifest.mode",
+        "engagement.target_name": "manifest.target_name",
+        "engagement.observed_entry_route": "manifest.observed_entry_route",
+        "findings": "empty array preserved because live raw exposes no finding records"
+      },
+      "unmapped_fields": [],
+      "null_filled_required_fields": [],
+      "adapter_warnings": [],
+      "coverage_gaps": [
+        "No per-finding request/response/evidence records were present in the smoke payload."
+      ],
+      "coverage_confidence": "medium",
+      "guessed_fields_absent": true
+    }
+  ],
+  "coverage_summary": {
+    "payload_count": 1,
+    "adapted_payload_count": 1,
+    "coverage_confidence": "medium",
+    "coverage_gap_count": 1,
+    "warning_count": 0,
+    "guessed_fields_absent": true
+  },
+  "baseline_keys": [
+    "accessible_runtime",
+    "captured_at",
+    "confirmed_mcp_tool_schema",
+    "execution_feasibility",
+    "integration",
+    "local_shell",
+    "mode",
+    "platform",
+    "run_id",
+    "schema_version",
+    "smoke_run_result",
+    "working_directory"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "scan_type": "passive",
+  "success": true,
+  "summary": {
+    "pages_analyzed": 0,
+    "security_score": 100,
+    "total_vulnerabilities": 0,
+    "vulnerability_breakdown": {}
+  },
+  "target": "http://192.168.10.130:3000",
+  "timestamp": "2026-03-20T00:13:57.847761"
+}

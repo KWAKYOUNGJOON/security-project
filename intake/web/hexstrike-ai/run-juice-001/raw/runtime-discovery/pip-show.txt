@@ -1,0 +1,14 @@
+# captured_at=2026-03-20T13:08:38.7439012+09:00
+# cwd=D:\security-project
+
+## python --version
+Python 3.14.3
+
+## python -m pip show hexstrike-ai
+WARNING: Package(s) not found: hexstrike-ai
+
+## python -m pip show hexstrike-mcp
+WARNING: Package(s) not found: hexstrike-mcp
+
+## python -m pip list | Select-String -Pattern 'hexstrike'
+

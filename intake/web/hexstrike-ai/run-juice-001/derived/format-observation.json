@@ -1,0 +1,77 @@
+{
+  "schema_version": "1.0",
+  "platform": "web",
+  "integration": "hexstrike-ai",
+  "run_id": "run-juice-001",
+  "mode": "live-local-lab",
+  "finding_count_detected": 0,
+  "detected_top_level_keys": [
+    "scan_type",
+    "success",
+    "summary",
+    "target",
+    "timestamp"
+  ],
+  "unknown_fields": [
+    {
+      "source": "intake/web/hexstrike-ai/run-juice-001/raw/hexstrike-result.json",
+      "path": "$",
+      "field": "scan_type",
+      "shape": "string",
+      "value": "passive"
+    },
+    {
+      "source": "intake/web/hexstrike-ai/run-juice-001/raw/hexstrike-result.json",
+      "path": "$",
+      "field": "success",
+      "shape": "boolean",
+      "value": true
+    },
+    {
+      "source": "intake/web/hexstrike-ai/run-juice-001/raw/hexstrike-result.json",
+      "path": "$",
+      "field": "summary",
+      "shape": "object",
+      "value": {
+        "pages_analyzed": 0,
+        "security_score": 100,
+        "total_vulnerabilities": 0,
+        "vulnerability_breakdown": {}
+      }
+    },
+    {
+      "source": "intake/web/hexstrike-ai/run-juice-001/raw/hexstrike-result.json",
+      "path": "$",
+      "field": "target",
+      "shape": "string",
+      "value": "http://192.168.10.130:3000"
+    },
+    {
+      "source": "intake/web/hexstrike-ai/run-juice-001/raw/hexstrike-result.json",
+      "path": "$",
+      "field": "timestamp",
+      "shape": "string",
+      "value": "2026-03-20T00:13:57.847761"
+    }
+  ],
+  "missing_expected_fields": [],
+  "parser_warnings": [
+    "Derived empty findings array because intake/web/hexstrike-ai/run-juice-001/raw/hexstrike-result.json:$.summary.total_vulnerabilities == 0 and no per-finding objects were present.",
+    "Derived root groups from raw summary fields and intake metadata because the live payload does not natively expose tool/scan/engagement/findings.",
+    "Summary-only live payload detected: intake/web/hexstrike-ai/run-juice-001/raw/hexstrike-result.json contains no wrapper or embedded JSON envelope.",
+    "Unknown root field preserved: intake/web/hexstrike-ai/run-juice-001/raw/hexstrike-result.json:$.scan_type",
+    "Unknown root field preserved: intake/web/hexstrike-ai/run-juice-001/raw/hexstrike-result.json:$.success",
+    "Unknown root field preserved: intake/web/hexstrike-ai/run-juice-001/raw/hexstrike-result.json:$.summary",
+    "Unknown root field preserved: intake/web/hexstrike-ai/run-juice-001/raw/hexstrike-result.json:$.target",
+    "Unknown root field preserved: intake/web/hexstrike-ai/run-juice-001/raw/hexstrike-result.json:$.timestamp"
+  ],
+  "evidence_shape_summary": {
+    "request_field_shapes": {},
+    "response_field_shapes": {},
+    "evidence_field_shapes": {},
+    "severity_field_shapes": {},
+    "status_field_shapes": {},
+    "evidence_item_shapes": {},
+    "evidence_item_kinds": {}
+  }
+}

@@ -1,0 +1,22 @@
+# source=mcp execute_command
+# cwd=/home/kali/hexstrike-ai
+# command=hexstrike-env/bin/python hexstrike_server.py --help
+# return_code=0
+2026-03-20 00:10:39,650 - __main__ - INFO - 🔧 Process pool worker 0 started
+2026-03-20 00:10:39,653 - __main__ - INFO - 🔧 Process pool worker 1 started
+2026-03-20 00:10:39,655 - __main__ - INFO - 🔧 Process pool worker 2 started
+2026-03-20 00:10:39,658 - __main__ - INFO - 🔧 Process pool worker 3 started
+
+[ASCII art banner omitted in script comments for brevity in downstream parsing]
+[INFO] Server starting on 127.0.0.1:8888
+[INFO] 150+ integrated modules | Adaptive AI decision engine active
+[INFO] Blood-red theme engaged – unified offensive operations UI
+
+usage: hexstrike_server.py [-h] [--debug] [--port PORT]
+
+Run the HexStrike AI API Server
+
+options:
+  -h, --help   show this help message and exit
+  --debug      Enable debug mode
+  --port PORT  Port for the API server (default: 8888)

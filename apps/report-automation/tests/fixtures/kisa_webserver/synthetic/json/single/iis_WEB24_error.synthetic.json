@@ -1,0 +1,22 @@
+{
+  "synthetic_fixture": true,
+  "platform": "IIS",
+  "item_id": "WEB-24",
+  "item_name": "Synthetic IIS Request Filtering Configuration",
+  "inspection": {
+    "summary": "Synthetic ERROR summary because configuration query failed",
+    "status": "오류"
+  },
+  "final_result": "ERROR",
+  "command": "Get-WebConfiguration -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter system.webServer/security/requestFiltering",
+  "command_result": "Get-WebConfiguration : Access is denied.",
+  "guideline": {
+    "purpose": "Request Filtering 설정 확인",
+    "security_threat": "위험 확장자 업로드 및 요청 우회",
+    "judgment_criteria_good": "필수 필터 규칙 존재",
+    "judgment_criteria_bad": "필수 필터 규칙 없음",
+    "remediation": "requestFiltering 구성 보강"
+  },
+  "hostname": "synthetic-iis-01",
+  "timestamp": "2026-03-20T09:25:00+09:00"
+}

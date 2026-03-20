@@ -1,0 +1,280 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HexStrike Live Review Summary",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "review_status",
+    "promotion_status",
+    "case_input_promotion_allowed",
+    "evidence_class",
+    "validation_status",
+    "linkage_status",
+    "observation_kind",
+    "adapter_applied",
+    "finding_count_detected",
+    "detail_coverage_status",
+    "decision_confidence",
+    "coverage_confidence",
+    "reviewer_summary",
+    "key_facts",
+    "blocking_reasons",
+    "missing_evidence",
+    "recommended_next_actions",
+    "review_checklist",
+    "referenced_artifacts",
+    "raw_evidence_immutable",
+    "guessed_fields_used",
+    "generated_at"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "review_status": {
+      "type": "string",
+      "enum": [
+        "review_required",
+        "blocked_summary_only",
+        "blocked_missing_detail",
+        "ready_for_manual_confirmation",
+        "unknown"
+      ]
+    },
+    "promotion_status": {
+      "type": "string",
+      "enum": [
+        "blocked",
+        "eligible",
+        "unknown"
+      ]
+    },
+    "case_input_promotion_allowed": {
+      "type": "boolean"
+    },
+    "evidence_class": {
+      "type": "string",
+      "enum": [
+        "summary_only_smoke_evidence",
+        "summary_nonzero_missing_detail",
+        "finding_detail_ready",
+        "unknown_live_evidence"
+      ]
+    },
+    "validation_status": {
+      "type": "string"
+    },
+    "linkage_status": {
+      "type": "string"
+    },
+    "observation_kind": {
+      "type": "string"
+    },
+    "adapter_applied": {
+      "type": "boolean"
+    },
+    "finding_count_detected": {
+      "type": "integer"
+    },
+    "detail_coverage_status": {
+      "type": "string"
+    },
+    "decision_confidence": {
+      "type": "string",
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ]
+    },
+    "coverage_confidence": {
+      "type": "string",
+      "enum": [
+        "high",
+        "medium",
+        "low",
+        "unknown"
+      ]
+    },
+    "reviewer_summary": {
+      "type": "string"
+    },
+    "key_facts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "value",
+          "note"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "value": {
+            "type": [
+              "string",
+              "integer",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "blocking_reasons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "label",
+          "message",
+          "note"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "missing_evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "label",
+          "note"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "recommended_next_actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "action",
+          "note"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "review_checklist": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "check_id",
+          "label",
+          "status",
+          "evidence_source",
+          "note"
+        ],
+        "properties": {
+          "check_id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "met",
+              "missing",
+              "blocked",
+              "not_applicable"
+            ]
+          },
+          "evidence_source": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "referenced_artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifact_id",
+          "path",
+          "note"
+        ],
+        "properties": {
+          "artifact_id": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "raw_evidence_immutable": {
+      "type": "boolean",
+      "const": true
+    },
+    "guessed_fields_used": {
+      "type": "boolean"
+    },
+    "generated_at": {
+      "type": "string"
+    }
+  }
+}

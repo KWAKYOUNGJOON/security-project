@@ -1,0 +1,74 @@
+{
+  "schema_version": "1.0",
+  "platform": "web",
+  "integration": "hexstrike-ai",
+  "run_id": "run-live-bridge-002",
+  "mode": "live-local-lab",
+  "finding_count_detected": 0,
+  "detected_top_level_keys": [
+    "scan_type",
+    "success",
+    "summary",
+    "target",
+    "timestamp"
+  ],
+  "unknown_fields": [
+    {
+      "source": "apps/report-automation/tests/fixtures/hexstrike/live/run-live-bridge-002/raw/hexstrike-result.json",
+      "path": "$",
+      "field": "scan_type",
+      "shape": "string",
+      "value": "passive"
+    },
+    {
+      "source": "apps/report-automation/tests/fixtures/hexstrike/live/run-live-bridge-002/raw/hexstrike-result.json",
+      "path": "$",
+      "field": "success",
+      "shape": "boolean",
+      "value": true
+    },
+    {
+      "source": "apps/report-automation/tests/fixtures/hexstrike/live/run-live-bridge-002/raw/hexstrike-result.json",
+      "path": "$",
+      "field": "summary",
+      "shape": "object",
+      "value": {
+        "pages_analyzed": 1,
+        "security_score": 72,
+        "total_vulnerabilities": 2,
+        "vulnerability_breakdown": {
+          "high": 1,
+          "medium": 1
+        }
+      }
+    },
+    {
+      "source": "apps/report-automation/tests/fixtures/hexstrike/live/run-live-bridge-002/raw/hexstrike-result.json",
+      "path": "$",
+      "field": "target",
+      "shape": "string",
+      "value": "http://example.invalid:3000"
+    },
+    {
+      "source": "apps/report-automation/tests/fixtures/hexstrike/live/run-live-bridge-002/raw/hexstrike-result.json",
+      "path": "$",
+      "field": "timestamp",
+      "shape": "string",
+      "value": "2026-03-20T10:13:57.847761"
+    }
+  ],
+  "missing_expected_fields": [],
+  "parser_warnings": [
+    "Synthetic derived observation for review-policy regression testing.",
+    "Summary reports total_vulnerabilities > 0 but no finding detail records are available."
+  ],
+  "evidence_shape_summary": {
+    "request_field_shapes": {},
+    "response_field_shapes": {},
+    "evidence_field_shapes": {},
+    "severity_field_shapes": {},
+    "status_field_shapes": {},
+    "evidence_item_shapes": {},
+    "evidence_item_kinds": {}
+  }
+}

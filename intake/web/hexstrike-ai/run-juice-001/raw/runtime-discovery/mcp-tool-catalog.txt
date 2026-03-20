@@ -1,0 +1,29 @@
+# source=hexstrike_mcp.py schema excerpts and in-session MCP catalog
+# classification note: CLI entrypoints and MCP tool schemas both confirmed
+
+Confirmed CLI entrypoints:
+- python3 hexstrike_server.py
+- python3 hexstrike_mcp.py --server http://127.0.0.1:8888
+
+Confirmed MCP candidate tools for low-impact smoke evaluation:
+
+browser_agent_inspect(url: str, headless: bool = True, wait_time: int = 5,
+                      action: str = "navigate", proxy_port: int = None, active_tests: bool = False)
+- action values: navigate, screenshot, close, status
+- explicit low-impact knobs visible in schema: action, wait_time, active_tests
+
+burpsuite_alternative_scan(target: str, scan_type: str = "comprehensive",
+                           headless: bool = True, max_depth: int = 3,
+                           max_pages: int = 50)
+- scan_type values: comprehensive, spider, passive, active
+- explicit low-impact knobs visible in schema: scan_type, max_depth, max_pages
+
+http_framework_test(url: str, method: str = "GET", data: dict = {},
+                    headers: dict = {}, cookies: dict = {}, action: str = "request")
+- action values: request, spider, proxy_history, set_rules, set_scope, repeater, intruder
+
+Supporting MCP scope helpers:
+- http_set_scope(host: str, include_subdomains: bool = True)
+- http_set_rules(rules: list)
+- http_repeater(request_spec: dict)
+- http_intruder(..., max_requests: int = 100)

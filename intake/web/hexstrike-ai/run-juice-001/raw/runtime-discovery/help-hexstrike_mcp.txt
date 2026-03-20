@@ -1,0 +1,14 @@
+# source=mcp execute_command
+# cwd=/home/kali/hexstrike-ai
+# command=hexstrike-env/bin/python hexstrike_mcp.py --help
+# return_code=0
+usage: hexstrike_mcp.py [-h] [--server SERVER] [--timeout TIMEOUT] [--debug]
+
+Run the HexStrike AI MCP Client
+
+options:
+  -h, --help         show this help message and exit
+  --server SERVER    HexStrike AI API server URL (default:
+                     http://127.0.0.1:8888)
+  --timeout TIMEOUT  Request timeout in seconds (default: 300)
+  --debug            Enable debug logging

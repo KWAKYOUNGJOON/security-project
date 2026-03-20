@@ -1,0 +1,48 @@
+{
+  "run_id": "run-juice-001",
+  "source_type": "hexstrike_live_validation_artifacts",
+  "promotion_status": "blocked",
+  "case_input_promotion_allowed": false,
+  "evidence_class": "summary_only_smoke_evidence",
+  "decision_confidence": "high",
+  "validation_status": "passed-via-summary-only-adapter",
+  "adapter_applied": true,
+  "finding_count_detected": 0,
+  "detail_coverage_status": "zero_summary_no_detail",
+  "coverage_confidence": "medium",
+  "summary_total_vulnerabilities": 0,
+  "blocking_reasons": [
+    {
+      "code": "no_findings_detected",
+      "message": "No finding-level records were detected in the validated live run."
+    },
+    {
+      "code": "summary_only_payload_not_case_promotable",
+      "message": "Summary-only live payloads are smoke linkage evidence only and must not be promoted into cases input."
+    },
+    {
+      "code": "no_request_response_evidence",
+      "message": "No request, response, or equivalent finding-level evidence references are available for case promotion."
+    }
+  ],
+  "advisory_actions": [
+    "retain_as_smoke_linkage_evidence_only",
+    "do_not_promote_to_cases_input"
+  ],
+  "required_for_future_promotion": [
+    "capture_finding_level_live_sample_before_promotion",
+    "preserve_request_response_or_equivalent_evidence_references",
+    "verify_stable_finding_identifiers_before_case_creation"
+  ],
+  "source_paths": {
+    "manifest": "intake/web/hexstrike-ai/run-juice-001/manifest.json",
+    "notes": "intake/web/hexstrike-ai/run-juice-001/notes.md",
+    "format_observation": "intake/web/hexstrike-ai/run-juice-001/derived/format-observation.json",
+    "shape_bridge_report": "intake/web/hexstrike-ai/run-juice-001/derived/shape-bridge-report.json",
+    "live_raw_shape_summary": "intake/web/hexstrike-ai/run-juice-001/derived/live-raw-shape-summary.json",
+    "provenance": "intake/web/hexstrike-ai/run-juice-001/derived/provenance.json"
+  },
+  "guessed_fields_used": false,
+  "raw_evidence_immutable": true,
+  "generated_at": "2026-03-20T09:33:37Z"
+}

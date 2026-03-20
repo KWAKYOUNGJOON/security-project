@@ -1,0 +1,24 @@
+# captured_at=2026-03-20T13:08:40.6816077+09:00
+# cwd=D:\security-project
+
+## python entry_points / site-packages inspection
+sys.executable= C:\Python314\python.exe
+sys.path=
+   D:\security-project
+   C:\Python314\python314.zip
+   C:\Python314\DLLs
+   C:\Python314\Lib
+   C:\Python314
+   C:\Users\kyj\AppData\Roaming\Python\Python314\site-packages
+   C:\Python314\Lib\site-packages
+site.getsitepackages=
+   C:\Python314
+   C:\Python314\Lib\site-packages
+site.getusersitepackages= C:\Users\kyj\AppData\Roaming\Python\Python314\site-packages
+console_scripts containing hexstrike:
+   <none>
+distributions containing hexstrike:
+   <none>
+
+## repo metadata files
+

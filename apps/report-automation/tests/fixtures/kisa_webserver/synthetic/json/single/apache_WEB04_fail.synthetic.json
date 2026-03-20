@@ -1,0 +1,22 @@
+{
+  "synthetic_fixture": true,
+  "platform": "Apache",
+  "item_id": "WEB-04",
+  "item_name": "Synthetic Apache Directory Listing",
+  "inspection": {
+    "summary": "Synthetic FAIL summary for Apache directory listing",
+    "status": "취약"
+  },
+  "final_result": "FAIL",
+  "command": "grep -E '^\\s*Options' /etc/apache2/apache2.conf",
+  "command_result": "/etc/apache2/apache2.conf: Options Indexes FollowSymLinks",
+  "guideline": {
+    "purpose": "Indexes 비활성화 여부 확인",
+    "security_threat": "디렉터리 구조 노출 방지",
+    "judgment_criteria_good": "Options -Indexes 적용",
+    "judgment_criteria_bad": "Options Indexes 활성화",
+    "remediation": "Directory listing 비활성화"
+  },
+  "hostname": "synthetic-web-01",
+  "timestamp": "2026-03-20T09:05:00+09:00"
+}

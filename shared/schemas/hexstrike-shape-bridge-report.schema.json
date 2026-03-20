@@ -1,0 +1,326 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HexStrike Live Shape Bridge Report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "integration",
+    "mode",
+    "adapter_version",
+    "runtime_baseline_path",
+    "bridge_contract",
+    "status",
+    "raw_top_level_keys",
+    "canonical_root_groups",
+    "unmapped_fields",
+    "null_filled_required_fields",
+    "adapter_warnings",
+    "coverage_gaps",
+    "guessed_fields_absent",
+    "payloads",
+    "coverage_summary",
+    "baseline_keys"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "integration": {
+      "type": "string"
+    },
+    "mode": {
+      "type": "string"
+    },
+    "adapter_version": {
+      "type": "string"
+    },
+    "runtime_baseline_path": {
+      "type": ["string", "null"]
+    },
+    "bridge_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "adapter_scope",
+        "success_conditions",
+        "fail_fast_conditions",
+        "preservation_guarantees"
+      ],
+      "properties": {
+        "adapter_scope": {
+          "type": "string"
+        },
+        "success_conditions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "fail_fast_conditions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "preservation_guarantees": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "status": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "linkage_status",
+        "validation_status",
+        "observation_kind",
+        "report_ready",
+        "promotable_to_cases",
+        "reason_codes",
+        "blocker_codes",
+        "required_for_promotion",
+        "evidence_presence",
+        "request_response_presence",
+        "finding_detail_presence",
+        "summary_only_payload",
+        "adapter_applied"
+      ],
+      "properties": {
+        "linkage_status": {
+          "type": "string",
+          "enum": ["pass", "fail"]
+        },
+        "validation_status": {
+          "type": "string",
+          "enum": ["success", "fail"]
+        },
+        "observation_kind": {
+          "type": "string"
+        },
+        "report_ready": {
+          "type": "boolean"
+        },
+        "promotable_to_cases": {
+          "type": "boolean"
+        },
+        "reason_codes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "blocker_codes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "required_for_promotion": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "evidence_presence": {
+          "type": "boolean"
+        },
+        "request_response_presence": {
+          "type": "boolean"
+        },
+        "finding_detail_presence": {
+          "type": "boolean"
+        },
+        "summary_only_payload": {
+          "type": "boolean"
+        },
+        "adapter_applied": {
+          "type": "boolean"
+        }
+      }
+    },
+    "raw_top_level_keys": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "canonical_root_groups": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "unmapped_fields": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "null_filled_required_fields": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "adapter_warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "coverage_gaps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "guessed_fields_absent": {
+      "type": "boolean"
+    },
+    "payloads": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_path",
+          "known_live_shape",
+          "adapter_applied",
+          "summary_only_payload",
+          "summary_total_vulnerabilities",
+          "summary_breakdown_state",
+          "finding_detail_presence",
+          "request_response_presence",
+          "evidence_presence",
+          "raw_top_level_keys",
+          "canonical_mapped_fields",
+          "unmapped_fields",
+          "null_filled_required_fields",
+          "adapter_warnings",
+          "coverage_gaps",
+          "coverage_confidence",
+          "guessed_fields_absent"
+        ],
+        "properties": {
+          "source_path": {
+            "type": "string"
+          },
+          "known_live_shape": {
+            "type": "boolean"
+          },
+          "adapter_applied": {
+            "type": "boolean"
+          },
+          "summary_only_payload": {
+            "type": "boolean"
+          },
+          "summary_total_vulnerabilities": {
+            "type": ["integer", "null"]
+          },
+          "summary_breakdown_state": {
+            "type": ["string", "null"]
+          },
+          "finding_detail_presence": {
+            "type": "boolean"
+          },
+          "request_response_presence": {
+            "type": "boolean"
+          },
+          "evidence_presence": {
+            "type": "boolean"
+          },
+          "raw_top_level_keys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "canonical_mapped_fields": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "unmapped_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "null_filled_required_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "adapter_warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "coverage_gaps": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "coverage_confidence": {
+            "type": "string",
+            "enum": ["high", "medium", "low"]
+          },
+          "guessed_fields_absent": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "coverage_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "payload_count",
+        "adapted_payload_count",
+        "coverage_confidence",
+        "coverage_gap_count",
+        "warning_count",
+        "guessed_fields_absent"
+      ],
+      "properties": {
+        "payload_count": {
+          "type": "integer"
+        },
+        "adapted_payload_count": {
+          "type": "integer"
+        },
+        "coverage_confidence": {
+          "type": "string",
+          "enum": ["high", "medium", "low"]
+        },
+        "coverage_gap_count": {
+          "type": "integer"
+        },
+        "warning_count": {
+          "type": "integer"
+        },
+        "guessed_fields_absent": {
+          "type": "boolean"
+        }
+      }
+    },
+    "baseline_keys": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

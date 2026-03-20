@@ -1,66 +1,109 @@
 # HexStrike Runtime Baseline
 
-This note captures the repository-side runtime baseline for HexStrike-related tooling in pre-target mode.
+This note records the current runtime baseline and the fixed interpretation of the first approved live smoke result for `run-juice-001`.
 
 ## Date
 
-- Baseline captured on `2026-03-20`
-- Working directory: `d:\security-project`
+- Baseline refreshed on `2026-03-20`
+- Repository working directory: `d:\security-project`
+- Target run: `intake/web/hexstrike-ai/run-juice-001`
 
-## Current observation
+## Runtime Summary
 
-The current shell-level checks recorded in [runtime-baseline.json](/d:/security-project/intake/web/hexstrike-ai/run-001/raw/runtime-baseline.json) show:
+Current classification:
 
-- `python --version` returned `3.14.3`
-- `Get-Command hexstrike*` did not resolve a command in the current PowerShell session
-- `python -m pip show hexstrike-ai` reported package not found
-- `python -m pip show hexstrike-mcp` reported package not found
-- `importlib.metadata` probes for `hexstrike-ai`, `hexstrike_mcp`, `hexstrike-mcp`, `hexstrike-server`, and `hexstrike_server` reported package not found in the current Python environment
+- `real scanner entrypoint confirmed`
 
-This is a runtime baseline only. It does not imply HexStrike cannot run elsewhere on the host. It only records what was visible from this repository session on `2026-03-20`.
+Current approved live target:
 
-## Capture method
+- target name: `OWASP Juice Shop`
+- canonical target: `http://192.168.10.130:3000`
+- observed entry route: `http://192.168.10.130:3000/#/`
 
-When a local HexStrike runtime becomes visible in this workspace, capture the baseline into `intake/web/hexstrike-ai/<run-id>/raw/` using file-based probes only:
+Current approved low-impact controls:
 
-1. Command discovery
+- `scan_type=passive`
+- `max_depth=1`
+- `max_pages=1`
+
+## Smoke Run Outcome
+
+One smoke run was executed after runtime discovery was confirmed.
+
+Returned summary:
+
+- `success=true`
+- `pages_analyzed=0`
+- `total_vulnerabilities=0`
+- `security_score=100`
+
+Saved raw payload:
+
+- [hexstrike-result.json](/d:/security-project/intake/web/hexstrike-ai/run-juice-001/raw/hexstrike-result.json)
+
+Current payload classification:
+
+- actual payload, not wrapper
+- summary-only smoke linkage evidence
+- not finding-ready
+
+## Validator Outcome
+
+The file-only validator now succeeds for the current live payload.
+
+Verified commands:
 
 ```powershell
-Get-Command hexstrike*
+python apps\report-automation\src\cli\main.py validate-live-hexstrike --run intake\web\hexstrike-ai\run-juice-001
+python -m src.cli.main validate-live-hexstrike --run intake\web\hexstrike-ai\run-juice-001
 ```
 
-2. Package discovery
+The second command was verified from `apps\report-automation`.
 
-```powershell
-python -m pip show hexstrike-ai
-python -m pip show hexstrike-mcp
-```
+Current result:
 
-3. Python distribution metadata
+- `linkage_status=pass`
+- `validation_status=success`
+- `observation_kind=summary-only-live-smoke`
+- `finding_count_detected=0`
+- `adapter_applied=true`
+- `coverage_confidence=medium`
+- `report_ready=false`
+- `promotable_to_cases=false`
 
-```powershell
-@'
-import importlib.metadata as m
-for name in ["hexstrike-ai", "hexstrike_mcp", "hexstrike-mcp", "hexstrike-server", "hexstrike_server"]:
-    try:
-        dist = m.distribution(name)
-        print(name, dist.metadata.get("Name", name), dist.version)
-    except Exception as exc:
-        print(name, type(exc).__name__)
-'@ | python -
-```
+This is the required interpretation:
 
-4. Optional version probes only if a local executable is already known
+- `validator success != report readiness`
+- `validator success != case promotion readiness`
 
-```powershell
-hexstrike_server --version
-hexstrike_mcp --version
-```
+## Current Derived Artifacts
 
-Do not add any probe that starts a scan, opens a target connection, crawls, authenticates, or launches a subprocess scanner against a Web asset.
+- [validate-live-hexstrike.txt](/d:/security-project/intake/web/hexstrike-ai/run-juice-001/derived/validate-live-hexstrike.txt)
+- [live-raw-shape-summary.json](/d:/security-project/intake/web/hexstrike-ai/run-juice-001/derived/live-raw-shape-summary.json)
+- [format-observation.json](/d:/security-project/intake/web/hexstrike-ai/run-juice-001/derived/format-observation.json)
+- [shape-bridge-report.json](/d:/security-project/intake/web/hexstrike-ai/run-juice-001/derived/shape-bridge-report.json)
+- [synthetic-vs-live-delta.json](/d:/security-project/intake/web/hexstrike-ai/run-juice-001/derived/synthetic-vs-live-delta.json)
+- [provenance.json](/d:/security-project/intake/web/hexstrike-ai/run-juice-001/derived/provenance.json)
 
-## Storage rule
+## Promotion Baseline
 
-- Runtime baseline files stay under `intake/.../raw/`
-- Format observations from raw HexStrike-style payloads stay under `intake/.../derived/format-observation.json`
-- Case-level normalized/reviewed/report artifacts remain under `cases/.../derived`
+Current blocker:
+
+- the live payload contains no finding-level request, response, or evidence records
+
+Current next requirement:
+
+- future approved live capture must expose finding-level request/response/evidence before promotion review can reopen
+
+Default completion path for the current run:
+
+- keep the run under `intake/`
+- do not rerun the scan by default
+- do not promote into `cases/`
+
+## Storage Rule
+
+- runtime discovery evidence stays under `intake/.../raw/`
+- live raw exports stay under `intake/web/hexstrike-ai/<run-id>/raw/`
+- `validate-live-hexstrike` remains file-only
+- `archive/original-sources/**` remains untouched

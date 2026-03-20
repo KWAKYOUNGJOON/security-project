@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KISA Webserver Review Queue Item",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "review_type",
+    "review_reason",
+    "platform",
+    "service_name",
+    "hostname",
+    "item_id",
+    "item_key",
+    "title",
+    "raw_status",
+    "severity",
+    "summary",
+    "executed_command",
+    "command_output",
+    "config_path",
+    "registry_path",
+    "parser_confidence",
+    "parse_warnings",
+    "source_file",
+    "timestamp"
+  ],
+  "properties": {
+    "review_type": {
+      "type": "string",
+      "enum": ["manual_check", "collection_error", "triage_needed"]
+    },
+    "review_reason": {
+      "type": "string"
+    },
+    "platform": {
+      "type": ["string", "null"]
+    },
+    "service_name": {
+      "type": ["string", "null"]
+    },
+    "hostname": {
+      "type": ["string", "null"]
+    },
+    "item_id": {
+      "type": ["string", "null"]
+    },
+    "item_key": {
+      "type": ["string", "null"]
+    },
+    "title": {
+      "type": ["string", "null"]
+    },
+    "raw_status": {
+      "type": ["string", "null"]
+    },
+    "severity": {
+      "type": ["string", "null"]
+    },
+    "summary": {
+      "type": ["string", "null"]
+    },
+    "executed_command": {
+      "type": ["string", "null"]
+    },
+    "command_output": {
+      "type": ["string", "null"]
+    },
+    "config_path": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "registry_path": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "parser_confidence": {
+      "type": ["string", "null"],
+      "enum": ["high", "medium", "low", null]
+    },
+    "parse_warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "source_file": {
+      "type": ["string", "null"]
+    },
+    "timestamp": {
+      "type": ["string", "null"]
+    }
+  }
+}

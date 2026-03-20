@@ -1,0 +1,29 @@
+# captured_at=2026-03-20T13:08:41.2854032+09:00
+# cwd=D:\security-project
+
+## PATH
+C:\Program Files\PowerShell\7
+C:\Users\kyj\.codex\tmp\arg0\codex-arg03qHnIf
+C:\Users\kyj\AppData\Local\Programs\Microsoft VS Code
+C:\Program Files\Common Files\Oracle\Java\javapath
+C:\Program Files (x86)\Common Files\Oracle\Java\javapath
+C:\Python314\Scripts\
+C:\Python314\
+C:\WINDOWS\system32
+C:\WINDOWS
+C:\WINDOWS\System32\Wbem
+C:\WINDOWS\System32\WindowsPowerShell\v1.0\
+C:\WINDOWS\System32\OpenSSH\
+C:\Program Files\Bandizip\
+C:\Program Files\dotnet\
+C:\ProgramData\chocolatey\bin
+C:\ffmpeg\bin
+C:\Users\kyj\Downloads\gs10.06.0\bin
+C:\Program Files\Git\cmd
+C:\Program Files\PowerShell\7\
+C:\Users\kyj\AppData\Local\Microsoft\WindowsApps
+C:\Users\kyj\AppData\Local\Programs\Microsoft VS Code\bin
+c:\Users\kyj\.vscode\extensions\openai.chatgpt-26.5318.11754-win32-x64\bin\windows-x86_64
+
+## metadata files in repo
+

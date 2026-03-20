@@ -1,0 +1,37 @@
+{
+  "live_raw_shape_summary_path": "D:\\security-project\\intake\\web\\hexstrike-ai\\run-juice-001\\derived\\live-raw-shape-summary.json",
+  "format_observation_path": "D:\\security-project\\intake\\web\\hexstrike-ai\\run-juice-001\\derived\\format-observation.json",
+  "provenance_path": "D:\\security-project\\intake\\web\\hexstrike-ai\\run-juice-001\\derived\\provenance.json",
+  "finding_count_detected": 0,
+  "warning_count": 8,
+  "adapter_applied": true,
+  "validation_status": "success",
+  "shape_bridge_report_path": "D:\\security-project\\intake\\web\\hexstrike-ai\\run-juice-001\\derived\\shape-bridge-report.json",
+  "synthetic_live_delta_path": "D:\\security-project\\intake\\web\\hexstrike-ai\\run-juice-001\\derived\\synthetic-vs-live-delta.json",
+  "coverage_confidence": "medium",
+  "linkage_status": "pass",
+  "observation_kind": "summary-only-live-smoke",
+  "report_ready": false,
+  "promotable_to_cases": false,
+  "reason_codes": [
+    "summary_only_payload",
+    "zero_vuln_smoke_bridge",
+    "no_finding_level_payload",
+    "no_request_response_evidence"
+  ],
+  "blocker_codes": [
+    "promotion_blocked_summary_only",
+    "finding_level_detail_required",
+    "request_response_evidence_required"
+  ],
+  "required_for_promotion": [
+    "finding_level_payload",
+    "per_finding_request_response",
+    "per_finding_evidence",
+    "reviewed_live_delta_after_future_capture"
+  ],
+  "evidence_presence": false,
+  "request_response_presence": false,
+  "finding_detail_presence": false,
+  "summary_only_payload": true
+}

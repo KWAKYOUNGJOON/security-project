@@ -17,7 +17,7 @@ The current deterministic local flow is:
 
 `apps/report-template/build_report.py` remains the renderer entrypoint. `apps/report-automation` owns validation, normalization, aggregation, provenance, and bridge shaping.
 
-Pre-target intake is a separate file-based path:
+Pre-target and live-local-lab intake are separate file-based paths:
 
 `intake raw -> format observation -> intake provenance`
 
@@ -38,7 +38,9 @@ python -m src.cli.main render-report --case cases/web/case-001
 python -m src.cli.main validate-live-hexstrike --run intake\synthetic\hexstrike-ai\rehearsal-001
 ```
 
-`intake\web\hexstrike-ai\run-001` is baseline-only and intentionally has no raw payload yet, so it is not a successful validator target until a file-based raw capture is added.
+`intake\web\hexstrike-ai\run-001` remains the pre-target baseline run.
+`intake\web\hexstrike-ai\run-juice-001` now contains the first low-impact local-lab smoke raw payload, and `validate-live-hexstrike` can now generate `format-observation.json` for that run through a summary-only adapter.
+The run still stays intake-only because the smoke payload contains no finding-level request, response, or evidence detail.
 
 Legacy scaffold commands remain available:
 
@@ -239,7 +241,10 @@ Pre-target intake policy:
 - live intake originals stay under `intake/web/hexstrike-ai/<run-id>/raw/`
 - synthetic rehearsal fixtures stay under `intake/synthetic/...`
 - `format-observation.json` is generated under `intake/.../derived/format-observation.json`
+- `live-raw-shape-summary.json` records wrapper-versus-payload triage for live runs
+- `shape-bridge-report.json` records adapter coverage when a known live shape needs a validation-only bridge
 - case-derived artifacts remain under `cases/.../derived`
+- if no real HexStrike scanner `help/version` is available in the current environment, a live smoke run must be blocked rather than improvised
 
 Reviewed artifact policy:
 
@@ -278,3 +283,4 @@ Report inclusion policy:
 - target criticality is carried for future deterministic prioritization but is not yet used as a tie-breaker
 - the bridge groups multi-finding results by target and aggregates remediation, but template-native section design can still be improved later
 - when a real local Web target is ready, the next step is to capture a live raw payload into `intake/web/hexstrike-ai/<run-id>/raw/`, run `validate-live-hexstrike`, compare its observation with the synthetic rehearsal, and only then promote stable inputs into a `cases/web/<case-id>/input/` workflow
+- for the current Juice Shop smoke run, the raw shape now connects to the intake validator through a summary-only adapter, but it is still insufficient for `cases/` promotion

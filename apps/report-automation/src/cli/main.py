@@ -20,6 +20,8 @@ from src.collectors import collect_hexstrike_snapshot
 from src.enrichers import enrich_findings
 from src.generators import build_report_payload, build_web_report_payload, render_report_preview
 from src.intake.hexstrike import validate_live_hexstrike_run
+from src.intake.hexstrike_promotion import assess_hexstrike_live_promotion
+from src.intake.hexstrike_review import render_hexstrike_live_review
 from src.integrations import HexStrikeClient, HexStrikeClientConfig
 from src.normalizers import normalize_findings
 from src.normalizers.web_hexstrike import (
@@ -37,7 +39,7 @@ REPO_ROOT = APP_ROOT.parent.parent
 DEFAULT_CONFIG_PATH = APP_ROOT / "configs" / "default.yaml"
 SHARED_SCHEMA_DIR = REPO_ROOT / "shared" / "schemas"
 CASE_COMMANDS = {"normalize", "apply-review", "build-payload", "render-report", "build-all"}
-INTAKE_COMMANDS = {"validate-live-hexstrike"}
+INTAKE_COMMANDS = {"assess-live-hexstrike-promotion", "render-live-hexstrike-review", "validate-live-hexstrike"}
 LOGGER = logging.getLogger(__name__)
 
 
@@ -149,7 +151,9 @@ def build_case_argument_parser() -> argparse.ArgumentParser:
 def build_intake_argument_parser() -> argparse.ArgumentParser:
     """Create the pre-target intake parser."""
 
-    parser = argparse.ArgumentParser(description="Validate HexStrike pre-target intake files without network activity.")
+    parser = argparse.ArgumentParser(
+        description="Run file-only HexStrike intake validation, promotion assessment, and review rendering."
+    )
     parser.add_argument(
         "command",
         choices=sorted(INTAKE_COMMANDS),
@@ -227,7 +231,12 @@ def _run_intake_cli(argv: list[str]) -> int:
     logging.basicConfig(level=getattr(logging, args.log_level), format="%(levelname)s %(message)s")
 
     try:
-        result = validate_live_hexstrike_artifact(args.run)
+        if args.command == "validate-live-hexstrike":
+            result = validate_live_hexstrike_artifact(args.run)
+        elif args.command == "render-live-hexstrike-review":
+            result = render_live_hexstrike_review_artifact(args.run)
+        else:
+            result = assess_live_hexstrike_promotion_artifact(args.run)
     except Exception as exc:  # pragma: no cover - CLI boundary
         parser.exit(status=1, message=f"report-automation error: {exc}\n")
 
@@ -305,6 +314,18 @@ def validate_live_hexstrike_artifact(run_arg: Path) -> dict[str, Any]:
     """Validate one pre-target live intake run and write observation artifacts."""
 
     return validate_live_hexstrike_run(run_arg, REPO_ROOT, SHARED_SCHEMA_DIR)
+
+
+def assess_live_hexstrike_promotion_artifact(run_arg: Path) -> dict[str, Any]:
+    """Assess whether one validated live intake run may be promoted into case input."""
+
+    return assess_hexstrike_live_promotion(run_arg, REPO_ROOT, SHARED_SCHEMA_DIR)
+
+
+def render_live_hexstrike_review_artifact(run_arg: Path) -> dict[str, Any]:
+    """Render machine-readable and Markdown review artifacts for one live intake run."""
+
+    return render_hexstrike_live_review(run_arg, REPO_ROOT, SHARED_SCHEMA_DIR)
 
 
 def _build_case_stage(

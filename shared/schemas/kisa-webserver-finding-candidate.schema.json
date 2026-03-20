@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KISA Webserver Finding Candidate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "source_type",
+    "platform",
+    "service_name",
+    "hostname",
+    "item_id",
+    "item_key",
+    "title",
+    "severity",
+    "candidate_status",
+    "summary",
+    "evidence",
+    "executed_command",
+    "command_output",
+    "config_path",
+    "registry_path",
+    "guideline_reference",
+    "guideline_text",
+    "parser_confidence",
+    "parse_warnings",
+    "triage_required",
+    "triage_reasons",
+    "raw_status",
+    "source_file",
+    "timestamp"
+  ],
+  "properties": {
+    "source_type": {
+      "type": "string",
+      "const": "kisa_webserver_raw_record"
+    },
+    "platform": {
+      "type": ["string", "null"]
+    },
+    "service_name": {
+      "type": ["string", "null"]
+    },
+    "hostname": {
+      "type": ["string", "null"]
+    },
+    "item_id": {
+      "type": ["string", "null"]
+    },
+    "item_key": {
+      "type": ["string", "null"]
+    },
+    "title": {
+      "type": ["string", "null"]
+    },
+    "severity": {
+      "type": ["string", "null"]
+    },
+    "candidate_status": {
+      "type": "string",
+      "const": "candidate"
+    },
+    "summary": {
+      "type": ["string", "null"]
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "summary", "artifacts"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["command_output", "config_path", "registry_path", "none"]
+        },
+        "summary": {
+          "type": ["string", "null"]
+        },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "executed_command": {
+      "type": ["string", "null"]
+    },
+    "command_output": {
+      "type": ["string", "null"]
+    },
+    "config_path": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "registry_path": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "guideline_reference": {
+      "type": ["string", "null"]
+    },
+    "guideline_text": {
+      "type": ["string", "null"]
+    },
+    "parser_confidence": {
+      "type": ["string", "null"],
+      "enum": ["high", "medium", "low", null]
+    },
+    "parse_warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "triage_required": {
+      "type": "boolean"
+    },
+    "triage_reasons": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "raw_status": {
+      "type": ["string", "null"]
+    },
+    "source_file": {
+      "type": ["string", "null"]
+    },
+    "timestamp": {
+      "type": ["string", "null"]
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "synthetic_fixture": true,
+  "platform": "Nginx",
+  "item_id": "WEB-25",
+  "item_name": "Synthetic Nginx Version Verification",
+  "inspection": {
+    "summary": "Synthetic MANUAL summary because patch baseline is environment specific",
+    "status": "수동"
+  },
+  "final_result": "MANUAL",
+  "command": "nginx -v",
+  "command_result": "nginx version: nginx/1.24.0",
+  "guideline": {
+    "purpose": "버전 및 패치 수준 확인",
+    "security_threat": "구버전 사용 시 알려진 취약점 노출",
+    "judgment_criteria_good": "기준 버전 이상",
+    "judgment_criteria_bad": "기준 버전 미만",
+    "remediation": "권고 버전으로 업그레이드"
+  },
+  "hostname": "synthetic-web-02",
+  "timestamp": "2026-03-20T09:15:00+09:00"
+}

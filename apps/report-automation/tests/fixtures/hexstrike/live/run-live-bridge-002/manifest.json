@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "platform": "web",
+  "integration": "hexstrike-ai",
+  "run_id": "run-live-bridge-002",
+  "mode": "live-local-lab",
+  "baseline_files": [
+    "raw/runtime-baseline.json"
+  ],
+  "raw_payloads": [
+    "raw/hexstrike-result.json"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "synthetic_fixture": true,
+  "platform": "Nginx",
+  "item_id": "WEB-23",
+  "item_name": "Synthetic Nginx Webshell Heuristic Scan",
+  "inspection": {
+    "summary": "Synthetic FAIL summary for suspicious webshell patterns",
+    "status": "취약"
+  },
+  "final_result": "FAIL",
+  "command": "find /usr/share/nginx/html -name '*.php' -print",
+  "command_result": "/usr/share/nginx/html/uploads/shell.php\n/usr/share/nginx/html/cache/debug.php",
+  "guideline": {
+    "purpose": "웹쉘 의심 파일 탐지",
+    "security_threat": "웹쉘 업로드 후 원격 명령 실행 가능",
+    "judgment_criteria_good": "의심 파일 없음",
+    "judgment_criteria_bad": "의심 파일 존재",
+    "remediation": "의심 파일 삭제 및 배포 경로 점검"
+  },
+  "hostname": "synthetic-web-02",
+  "timestamp": "2026-03-20T09:10:00+09:00"
+}

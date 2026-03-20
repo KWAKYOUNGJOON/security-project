@@ -1,0 +1,32 @@
+{
+  "subject_type": "intake-run",
+  "record_id": "run-live-bridge-002",
+  "inputs": [
+    {
+      "role": "manifest",
+      "path": "apps/report-automation/tests/fixtures/hexstrike/live/run-live-bridge-002/manifest.json"
+    },
+    {
+      "role": "notes",
+      "path": "apps/report-automation/tests/fixtures/hexstrike/live/run-live-bridge-002/notes.md"
+    },
+    {
+      "role": "runtime-baseline",
+      "path": "apps/report-automation/tests/fixtures/hexstrike/live/run-live-bridge-002/raw/runtime-baseline.json"
+    },
+    {
+      "role": "intake-raw",
+      "path": "apps/report-automation/tests/fixtures/hexstrike/live/run-live-bridge-002/raw/hexstrike-result.json"
+    }
+  ],
+  "outputs": [
+    {
+      "role": "format-observation",
+      "path": "apps/report-automation/tests/fixtures/hexstrike/live/run-live-bridge-002/derived/format-observation.json"
+    },
+    {
+      "role": "shape-bridge-report",
+      "path": "apps/report-automation/tests/fixtures/hexstrike/live/run-live-bridge-002/derived/shape-bridge-report.json"
+    }
+  ]
+}

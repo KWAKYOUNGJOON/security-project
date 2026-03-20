@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0",
+  "platform": "web",
+  "integration": "hexstrike-ai",
+  "run_id": "run-juice-001",
+  "mode": "live-local-lab",
+  "captured_at": "2026-03-20T04:48:23.6184172+09:00",
+  "working_directory": "d:\\security-project",
+  "local_shell": {
+    "python_version": "Python 3.14.3",
+    "command_discovery_pattern": "hexstrike*",
+    "commands_found": [],
+    "where_results": {
+      "hexstrike_server": [],
+      "hexstrike_mcp": [],
+      "hexstrike": []
+    },
+    "pip_show": {
+      "hexstrike-ai": "not-found",
+      "hexstrike-mcp": "not-found"
+    }
+  },
+  "accessible_runtime": {
+    "working_directory": "/home/kali/hexstrike-ai",
+    "files": [
+      "hexstrike_server.py",
+      "hexstrike_mcp.py",
+      "hexstrike-ai-mcp.json",
+      "hexstrike-env/bin/python"
+    ],
+    "venv_packages": {
+      "selenium": "4.41.0",
+      "mcp": "1.26.0"
+    },
+    "confirmed_entrypoints": {
+      "hexstrike_server": {
+        "command": "hexstrike-env/bin/python hexstrike_server.py",
+        "help_supported": true,
+        "version_supported": false,
+        "help_options": [
+          "--debug",
+          "--port PORT"
+        ]
+      },
+      "hexstrike_mcp": {
+        "command": "hexstrike-env/bin/python hexstrike_mcp.py",
+        "help_supported": true,
+        "version_supported": false,
+        "help_options": [
+          "--server SERVER",
+          "--timeout TIMEOUT",
+          "--debug"
+        ]
+      }
+    }
+  },
+  "confirmed_mcp_tool_schema": {
+    "burpsuite_alternative_scan": {
+      "target": "str",
+      "scan_type": [
+        "comprehensive",
+        "spider",
+        "passive",
+        "active"
+      ],
+      "headless": "bool",
+      "max_depth": "int",
+      "max_pages": "int"
+    },
+    "browser_agent_inspect": {
+      "url": "str",
+      "headless": "bool",
+      "wait_time": "int",
+      "action": [
+        "navigate",
+        "screenshot",
+        "close",
+        "status"
+      ],
+      "active_tests": "bool"
+    }
+  },
+  "execution_feasibility": {
+    "classification": "real scanner entrypoint confirmed",
+    "can_run_smoke_scan_from_codex": true,
+    "selected_smoke_entrypoint": "burpsuite_alternative_scan",
+    "selected_smoke_parameters": {
+      "target": "http://192.168.10.130:3000",
+      "scan_type": "passive",
+      "headless": true,
+      "max_depth": 1,
+      "max_pages": 1
+    }
+  },
+  "smoke_run_result": {
+    "success": true,
+    "pages_analyzed": 0,
+    "total_vulnerabilities": 0,
+    "security_score": 100,
+    "raw_payload_path": "raw/hexstrike-result.json",
+    "validator_status": "failed-missing-root-groups"
+  }
+}

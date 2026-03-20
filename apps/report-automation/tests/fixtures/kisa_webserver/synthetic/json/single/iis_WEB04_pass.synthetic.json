@@ -1,0 +1,22 @@
+{
+  "synthetic_fixture": true,
+  "platform": "IIS",
+  "item_id": "WEB-04",
+  "item_name": "Synthetic IIS Directory Browsing",
+  "inspection": {
+    "summary": "Synthetic PASS summary for IIS directory browsing",
+    "status": "양호"
+  },
+  "final_result": "PASS",
+  "command": "Get-WebConfigurationProperty -Filter /system.webServer/directoryBrowse -Name enabled",
+  "command_result": "ItemXPath : /system.webServer/directoryBrowse\nValue     : False\nPath      : C:\\inetpub\\wwwroot\\web.config",
+  "guideline": {
+    "purpose": "DirectoryBrowse 비활성화 여부 확인",
+    "security_threat": "웹 루트 구조 노출 방지",
+    "judgment_criteria_good": "enabled=False",
+    "judgment_criteria_bad": "enabled=True",
+    "remediation": "DirectoryBrowse 비활성화"
+  },
+  "hostname": "synthetic-iis-01",
+  "timestamp": "2026-03-20T09:20:00+09:00"
+}

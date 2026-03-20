@@ -1,0 +1,50 @@
+{
+  "synthetic_fixture": true,
+  "platform": "IIS",
+  "category": "03.웹서버",
+  "hostname": "synthetic-iis-01",
+  "timestamp": "2026-03-20T09:35:00+09:00",
+  "total_items": 2,
+  "good_items": 1,
+  "vulnerable_items": 0,
+  "manual_items": 0,
+  "error_items": 1,
+  "items": [
+    {
+      "item_id": "WEB-04",
+      "item_name": "Synthetic IIS Directory Browsing",
+      "inspection": {
+        "summary": "Synthetic PASS summary for IIS directory browsing",
+        "status": "양호"
+      },
+      "final_result": "PASS",
+      "command": "Get-WebConfigurationProperty -Filter /system.webServer/directoryBrowse -Name enabled",
+      "command_result": "ItemXPath : /system.webServer/directoryBrowse\nValue     : False\nPath      : C:\\inetpub\\wwwroot\\web.config",
+      "guideline": {
+        "purpose": "DirectoryBrowse 비활성화 여부 확인",
+        "security_threat": "웹 루트 구조 노출 방지",
+        "judgment_criteria_good": "enabled=False",
+        "judgment_criteria_bad": "enabled=True",
+        "remediation": "DirectoryBrowse 비활성화"
+      }
+    },
+    {
+      "item_id": "WEB-24",
+      "item_name": "Synthetic IIS Request Filtering Configuration",
+      "inspection": {
+        "summary": "Synthetic ERROR summary because configuration query failed",
+        "status": "오류"
+      },
+      "final_result": "ERROR",
+      "command": "Get-WebConfiguration -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter system.webServer/security/requestFiltering",
+      "command_result": "Get-WebConfiguration : Access is denied.",
+      "guideline": {
+        "purpose": "Request Filtering 설정 확인",
+        "security_threat": "위험 확장자 업로드 및 요청 우회",
+        "judgment_criteria_good": "필수 필터 규칙 존재",
+        "judgment_criteria_bad": "필수 필터 규칙 없음",
+        "remediation": "requestFiltering 구성 보강"
+      }
+    }
+  ]
+}

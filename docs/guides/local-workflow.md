@@ -1,67 +1,89 @@
 # Local Workflow
 
-This guide describes the simplest supported phase-1 workflow for a local Web assessment run.
+This guide describes the supported Web-only workflow for the current repository state.
 
-## Scope reminder
+## Scope
 
-- Current implementation scope: Web
-- Planned future scope: Web + API + Server
+- Web only
+- `archive/original-sources/**` untouched
+- `validate-live-hexstrike` remains file-only parse/validation only
+- no external-target testing paths
 
-Use the current flow to keep Web work stable. Treat API and Server as future extensions, not active implementation paths inside phase 1.
+## Operating States
 
-## Suggested workflow
+1. `pre-target`
 
-1. Decide whether the work is still pre-target.
+   No approved local Web target exists. Work stays under `intake/` with synthetic rehearsal or runtime capture only.
 
-   If a local Web target is not ready, keep the work under `intake/` and use only runtime baseline capture or synthetic rehearsal. Do not jump straight into `cases/`.
+2. `live-local-lab`
 
-2. Prepare an engagement workspace.
+   An approved local Web target exists, but the live payload is still being classified. Work stays under `intake/web/hexstrike-ai/<run-id>/`.
 
-   Start from `engagements/sample-folder` when creating a new working folder. Keep scope notes, targets, evidence, and findings inside the engagement directory rather than scattering them across the repository.
+3. `case-ready`
 
-3. Capture assessment inputs.
+   A live payload has already been reviewed and is finding-level complete enough for `cases/`.
 
-   Store raw scanner exports under `scans/raw/`, screenshots under `evidence/screenshots/`, traffic captures under `evidence/traffic/`, and proxy exports under `evidence/burp/`.
+## Current State
 
-4. Normalize working data.
+Current approved live-local-lab target:
 
-   Convert or summarize raw material into `scans/normalized/` and `findings/` so the reporting workflow can consume cleaner inputs.
+- `OWASP Juice Shop`
+- canonical target: `http://192.168.10.130:3000`
+- observed entry route: `http://192.168.10.130:3000/#/`
 
-5. Run the automation scaffold.
+Current execution state:
 
-   From `apps/report-automation`, run:
+- one low-impact smoke run exists
+- the live raw payload is summary-only smoke linkage evidence
+- validator linkage succeeds
+- report readiness is blocked
+- case promotion readiness is blocked
+
+## Current Workflow
+
+1. Keep the live run under `intake/web/hexstrike-ai/run-juice-001/`.
+
+2. Use the file-only validator to refresh derived artifacts when code or documentation changes require it.
+
+   Verified commands:
 
    ```powershell
-   python -m src.cli.main
+   python apps\report-automation\src\cli\main.py validate-live-hexstrike --run intake\web\hexstrike-ai\run-juice-001
+   python -m src.cli.main validate-live-hexstrike --run intake\web\hexstrike-ai\run-juice-001
    ```
 
-   This phase-1 CLI uses a local-safe `HexStrike-AI` stub and produces a report-ready JSON payload without requiring external services.
+3. Review the derived sidecars:
 
-6. Review the generated payload.
+   - `live-raw-shape-summary.json`
+   - `format-observation.json`
+   - `shape-bridge-report.json`
+   - `synthetic-vs-live-delta.json`
+   - `provenance.json`
 
-   If you want a file output:
+4. Interpret the result correctly:
 
-   ```powershell
-   python -m src.cli.main --output ..\..\outputs\exports\sample-report-payload.json
-   ```
+   - `validator success != report readiness`
+   - `validator success != case promotion readiness`
+   - current live payload is summary-only smoke linkage evidence
 
-7. Render the report.
+5. Stop without scan rerun by default.
 
-   Use `apps/report-template` to maintain and build the HTML/PDF report assets for the current Web engagement workflow.
+   For the current state, the correct end point is documentation plus validation artifacts, not a second scan.
 
-8. Publish final outputs.
+6. Reopen promotion review only after a future approved live capture provides:
 
-   Place report deliverables, evidence bundles, or presentation exports under `outputs/` as needed.
+   - finding-level payload objects
+   - request/response records
+   - evidence records
 
-## Operating guidance
+## Case Promotion Rule
 
-- Keep `intake/` reserved for immutable raw observations and pre-target artifacts.
-- Keep evidence and customer-specific data inside `engagements/`.
-- Keep reusable mappings, schemas, and prompts inside `shared/`.
-- Do not modify `archive/original-sources`.
-- Do not add heavyweight dependencies for phase 1.
-- Prefer explicit file-based inputs and outputs over hidden local state.
+Do not promote `run-juice-001` into `cases/`.
 
-## Future extension points
+Current blocker:
 
-When API and Server scope is added later, the workflow should extend by introducing new collectors, parsers, and templates instead of changing the existing Web pipeline shape.
+- the live raw exposes no finding-level request, response, or evidence detail
+
+Current promotion artifact:
+
+- [synthetic-vs-live-delta.json](/d:/security-project/intake/web/hexstrike-ai/run-juice-001/derived/synthetic-vs-live-delta.json)

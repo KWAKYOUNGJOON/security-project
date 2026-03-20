@@ -1,22 +1,36 @@
 # Target-Ready Checklist
 
-Draft checklist for the point when pre-target mode can end and a local Web practice target is ready.
+Checklist for the point where pre-target mode ends and the first live-local-lab smoke run becomes eligible.
 
-## Required before moving past pre-target mode
+## Required before live-local-lab smoke run
 
-- A local Web target exists and is explicitly in scope.
-- The target is owned or authorized for local testing.
-- The target base URL is documented and stable enough for repeatable runs.
-- Test accounts, session state, and reset procedure are documented if authentication is required.
-- A safe evidence storage path is prepared.
-- Intake run naming for the first live raw payload is decided.
-- File-based raw export format is known well enough to capture without guessing fields.
-- The team agrees that pre-target observation artifacts and case artifacts remain separate.
+- The target is a local Web target and is explicitly approved for testing.
+- The target is OWASP Juice Shop only for this phase.
+- The canonical target URL is documented as `http://192.168.10.130:3000`.
+- The observed entry route `http://192.168.10.130:3000/#/` is recorded as notes only, not as the canonical target.
+- The scope is limited to one target and no external assets.
+- Previous Ubuntu resource pressure is acknowledged and stop conditions are written down.
+- The first live run ID is decided as `run-juice-001`.
+- The intake folder exists before scanning starts.
+- The team agrees that live intake artifacts stay under `intake/` until the shape is understood.
+- The team agrees that no automatic promotion into `cases/` is allowed.
+- A visible HexStrike scanner entrypoint exists in the current execution environment.
+- The scanner exposes real `help/version` output for low-impact controls.
+- The scanner `help` output confirms enough controls to keep the run slow and narrow:
+  - export or output path
+  - target scope restriction
+  - concurrency or single-worker control
+  - pacing such as delay or jitter
+  - crawl depth or request/page budget
+  - runtime cap, timeout, or equivalent
+  - retry behavior
 
-## First steps after target readiness
+## First steps after readiness
 
-1. Capture the first live HexStrike raw payload into `intake/web/hexstrike-ai/<run-id>/raw/`.
-2. Run `validate-live-hexstrike` against that intake run to generate `format-observation.json`.
-3. Compare live observation output with the synthetic rehearsal output and document shape deltas.
-4. Decide whether the live raw format is stable enough to promote into a case input mapping step.
-5. Only then wire the selected raw payload into a `cases/web/<case-id>/input/...` workflow.
+1. Capture the runtime baseline and save it under `intake/web/hexstrike-ai/run-juice-001/raw/`.
+2. Run exactly one low-impact smoke scan against `http://192.168.10.130:3000` only if the required controls were confirmed from real scanner help output.
+3. Save the first raw export only under `intake/web/hexstrike-ai/run-juice-001/raw/hexstrike-result.json`.
+4. Run `validate-live-hexstrike` against that intake run to generate `derived/format-observation.json`.
+5. Compare the live observation with the synthetic rehearsal output and document the shape delta.
+6. Decide whether the live raw format is stable enough to promote into a case input mapping step.
+7. Only then wire selected data into `cases/web/<case-id>/input/...`.

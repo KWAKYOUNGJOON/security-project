@@ -1,0 +1,142 @@
+{
+  "schema_version": "1.0",
+  "comparison_kind": "synthetic-vs-live-observation-delta",
+  "synthetic_run_id": "rehearsal-001",
+  "live_run_id": "run-juice-001",
+  "linkage_comparison_succeeded": true,
+  "status_reference": {
+    "linkage_status": "pass",
+    "validation_status": "success",
+    "observation_kind": "summary-only-live-smoke",
+    "report_ready": false,
+    "promotable_to_cases": false
+  },
+  "comparison": {
+    "top_level_keys": {
+      "synthetic": [
+        "engagement",
+        "findings",
+        "metadata",
+        "scan",
+        "tool"
+      ],
+      "live": [
+        "scan_type",
+        "success",
+        "summary",
+        "target",
+        "timestamp"
+      ]
+    },
+    "finding_count_detection": {
+      "synthetic_method": "len($.findings)",
+      "synthetic_detected": 1,
+      "live_method": "$.summary.total_vulnerabilities",
+      "live_detected": 0
+    },
+    "finding_identifier_fields": {
+      "synthetic": [
+        "id",
+        "title"
+      ],
+      "live": []
+    },
+    "severity_status_enum": {
+      "synthetic": {
+        "severity_values": [
+          "Medium"
+        ],
+        "status_values": [
+          "needs-review"
+        ],
+        "severity_field_shapes": {
+          "string": 1
+        },
+        "status_field_shapes": {
+          "string": 1
+        }
+      },
+      "live": {
+        "severity_values": [],
+        "status_values": [],
+        "severity_field_shapes": {},
+        "status_field_shapes": {}
+      }
+    },
+    "request_response_location": {
+      "synthetic": [
+        "$.findings[0].request",
+        "$.findings[0].response"
+      ],
+      "live": []
+    },
+    "evidence_screenshot_structure": {
+      "synthetic": {
+        "path": "$.findings[0].evidence",
+        "evidence_field_shapes": {
+          "array": 1
+        },
+        "evidence_item_kinds": {
+          "http": 1,
+          "screenshot": 1
+        }
+      },
+      "live": {
+        "path": null,
+        "evidence_field_shapes": {},
+        "evidence_item_kinds": {}
+      }
+    },
+    "unknown_fields": {
+      "synthetic_count": 3,
+      "synthetic_fields": [
+        "$.findings[0].confidence",
+        "$.findings[0].experimental_trace",
+        "$.metadata"
+      ],
+      "live_count": 5,
+      "live_fields": [
+        "$.scan_type",
+        "$.success",
+        "$.summary",
+        "$.target",
+        "$.timestamp"
+      ]
+    },
+    "missing_expected_fields": {
+      "synthetic_count": 0,
+      "live_count": 0
+    },
+    "parser_warnings": {
+      "synthetic_count": 3,
+      "synthetic_warnings": [
+        "Unknown finding field preserved: intake/synthetic/hexstrike-ai/rehearsal-001/raw/hexstrike-result.json:$.findings[0].confidence",
+        "Unknown finding field preserved: intake/synthetic/hexstrike-ai/rehearsal-001/raw/hexstrike-result.json:$.findings[0].experimental_trace",
+        "Unknown root field preserved: intake/synthetic/hexstrike-ai/rehearsal-001/raw/hexstrike-result.json:$.metadata"
+      ],
+      "live_count": 8,
+      "live_warnings": [
+        "Derived empty findings array because intake/web/hexstrike-ai/run-juice-001/raw/hexstrike-result.json:$.summary.total_vulnerabilities == 0 and no per-finding objects were present.",
+        "Derived root groups from raw summary fields and intake metadata because the live payload does not natively expose tool/scan/engagement/findings.",
+        "Summary-only live payload detected: intake/web/hexstrike-ai/run-juice-001/raw/hexstrike-result.json contains no wrapper or embedded JSON envelope.",
+        "Unknown root field preserved: intake/web/hexstrike-ai/run-juice-001/raw/hexstrike-result.json:$.scan_type",
+        "Unknown root field preserved: intake/web/hexstrike-ai/run-juice-001/raw/hexstrike-result.json:$.success",
+        "Unknown root field preserved: intake/web/hexstrike-ai/run-juice-001/raw/hexstrike-result.json:$.summary",
+        "Unknown root field preserved: intake/web/hexstrike-ai/run-juice-001/raw/hexstrike-result.json:$.target",
+        "Unknown root field preserved: intake/web/hexstrike-ai/run-juice-001/raw/hexstrike-result.json:$.timestamp"
+      ]
+    }
+  },
+  "promotion_impact_summary": "Linkage comparison succeeded, but promotion remains blocked because the live payload is summary-only and exposes no finding-level request, response, or evidence records.",
+  "conclusion": {
+    "linkage_comparison_succeeded": true,
+    "promotion_decision": "blocked",
+    "promotion_decision_remains_blocked": true,
+    "why_blocked": [
+      "Live payload is summary-only and contains no finding-level objects.",
+      "Live payload contains no request or response records.",
+      "Live payload contains no evidence or screenshot records.",
+      "Validator success confirms smoke linkage only, not report-ready case quality."
+    ]
+  }
+}

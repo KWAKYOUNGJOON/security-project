@@ -1,0 +1,17 @@
+# source=mcp execute_command
+# cwd=/home/kali/hexstrike-ai
+# command=hexstrike-env/bin/python hexstrike_server.py --version
+# return_code=2
+STDOUT:
+2026-03-20 00:11:42,151 - __main__ - INFO - 🔧 Process pool worker 0 started
+2026-03-20 00:11:42,152 - __main__ - INFO - 🔧 Process pool worker 1 started
+2026-03-20 00:11:42,153 - __main__ - INFO - 🔧 Process pool worker 2 started
+2026-03-20 00:11:42,154 - __main__ - INFO - 🔧 Process pool worker 3 started
+[ASCII art banner omitted]
+[INFO] Server starting on 127.0.0.1:8888
+[INFO] 150+ integrated modules | Adaptive AI decision engine active
+[INFO] Blood-red theme engaged – unified offensive operations UI
+
+STDERR:
+usage: hexstrike_server.py [-h] [--debug] [--port PORT]
+hexstrike_server.py: error: unrecognized arguments: --version

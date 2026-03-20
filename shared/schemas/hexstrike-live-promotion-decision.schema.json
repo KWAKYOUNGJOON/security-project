@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HexStrike Live Promotion Decision",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "run_id",
+    "source_type",
+    "promotion_status",
+    "case_input_promotion_allowed",
+    "evidence_class",
+    "decision_confidence",
+    "validation_status",
+    "adapter_applied",
+    "finding_count_detected",
+    "detail_coverage_status",
+    "coverage_confidence",
+    "blocking_reasons",
+    "advisory_actions",
+    "required_for_future_promotion",
+    "source_paths",
+    "guessed_fields_used",
+    "raw_evidence_immutable",
+    "generated_at"
+  ],
+  "properties": {
+    "run_id": {
+      "type": "string"
+    },
+    "source_type": {
+      "type": "string",
+      "const": "hexstrike_live_validation_artifacts"
+    },
+    "promotion_status": {
+      "type": "string",
+      "enum": ["blocked", "eligible", "unknown"]
+    },
+    "case_input_promotion_allowed": {
+      "type": "boolean"
+    },
+    "evidence_class": {
+      "type": "string",
+      "enum": [
+        "summary_only_smoke_evidence",
+        "summary_nonzero_missing_detail",
+        "finding_detail_ready",
+        "unknown_live_evidence"
+      ]
+    },
+    "decision_confidence": {
+      "type": "string",
+      "enum": ["high", "medium", "low"]
+    },
+    "validation_status": {
+      "type": "string"
+    },
+    "adapter_applied": {
+      "type": "boolean"
+    },
+    "finding_count_detected": {
+      "type": "integer"
+    },
+    "detail_coverage_status": {
+      "type": "string",
+      "enum": ["zero_summary_no_detail", "nonzero_summary_no_detail", "detail_ready", "unknown"]
+    },
+    "coverage_confidence": {
+      "type": "string",
+      "enum": ["high", "medium", "low", "unknown"]
+    },
+    "summary_total_vulnerabilities": {
+      "type": ["integer", "null"]
+    },
+    "blocking_reasons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "message"],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "advisory_actions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "required_for_future_promotion": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "source_paths": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "manifest",
+        "notes",
+        "format_observation",
+        "shape_bridge_report",
+        "live_raw_shape_summary",
+        "provenance"
+      ],
+      "properties": {
+        "manifest": {
+          "type": ["string", "null"]
+        },
+        "notes": {
+          "type": ["string", "null"]
+        },
+        "format_observation": {
+          "type": ["string", "null"]
+        },
+        "shape_bridge_report": {
+          "type": ["string", "null"]
+        },
+        "live_raw_shape_summary": {
+          "type": ["string", "null"]
+        },
+        "provenance": {
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "guessed_fields_used": {
+      "type": "boolean"
+    },
+    "raw_evidence_immutable": {
+      "type": "boolean",
+      "const": true
+    },
+    "generated_at": {
+      "type": "string"
+    }
+  }
+}

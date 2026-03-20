@@ -86,6 +86,52 @@ class HexStrikePretargetIntakeTest(unittest.TestCase):
 
             self.assertFalse((run_dir / "derived" / "format-observation.json").exists())
 
+    def test_validate_live_hexstrike_bridges_summary_only_live_smoke_payload_without_rewrite(self) -> None:
+        with self._live_summary_run_dir() as run_dir:
+            result = validate_live_hexstrike_artifact(run_dir)
+
+            observation_path = Path(result["format_observation_path"])
+            provenance_path = Path(result["provenance_path"])
+            shape_summary_path = Path(result["live_raw_shape_summary_path"])
+            report_path = Path(result["shape_bridge_report_path"])
+            delta_path = Path(result["synthetic_live_delta_path"])
+            self.assertTrue(observation_path.exists())
+            self.assertTrue(provenance_path.exists())
+            self.assertTrue(shape_summary_path.exists())
+            self.assertTrue(report_path.exists())
+            self.assertTrue(delta_path.exists())
+            self.assertTrue(result["adapter_applied"])
+
+            raw_payload = json.loads((run_dir / "raw" / "hexstrike-result.json").read_text(encoding="utf-8"))
+            observation = json.loads(observation_path.read_text(encoding="utf-8"))
+            provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
+            shape_summary = json.loads(shape_summary_path.read_text(encoding="utf-8"))
+            report = json.loads(report_path.read_text(encoding="utf-8"))
+            delta = json.loads(delta_path.read_text(encoding="utf-8"))
+            validate_schema_file(observation, SCHEMA_DIR / "format-observation.schema.json")
+            validate_schema_file(provenance, SCHEMA_DIR / "provenance.schema.json")
+            validate_schema_file(report, SCHEMA_DIR / "hexstrike-shape-bridge-report.schema.json")
+            validate_schema_file(delta, SCHEMA_DIR / "hexstrike-synthetic-live-delta.schema.json")
+
+            self.assertEqual(observation["finding_count_detected"], 0)
+            self.assertEqual(observation["detected_top_level_keys"], sorted(raw_payload.keys()))
+            self.assertEqual(observation["missing_expected_fields"], [])
+            self.assertEqual(
+                [item["field"] for item in observation["unknown_fields"]],
+                ["scan_type", "success", "summary", "target", "timestamp"],
+            )
+            self.assertIn(
+                "Summary-only live payload detected",
+                " ".join(observation["parser_warnings"]),
+            )
+            self.assertEqual(shape_summary["possible_payload_path"], "$")
+            self.assertEqual(shape_summary["adapter_feasibility"], "yes")
+            self.assertFalse(report["status"]["report_ready"])
+            self.assertFalse(report["status"]["promotable_to_cases"])
+            self.assertTrue(delta["linkage_comparison_succeeded"])
+            self.assertTrue(any(output["path"].endswith("/derived/format-observation.json") for output in provenance["outputs"]))
+            self.assertTrue(any(output["path"].endswith("/derived/synthetic-vs-live-delta.json") for output in provenance["outputs"]))
+
     @contextlib.contextmanager
     def _copied_run_dir(self):
         synthetic_root = REPO_ROOT / "intake" / "synthetic"
@@ -93,6 +139,80 @@ class HexStrikePretargetIntakeTest(unittest.TestCase):
             run_dir = Path(temp_dir) / "hexstrike-ai" / "rehearsal-001"
             run_dir.parent.mkdir(parents=True, exist_ok=True)
             shutil.copytree(SYNTHETIC_RUN_DIR, run_dir)
+            yield run_dir
+
+    @contextlib.contextmanager
+    def _live_summary_run_dir(self):
+        synthetic_root = REPO_ROOT / "intake" / "synthetic"
+        with TemporaryDirectory(dir=synthetic_root) as temp_dir:
+            run_dir = Path(temp_dir) / "hexstrike-ai" / "run-live-summary-001"
+            (run_dir / "raw").mkdir(parents=True, exist_ok=True)
+            (run_dir / "derived").mkdir(parents=True, exist_ok=True)
+
+            manifest = {
+                "schema_version": "1.0",
+                "platform": "web",
+                "integration": "hexstrike-ai",
+                "run_id": "run-live-summary-001",
+                "mode": "live-local-lab",
+                "source": "hexstrike-ai",
+                "target_name": "OWASP Juice Shop",
+                "target_url": "http://192.168.10.130:3000",
+                "observed_entry_route": "http://192.168.10.130:3000/#/",
+                "contains_real_scan_data": True,
+                "validator_target": True,
+                "baseline_files": ["raw/runtime-baseline.json"],
+                "raw_payloads": ["raw/hexstrike-result.json"],
+                "live_smoke_run": {
+                    "execution_mode": "mcp-tool",
+                    "tool": "burpsuite_alternative_scan",
+                    "parameters": {
+                        "target": "http://192.168.10.130:3000",
+                        "scan_type": "passive",
+                        "headless": True,
+                        "max_depth": 1,
+                        "max_pages": 1,
+                    },
+                },
+            }
+            runtime_baseline = {
+                "execution_feasibility": {
+                    "selected_smoke_entrypoint": "burpsuite_alternative_scan",
+                    "selected_smoke_parameters": {
+                        "target": "http://192.168.10.130:3000",
+                        "scan_type": "passive",
+                        "headless": True,
+                        "max_depth": 1,
+                        "max_pages": 1,
+                    },
+                }
+            }
+            raw_payload = {
+                "scan_type": "passive",
+                "success": True,
+                "summary": {
+                    "pages_analyzed": 0,
+                    "security_score": 100,
+                    "total_vulnerabilities": 0,
+                    "vulnerability_breakdown": {},
+                },
+                "target": "http://192.168.10.130:3000",
+                "timestamp": "2026-03-20T00:13:57.847761",
+            }
+
+            (run_dir / "manifest.json").write_text(
+                json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8",
+            )
+            (run_dir / "notes.md").write_text("# live-summary-test\n", encoding="utf-8")
+            (run_dir / "raw" / "runtime-baseline.json").write_text(
+                json.dumps(runtime_baseline, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8",
+            )
+            (run_dir / "raw" / "hexstrike-result.json").write_text(
+                json.dumps(raw_payload, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8",
+            )
             yield run_dir
 
 

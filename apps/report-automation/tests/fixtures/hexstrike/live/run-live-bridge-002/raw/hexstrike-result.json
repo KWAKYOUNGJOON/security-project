@@ -1,0 +1,15 @@
+{
+  "scan_type": "passive",
+  "success": true,
+  "summary": {
+    "pages_analyzed": 1,
+    "security_score": 72,
+    "total_vulnerabilities": 2,
+    "vulnerability_breakdown": {
+      "high": 1,
+      "medium": 1
+    }
+  },
+  "target": "http://example.invalid:3000",
+  "timestamp": "2026-03-20T10:13:57.847761"
+}

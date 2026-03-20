@@ -52,16 +52,18 @@ The initial integration target is `HexStrike-AI`, implemented as a local-safe st
 
 1. Define engagement scope and targets under `engagements/sample-folder` or a copied engagement folder.
 2. If no local Web target exists yet, stay in pre-target mode and collect only runtime baseline or synthetic rehearsal inputs under `intake/`.
-3. Store live raw scan outputs, screenshots, proxy traffic, and notes in the engagement workspace only after a target is ready.
-4. Run the phase-1 automation scaffold under `apps/report-automation` to prepare normalized payload data.
-5. Use `apps/report-template` to render the Web assessment report.
-6. Export final deliverables to `outputs/`.
+3. If an approved local lab target exists, run one low-impact live-local-lab smoke capture under `intake/web/hexstrike-ai/<run-id>/` first. Validate and compare the live shape before promoting anything into `cases/`.
+4. Store broader engagement evidence in the engagement workspace only after the intake shape is understood.
+5. Run the phase-1 automation scaffold under `apps/report-automation` to prepare normalized payload data.
+6. Use `apps/report-template` to render the Web assessment report.
+7. Export final deliverables to `outputs/`.
 
 Detailed guidance:
 - [project-overview](docs/architecture/project-overview.md)
 - [folder-policy](docs/architecture/folder-policy.md)
 - [local-workflow](docs/guides/local-workflow.md)
 - [pre-target-mode](docs/guides/pre-target-mode.md)
+- [hexstrike-live-smoke-run](docs/guides/hexstrike-live-smoke-run.md)
 - [hexstrike-runtime-baseline](docs/hexstrike-runtime-baseline.md)
 
 ## Conventions
@@ -77,4 +79,6 @@ Detailed guidance:
 - Core documentation has been normalized around the Web-only phase-1 baseline.
 - `apps/report-automation` now carries a minimal executable scaffold for future growth.
 - Pre-target intake handling now supports runtime baseline capture, file-based format observation, and synthetic parser rehearsal without touching a live Web target.
+- The first live-local-lab run folder for OWASP Juice Shop now contains a real smoke-run raw payload under `intake/web/hexstrike-ai/run-juice-001/`, and `validate-live-hexstrike` now generates a live `format-observation.json` through a summary-only adapter without rewriting the raw source.
+- Promotion still remains blocked because this smoke payload contains no finding-level request, response, or evidence detail.
 - Future expansion should add API and Server-specific collectors, parsers, schemas, and templates without breaking the current Web path.

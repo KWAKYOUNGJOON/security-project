@@ -1,0 +1,41 @@
+{
+  "case_id": "run-juice-001",
+  "generated_at": "2026-03-20T09:45:21Z",
+  "inputs": [
+    {
+      "role": "intake-raw",
+      "path": "intake/web/hexstrike-ai/run-juice-001/raw/hexstrike-result.json",
+      "sha256": "e63f995c493762decc6cc442546947662d854af68db3e5736fe98b7fcc83e892"
+    },
+    {
+      "role": "manifest",
+      "path": "intake/web/hexstrike-ai/run-juice-001/manifest.json",
+      "sha256": "289a3296a14867913185167ea08ea7496b166aa50fe741984a922de8431e5b8f"
+    },
+    {
+      "role": "notes",
+      "path": "intake/web/hexstrike-ai/run-juice-001/notes.md",
+      "sha256": "82b8b47dd10cec85be646b9664a51c3ebb4c33b134b55f839eca20f7f2ad4bd4"
+    },
+    {
+      "role": "runtime-baseline",
+      "path": "intake/web/hexstrike-ai/run-juice-001/raw/runtime-baseline.json",
+      "sha256": "f546aee8564136901ed71513ed9219a58973e96bf355e90abf2c3347825b66b7"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "intake/web/hexstrike-ai/run-juice-001/derived/format-observation.json",
+      "sha256": "745b659402740336daf71b8c007a9e36e23b6d2a0900dfcc364f3c8dc018f500"
+    },
+    {
+      "path": "intake/web/hexstrike-ai/run-juice-001/derived/shape-bridge-report.json",
+      "sha256": "bbb64e8f6cfa2499f9ef94ed0fd22159a7d1d1672f18f558e994d43b4df62eeb"
+    },
+    {
+      "path": "intake/web/hexstrike-ai/run-juice-001/derived/synthetic-vs-live-delta.json",
+      "sha256": "1204c5818371fac47ca51e884f5e919484bd0e34b5db7becf75d87cbbf83469c"
+    }
+  ],
+  "subject_type": "intake-run"
+}

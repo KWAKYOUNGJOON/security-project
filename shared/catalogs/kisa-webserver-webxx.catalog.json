@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0",
+  "catalog_name": "kisa-webserver-webxx",
+  "source_root": "D:/security-project/resources/external-tools/kisa-ciip-2026",
+  "generation_mode": "placeholder",
+  "items": [],
+  "warnings": [
+    "Standard source root is not available in this workspace.",
+    "This placeholder catalog is intentionally empty.",
+    "Generate the real catalog after D:/security-project/resources/external-tools/kisa-ciip-2026 becomes available."
+  ]
+}

@@ -58,7 +58,11 @@ EXPECTED_SHAPES = {
 }
 
 
-def build_hexstrike_format_observation(run: HexStrikeIntakeRun) -> dict[str, Any]:
+def build_hexstrike_format_observation(
+    run: HexStrikeIntakeRun,
+    *,
+    payload_sources: Iterable[Mapping[str, Any]] | None = None,
+) -> dict[str, Any]:
     """Build a format-observation artifact for one intake run."""
 
     if not run.raw_payloads:
@@ -80,12 +84,14 @@ def build_hexstrike_format_observation(run: HexStrikeIntakeRun) -> dict[str, Any
     evidence_item_kinds: Counter[str] = Counter()
     required_failures: list[str] = []
 
-    for raw_payload in run.raw_payloads:
-        payload = raw_payload.payload
-        source_path = raw_payload.repo_relative()
+    for source_record in _payload_sources(run, payload_sources):
+        payload = source_record["payload"]
+        validation_payload = source_record["validation_payload"]
+        source_path = source_record["source"]
+        parser_warnings.extend(source_record["additional_warnings"])
         detected_top_level_keys.update(str(key) for key in payload.keys())
 
-        for missing_group in _missing_groups(payload, REQUIRED_ROOT_GROUPS):
+        for missing_group in _missing_groups(validation_payload, REQUIRED_ROOT_GROUPS):
             required_failures.append(f"{source_path}: missing required root field group '{missing_group}'")
 
         for key, value in payload.items():
@@ -93,7 +99,7 @@ def build_hexstrike_format_observation(run: HexStrikeIntakeRun) -> dict[str, Any
                 unknown_fields.append(_field_record(source_path, "$", key, value))
                 parser_warnings.append(f"Unknown root field preserved: {source_path}:$.{key}")
 
-        raw_findings = payload.get("findings")
+        raw_findings = validation_payload.get("findings")
         if not isinstance(raw_findings, list):
             continue
 
@@ -193,6 +199,50 @@ def build_hexstrike_format_observation(run: HexStrikeIntakeRun) -> dict[str, Any
             "evidence_item_kinds": _counter_payload(evidence_item_kinds),
         },
     }
+
+
+def _payload_sources(
+    run: HexStrikeIntakeRun,
+    payload_sources: Iterable[Mapping[str, Any]] | None,
+) -> list[dict[str, Any]]:
+    if payload_sources is None:
+        return [
+            {
+                "source": raw_payload.repo_relative(),
+                "payload": raw_payload.payload,
+                "validation_payload": raw_payload.payload,
+                "additional_warnings": [],
+            }
+            for raw_payload in run.raw_payloads
+        ]
+
+    records: list[dict[str, Any]] = []
+    for index, item in enumerate(payload_sources, start=1):
+        if not isinstance(item, Mapping):
+            raise HexStrikeIntakeError(f"payload_sources[{index}] must be a mapping")
+        source = item.get("source")
+        payload = item.get("payload")
+        validation_payload = item.get("validation_payload", payload)
+        additional_warnings = item.get("additional_warnings", [])
+        if not isinstance(source, str) or not source.strip():
+            raise HexStrikeIntakeError(f"payload_sources[{index}] must define a non-empty 'source'")
+        if not isinstance(payload, Mapping):
+            raise HexStrikeIntakeError(f"payload_sources[{index}] must define an object 'payload'")
+        if not isinstance(validation_payload, Mapping):
+            raise HexStrikeIntakeError(f"payload_sources[{index}] must define an object 'validation_payload'")
+        if not isinstance(additional_warnings, list) or not all(
+            isinstance(warning, str) and warning.strip() for warning in additional_warnings
+        ):
+            raise HexStrikeIntakeError(f"payload_sources[{index}] additional_warnings must be a string array")
+        records.append(
+            {
+                "source": source,
+                "payload": dict(payload),
+                "validation_payload": dict(validation_payload),
+                "additional_warnings": [warning.strip() for warning in additional_warnings],
+            }
+        )
+    return records
 
 
 def _field_record(source_path: str, field_path: str, field_name: str, value: Any) -> dict[str, Any]:

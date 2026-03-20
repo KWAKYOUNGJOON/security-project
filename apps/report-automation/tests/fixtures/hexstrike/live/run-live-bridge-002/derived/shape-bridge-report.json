@@ -1,0 +1,113 @@
+{
+  "schema_version": "1.0",
+  "run_id": "run-live-bridge-002",
+  "integration": "hexstrike-ai",
+  "mode": "live-local-lab",
+  "adapter_version": "1.1",
+  "runtime_baseline_path": "apps/report-automation/tests/fixtures/hexstrike/live/run-live-bridge-002/raw/runtime-baseline.json",
+  "bridge_contract": {
+    "adapter_scope": "summary-nonzero-missing-detail-review-fixture",
+    "success_conditions": [
+      "live payload is preserved without rewrite",
+      "promotion review can still reason about summary-only counters"
+    ],
+    "fail_fast_conditions": [
+      "summary.total_vulnerabilities is greater than 0 while finding-level objects are absent"
+    ],
+    "preservation_guarantees": [
+      "raw payload is not overwritten",
+      "no guessed finding object, request, response, or evidence fields are invented"
+    ]
+  },
+  "status": {
+    "linkage_status": "pass",
+    "validation_status": "success",
+    "observation_kind": "summary-nonzero-without-detail",
+    "report_ready": false,
+    "promotable_to_cases": false,
+    "reason_codes": [
+      "summary_claims_findings_but_no_detail_records",
+      "no_request_response_evidence"
+    ],
+    "blocker_codes": [
+      "promotion_blocked_missing_detail",
+      "finding_level_detail_required",
+      "request_response_evidence_required"
+    ],
+    "required_for_promotion": [
+      "finding_level_payload",
+      "per_finding_request_response",
+      "per_finding_evidence"
+    ],
+    "evidence_presence": false,
+    "request_response_presence": false,
+    "finding_detail_presence": false,
+    "summary_only_payload": false,
+    "adapter_applied": false
+  },
+  "raw_top_level_keys": [
+    "scan_type",
+    "success",
+    "summary",
+    "target",
+    "timestamp"
+  ],
+  "canonical_root_groups": [
+    "tool",
+    "scan",
+    "engagement",
+    "findings"
+  ],
+  "unmapped_fields": [],
+  "null_filled_required_fields": [],
+  "adapter_warnings": [],
+  "coverage_gaps": [
+    "live raw summary reports vulnerabilities but no finding detail records exist",
+    "No per-finding request/response/evidence records were present in the smoke payload."
+  ],
+  "guessed_fields_absent": true,
+  "payloads": [
+    {
+      "source_path": "apps/report-automation/tests/fixtures/hexstrike/live/run-live-bridge-002/raw/hexstrike-result.json",
+      "known_live_shape": true,
+      "adapter_applied": false,
+      "summary_only_payload": false,
+      "summary_total_vulnerabilities": 2,
+      "summary_breakdown_state": "nonzero",
+      "finding_detail_presence": false,
+      "request_response_presence": false,
+      "evidence_presence": false,
+      "raw_top_level_keys": [
+        "scan_type",
+        "success",
+        "summary",
+        "target",
+        "timestamp"
+      ],
+      "canonical_mapped_fields": {
+        "scan.summary": "raw.summary",
+        "findings": "not derivable because the live payload exposes summary counters only"
+      },
+      "unmapped_fields": [],
+      "null_filled_required_fields": [],
+      "adapter_warnings": [],
+      "coverage_gaps": [
+        "live raw summary reports vulnerabilities but no finding detail records exist",
+        "No per-finding request/response/evidence records were present in the smoke payload."
+      ],
+      "coverage_confidence": "low",
+      "guessed_fields_absent": true
+    }
+  ],
+  "coverage_summary": {
+    "payload_count": 1,
+    "adapted_payload_count": 0,
+    "coverage_confidence": "low",
+    "coverage_gap_count": 2,
+    "warning_count": 0,
+    "guessed_fields_absent": true
+  },
+  "baseline_keys": [
+    "execution_feasibility"
+  ]
+}

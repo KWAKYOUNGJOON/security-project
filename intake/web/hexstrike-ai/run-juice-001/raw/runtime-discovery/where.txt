@@ -1,0 +1,12 @@
+# captured_at=2026-03-20T13:08:38.0694416+09:00
+# cwd=D:\security-project
+
+## where.exe hexstrike_server
+INFO: Could not find files for the given pattern(s).
+
+## where.exe hexstrike_mcp
+INFO: Could not find files for the given pattern(s).
+
+## where.exe hexstrike
+INFO: Could not find files for the given pattern(s).
+

@@ -1,0 +1,274 @@
+{
+  "schema_version": "1.0",
+  "run_id": "run-juice-001",
+  "review_status": "blocked_summary_only",
+  "promotion_status": "blocked",
+  "case_input_promotion_allowed": false,
+  "evidence_class": "summary_only_smoke_evidence",
+  "validation_status": "success",
+  "linkage_status": "pass",
+  "observation_kind": "summary-only-live-smoke",
+  "adapter_applied": true,
+  "finding_count_detected": 0,
+  "detail_coverage_status": "zero_summary_no_detail",
+  "decision_confidence": "high",
+  "coverage_confidence": "medium",
+  "reviewer_summary": "Run run-juice-001 remains blocked for promotion review.\nValidation status is success and linkage status is pass.\nPromotion status is blocked, and case input promotion allowed is false.\nEvidence class is summary_only_smoke_evidence with finding_count_detected=0.\nThe current live payload is summary-only smoke linkage evidence, not a finding-ready capture.\nNo request/response records or per-finding evidence references are present.\nDo not promote this run into case input.\nA future approved live capture must include finding detail, request/response, and per-finding evidence before promotion can be reconsidered.",
+  "key_facts": [
+    {
+      "code": "validation_status",
+      "value": "success",
+      "note": "Validation result for the current run."
+    },
+    {
+      "code": "linkage_status",
+      "value": "pass",
+      "note": "Exporter to observation linkage state."
+    },
+    {
+      "code": "observation_kind",
+      "value": "summary-only-live-smoke",
+      "note": "Observation class derived from the live payload."
+    },
+    {
+      "code": "promotion_status",
+      "value": "blocked",
+      "note": "Promotion decision remains independent from validation."
+    },
+    {
+      "code": "case_input_promotion_allowed",
+      "value": false,
+      "note": "Whether cases/web/<case-id>/input promotion is currently allowed."
+    },
+    {
+      "code": "evidence_class",
+      "value": "summary_only_smoke_evidence",
+      "note": "Current live evidence class used for reviewer handoff."
+    },
+    {
+      "code": "detail_coverage_status",
+      "value": "zero_summary_no_detail",
+      "note": "Finding detail coverage state."
+    },
+    {
+      "code": "finding_count_detected",
+      "value": 0,
+      "note": "Detected finding count in format-observation."
+    },
+    {
+      "code": "coverage_confidence",
+      "value": "medium",
+      "note": "Coverage confidence reported by the validation bridge."
+    },
+    {
+      "code": "decision_confidence",
+      "value": "high",
+      "note": "Confidence of the promotion decision."
+    },
+    {
+      "code": "adapter_applied",
+      "value": true,
+      "note": "Whether the known live adapter path was observed."
+    },
+    {
+      "code": "raw_evidence_immutable",
+      "value": true,
+      "note": "Raw evidence remains immutable."
+    },
+    {
+      "code": "guessed_fields_used",
+      "value": false,
+      "note": "No guessed finding fields should be introduced."
+    },
+    {
+      "code": "provenance_output_count",
+      "value": 3,
+      "note": "Number of derived outputs recorded in provenance."
+    },
+    {
+      "code": "live_raw_top_level_key_count",
+      "value": 5,
+      "note": "Top-level key count observed in the live payload."
+    }
+  ],
+  "blocking_reasons": [
+    {
+      "code": "no_findings_detected",
+      "label": "No finding detail detected",
+      "message": "No finding-level records were detected in the validated live run.",
+      "note": "No finding-level records were detected in the validated live run."
+    },
+    {
+      "code": "summary_only_payload_not_case_promotable",
+      "label": "Summary-only payload cannot be promoted",
+      "message": "Summary-only live payloads are smoke linkage evidence only and must not be promoted into cases input.",
+      "note": "Summary-only live payloads are smoke linkage evidence only and must not be promoted into cases input."
+    },
+    {
+      "code": "no_request_response_evidence",
+      "label": "No request/response evidence",
+      "message": "No request, response, or equivalent finding-level evidence references are available for case promotion.",
+      "note": "No request, response, or equivalent finding-level evidence references are available for case promotion."
+    }
+  ],
+  "missing_evidence": [
+    {
+      "code": "finding_detail_records",
+      "label": "Finding detail records",
+      "note": "No finding-level records were captured in the current live payload."
+    },
+    {
+      "code": "stable_finding_identifiers",
+      "label": "Stable finding identifiers",
+      "note": "Stable finding identifiers cannot be confirmed until finding-level records exist."
+    },
+    {
+      "code": "request_response_records",
+      "label": "Request/response records",
+      "note": "No request/response records or equivalent request references are present."
+    },
+    {
+      "code": "per_finding_evidence",
+      "label": "Per-finding evidence",
+      "note": "No per-finding evidence items, screenshots, or equivalent evidence references are present."
+    }
+  ],
+  "recommended_next_actions": [
+    {
+      "code": "retain_as_smoke_linkage_evidence_only",
+      "action": "Keep this run as smoke linkage evidence only.",
+      "note": "Keep this run as smoke linkage evidence only."
+    },
+    {
+      "code": "do_not_promote_to_cases_input",
+      "action": "Do not promote this run into cases/web/<case-id>/input.",
+      "note": "Do not promote this run into cases/web/<case-id>/input."
+    },
+    {
+      "code": "capture_finding_level_live_sample_before_promotion",
+      "action": "Capture a future approved live sample that includes finding-level detail.",
+      "note": "Capture a future approved live sample that includes finding-level detail."
+    },
+    {
+      "code": "preserve_request_response_or_equivalent_evidence_references",
+      "action": "Preserve request/response or equivalent evidence references for each finding.",
+      "note": "Preserve request/response or equivalent evidence references for each finding."
+    },
+    {
+      "code": "verify_stable_finding_identifiers_before_case_creation",
+      "action": "Verify stable finding identifiers before attempting case creation.",
+      "note": "Verify stable finding identifiers before attempting case creation."
+    },
+    {
+      "code": "keep_run_intake_only",
+      "action": "Keep this run under intake only. Do not move or copy it into cases input.",
+      "note": "Keep this run under intake only. Do not move or copy it into cases input."
+    },
+    {
+      "code": "capture_future_finding_level_live_sample",
+      "action": "Capture a future approved live run that preserves finding detail, request/response, and per-finding evidence.",
+      "note": "Capture a future approved live run that preserves finding detail, request/response, and per-finding evidence."
+    }
+  ],
+  "review_checklist": [
+    {
+      "check_id": "validation_completed",
+      "label": "Validation artifact is present",
+      "status": "met",
+      "evidence_source": "intake/web/hexstrike-ai/run-juice-001/derived/format-observation.json",
+      "note": "validation_status=success"
+    },
+    {
+      "check_id": "adapter_applied_or_not_needed",
+      "label": "Adapter applied or canonical payload already available",
+      "status": "met",
+      "evidence_source": "intake/web/hexstrike-ai/run-juice-001/derived/shape-bridge-report.json",
+      "note": "adapter path confirmed"
+    },
+    {
+      "check_id": "promotion_decision_present",
+      "label": "Promotion decision artifact is present",
+      "status": "met",
+      "evidence_source": "intake/web/hexstrike-ai/run-juice-001/derived/promotion-decision.json",
+      "note": "promotion decision available for review handoff"
+    },
+    {
+      "check_id": "finding_detail_records_present",
+      "label": "Finding detail records are available",
+      "status": "missing",
+      "evidence_source": "intake/web/hexstrike-ai/run-juice-001/derived/format-observation.json",
+      "note": "finding_count_detected=0"
+    },
+    {
+      "check_id": "request_response_evidence_present",
+      "label": "Request/response evidence references are available",
+      "status": "missing",
+      "evidence_source": "intake/web/hexstrike-ai/run-juice-001/derived/shape-bridge-report.json",
+      "note": "No request/response evidence is present in the current artifacts."
+    },
+    {
+      "check_id": "evidence_reproducibility_reference_present",
+      "label": "Evidence reproducibility reference is available",
+      "status": "met",
+      "evidence_source": "intake/web/hexstrike-ai/run-juice-001/derived/provenance.json",
+      "note": "Derived provenance and validator references exist for reviewer handoff."
+    },
+    {
+      "check_id": "case_input_promotion_allowed",
+      "label": "Case input promotion is allowed",
+      "status": "blocked",
+      "evidence_source": "intake/web/hexstrike-ai/run-juice-001/derived/promotion-decision.json",
+      "note": "Promotion remains blocked."
+    }
+  ],
+  "referenced_artifacts": [
+    {
+      "artifact_id": "manifest",
+      "path": "intake/web/hexstrike-ai/run-juice-001/manifest.json",
+      "note": "Run manifest used as immutable review input."
+    },
+    {
+      "artifact_id": "notes",
+      "path": "intake/web/hexstrike-ai/run-juice-001/notes.md",
+      "note": "Run notes used for operator handoff context."
+    },
+    {
+      "artifact_id": "format_observation",
+      "path": "intake/web/hexstrike-ai/run-juice-001/derived/format-observation.json",
+      "note": "Validation observation consumed by the review renderer."
+    },
+    {
+      "artifact_id": "shape_bridge_report",
+      "path": "intake/web/hexstrike-ai/run-juice-001/derived/shape-bridge-report.json",
+      "note": "Bridge report describing validation and promotion readiness separation."
+    },
+    {
+      "artifact_id": "live_raw_shape_summary",
+      "path": "intake/web/hexstrike-ai/run-juice-001/derived/live-raw-shape-summary.json",
+      "note": "Shape summary describing the live raw payload structure."
+    },
+    {
+      "artifact_id": "provenance",
+      "path": "intake/web/hexstrike-ai/run-juice-001/derived/provenance.json",
+      "note": "Derived provenance and lineage for the current run."
+    },
+    {
+      "artifact_id": "promotion_decision",
+      "path": "intake/web/hexstrike-ai/run-juice-001/derived/promotion-decision.json",
+      "note": "Promotion decision used as direct review input."
+    },
+    {
+      "artifact_id": "validator_result",
+      "path": "intake/web/hexstrike-ai/run-juice-001/derived/validate-live-hexstrike.txt",
+      "note": "Stored validator output for the validated live run."
+    },
+    {
+      "artifact_id": "intake_raw",
+      "path": "intake/web/hexstrike-ai/run-juice-001/raw/hexstrike-result.json",
+      "note": "Immutable live raw evidence retained under intake only."
+    }
+  ],
+  "raw_evidence_immutable": true,
+  "guessed_fields_used": false,
+  "generated_at": "2026-03-20T10:21:42Z"
+}

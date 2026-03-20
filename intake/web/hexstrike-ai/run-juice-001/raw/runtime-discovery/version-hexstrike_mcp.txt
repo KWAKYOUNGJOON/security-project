@@ -1,0 +1,7 @@
+# source=mcp execute_command
+# cwd=/home/kali/hexstrike-ai
+# command=hexstrike-env/bin/python hexstrike_mcp.py --version
+# return_code=2
+STDERR:
+usage: hexstrike_mcp.py [-h] [--server SERVER] [--timeout TIMEOUT] [--debug]
+hexstrike_mcp.py: error: unrecognized arguments: --version

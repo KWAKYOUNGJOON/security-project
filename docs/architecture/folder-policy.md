@@ -27,7 +27,7 @@ Do not store:
 
 ### `intake`
 
-Use for immutable intake runs and pre-target observation only.
+Use for immutable intake runs, pre-target observation, and live-local-lab smoke observation only.
 
 Expected contents:
 - run manifests
@@ -42,6 +42,7 @@ Do not put:
 - reviewed findings
 - report payloads
 - report previews
+- deep-scan working sets or broad engagement evidence
 
 ### `shared`
 

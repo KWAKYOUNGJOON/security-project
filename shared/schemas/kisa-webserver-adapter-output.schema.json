@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KISA Webserver Adapter Output",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "finding_candidates",
+    "review_queue",
+    "checklist_items",
+    "pass_records",
+    "summary"
+  ],
+  "properties": {
+    "finding_candidates": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "review_queue": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "checklist_items": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "pass_records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_type",
+          "platform",
+          "service_name",
+          "hostname",
+          "item_id",
+          "item_key",
+          "title",
+          "severity",
+          "raw_status",
+          "summary",
+          "parser_confidence",
+          "parse_warnings",
+          "source_file",
+          "timestamp"
+        ],
+        "properties": {
+          "source_type": {
+            "type": "string",
+            "const": "kisa_webserver_raw_record"
+          },
+          "platform": {
+            "type": ["string", "null"]
+          },
+          "service_name": {
+            "type": ["string", "null"]
+          },
+          "hostname": {
+            "type": ["string", "null"]
+          },
+          "item_id": {
+            "type": ["string", "null"]
+          },
+          "item_key": {
+            "type": ["string", "null"]
+          },
+          "title": {
+            "type": ["string", "null"]
+          },
+          "severity": {
+            "type": ["string", "null"]
+          },
+          "raw_status": {
+            "type": ["string", "null"]
+          },
+          "summary": {
+            "type": ["string", "null"]
+          },
+          "parser_confidence": {
+            "type": ["string", "null"],
+            "enum": ["high", "medium", "low", null]
+          },
+          "parse_warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "source_file": {
+            "type": ["string", "null"]
+          },
+          "timestamp": {
+            "type": ["string", "null"]
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "total",
+        "fail_count",
+        "manual_count",
+        "error_count",
+        "na_count",
+        "pass_count",
+        "low_confidence_count"
+      ],
+      "properties": {
+        "total": {
+          "type": "integer"
+        },
+        "fail_count": {
+          "type": "integer"
+        },
+        "manual_count": {
+          "type": "integer"
+        },
+        "error_count": {
+          "type": "integer"
+        },
+        "na_count": {
+          "type": "integer"
+        },
+        "pass_count": {
+          "type": "integer"
+        },
+        "low_confidence_count": {
+          "type": "integer"
+        }
+      }
+    }
+  }
+}
