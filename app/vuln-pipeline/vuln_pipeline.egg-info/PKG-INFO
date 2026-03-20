@@ -1,0 +1,5 @@
+Metadata-Version: 2.4
+Name: vuln-pipeline
+Version: 0.1.0
+Summary: Deterministic READY(1) vulnerability pipeline smoke runner.
+Requires-Python: >=3.11

@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "working_directory": "app/vuln-pipeline",
+  "input_root": "data/inputs/real",
+  "output_dir": "outputs/ready1/run-2",
+  "artifacts": [
+    "input_preflight.json",
+    "release_readiness.json",
+    "submission_gate.json"
+  ],
+  "input_fingerprint": "e4490d774a5fdaab7b6f46d65e232d2228b5876bace59219e2105818aed7eb4d",
+  "gate_fingerprint": "c8c28b7d6478a3073cdd2440db9f6147573869e10d38e892b36415bb7968cd39"
+}

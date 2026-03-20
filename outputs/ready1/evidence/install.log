@@ -1,0 +1,25 @@
+Defaulting to user installation because normal site-packages is not writeable
+Obtaining file:///D:/security-project/app/vuln-pipeline
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Getting requirements to build editable: started
+  Getting requirements to build editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: vuln-pipeline
+  Building editable for vuln-pipeline (pyproject.toml): started
+  Building editable for vuln-pipeline (pyproject.toml): finished with status 'done'
+  Created wheel for vuln-pipeline: filename=vuln_pipeline-0.1.0-0.editable-py3-none-any.whl size=2793 sha256=65f8b650972f60f709a260ab964aad70edb73df6f23ba4c56759cdb08739f500
+  Stored in directory: C:\Users\kyj\AppData\Local\Temp\pip-ephem-wheel-cache-jj4wdsme\wheels\1f\a8\f4\c7970563eb8840015f5c9c5a6bd22fd9e611b2102ee29f26ef
+Successfully built vuln-pipeline
+Installing collected packages: vuln-pipeline
+  Attempting uninstall: vuln-pipeline
+    Found existing installation: vuln-pipeline 0.1.0
+    Uninstalling vuln-pipeline-0.1.0:
+      Successfully uninstalled vuln-pipeline-0.1.0
+Successfully installed vuln-pipeline-0.1.0
+
+[notice] A new release of pip is available: 25.3 -> 26.0.1
+[notice] To update, run: python.exe -m pip install --upgrade pip

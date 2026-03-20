@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vuln-pipeline"
+version = "0.1.0"
+description = "Deterministic READY(1) vulnerability pipeline smoke runner."
+requires-python = ">=3.11"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["vuln_pipeline*"]

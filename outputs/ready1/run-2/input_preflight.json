@@ -1,0 +1,69 @@
+{
+  "schema_version": "ready1/v0.1",
+  "gate": "READY(1)",
+  "input_root": "data/inputs/real",
+  "allowed_subdirectories": [
+    "burp",
+    "httpx",
+    "manual",
+    "nuclei"
+  ],
+  "minimal_real_input_set": [
+    "burp/burp-findings.json",
+    "httpx/httpx-hosts.json",
+    "manual/manual-findings.json",
+    "nuclei/nuclei-findings.json"
+  ],
+  "discovered_files": [
+    {
+      "path": "burp/burp-findings.json",
+      "source": "burp",
+      "sha256": "a085757ebc9953c5ebf9c56cb5a0ed059ce5655b7b3d1ecd525f79e26d1fd150",
+      "record_count": 1,
+      "payload_error": ""
+    },
+    {
+      "path": "httpx/httpx-hosts.json",
+      "source": "httpx",
+      "sha256": "bb17dcec98c56e0e690f1784221d2893e21a7db2b7d855429762c7665f843a3b",
+      "record_count": 1,
+      "payload_error": ""
+    },
+    {
+      "path": "manual/manual-findings.json",
+      "source": "manual",
+      "sha256": "891203c3acf13a4647cd775212545566c46d06113f7a72d8456ee27376bb422e",
+      "record_count": 1,
+      "payload_error": ""
+    },
+    {
+      "path": "nuclei/nuclei-findings.json",
+      "source": "nuclei",
+      "sha256": "ccf861f3a9cd771520a7b1a2c4cc62f75301b82014025b8f14472f71bab64f20",
+      "record_count": 1,
+      "payload_error": ""
+    }
+  ],
+  "source_summary": {
+    "burp": {
+      "file_count": 1,
+      "record_count": 1
+    },
+    "httpx": {
+      "file_count": 1,
+      "record_count": 1
+    },
+    "manual": {
+      "file_count": 1,
+      "record_count": 1
+    },
+    "nuclei": {
+      "file_count": 1,
+      "record_count": 1
+    }
+  },
+  "violation_count": 0,
+  "violations": [],
+  "pass": true,
+  "input_fingerprint": "e4490d774a5fdaab7b6f46d65e232d2228b5876bace59219e2105818aed7eb4d"
+}

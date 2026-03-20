@@ -1,0 +1,118 @@
+{
+  "schema_version": "ready1/v0.1",
+  "gate": "READY(1)",
+  "output_dir": "outputs/ready1/run-3",
+  "required_artifacts": [
+    "input_preflight.json",
+    "release_readiness.json",
+    "submission_gate.json"
+  ],
+  "artifact_presence": {
+    "input_preflight.json": true,
+    "release_readiness.json": true,
+    "submission_gate.json": true
+  },
+  "required_keys": {
+    "input_preflight.json": [
+      "allowed_subdirectories",
+      "discovered_files",
+      "gate",
+      "input_fingerprint",
+      "input_root",
+      "minimal_real_input_set",
+      "pass",
+      "schema_version",
+      "source_summary",
+      "violation_count",
+      "violations"
+    ],
+    "release_readiness.json": [
+      "conditions",
+      "gate",
+      "official_entrypoint",
+      "official_install_command",
+      "official_smoke_command",
+      "output_dir",
+      "overall_status",
+      "python_version",
+      "schema_version",
+      "stable_compare_vector",
+      "working_directory"
+    ],
+    "submission_gate.json": [
+      "artifact_presence",
+      "decision",
+      "forbidden_path_results",
+      "gate",
+      "output_dir",
+      "required_artifacts",
+      "required_keys",
+      "schema_version",
+      "stable_compare_vector"
+    ]
+  },
+  "forbidden_path_results": [
+    {
+      "path": "apps/report-automation/src/cli/main.py",
+      "policy": "forbidden",
+      "call_count": 0,
+      "status": "PASS"
+    }
+  ],
+  "decision": {
+    "status": "PASS",
+    "reason": "READY(1) contract satisfied."
+  },
+  "stable_compare_vector": {
+    "decision_status": "PASS",
+    "required_keys": {
+      "input_preflight.json": [
+        "allowed_subdirectories",
+        "discovered_files",
+        "gate",
+        "input_fingerprint",
+        "input_root",
+        "minimal_real_input_set",
+        "pass",
+        "schema_version",
+        "source_summary",
+        "violation_count",
+        "violations"
+      ],
+      "release_readiness.json": [
+        "conditions",
+        "gate",
+        "official_entrypoint",
+        "official_install_command",
+        "official_smoke_command",
+        "output_dir",
+        "overall_status",
+        "python_version",
+        "schema_version",
+        "stable_compare_vector",
+        "working_directory"
+      ],
+      "submission_gate.json": [
+        "artifact_presence",
+        "decision",
+        "forbidden_path_results",
+        "gate",
+        "output_dir",
+        "required_artifacts",
+        "required_keys",
+        "schema_version",
+        "stable_compare_vector"
+      ]
+    },
+    "forbidden_path_results": [
+      {
+        "path": "apps/report-automation/src/cli/main.py",
+        "policy": "forbidden",
+        "call_count": 0,
+        "status": "PASS"
+      }
+    ],
+    "input_fingerprint": "e4490d774a5fdaab7b6f46d65e232d2228b5876bace59219e2105818aed7eb4d",
+    "fingerprint": "c8c28b7d6478a3073cdd2440db9f6147573869e10d38e892b36415bb7968cd39"
+  }
+}

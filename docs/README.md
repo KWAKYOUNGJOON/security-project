@@ -11,6 +11,7 @@ Project-level documentation for the phase-1 Web baseline and the planned path to
 
 ## Recommended starting points
 
+- [READY_EXECUTION_CONTRACT.md](READY_EXECUTION_CONTRACT.md)
 - [architecture/project-overview.md](architecture/project-overview.md)
 - [architecture/folder-policy.md](architecture/folder-policy.md)
 - [guides/local-workflow.md](guides/local-workflow.md)

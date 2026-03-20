@@ -1,0 +1,59 @@
+{
+  "schema_version": "ready1/v0.1",
+  "gate": "READY(1)",
+  "working_directory": "app/vuln-pipeline",
+  "official_entrypoint": "python -m vuln_pipeline.cli.main",
+  "official_install_command": "python -m pip install -e .",
+  "official_smoke_command": "python -m vuln_pipeline.cli.main smoke --output-dir ../../outputs/ready1/smoke",
+  "python_version": {
+    "detected": "3.14.3",
+    "minimum": "3.11.0",
+    "minimum_satisfied": true
+  },
+  "conditions": {
+    "A": {
+      "status": "PASS",
+      "official_root_exists": true,
+      "official_entrypoint_path": "app/vuln-pipeline/vuln_pipeline/cli/main.py",
+      "official_entrypoint_exists": true,
+      "missing_path_call_count": 0,
+      "forbidden_path_results": [
+        {
+          "path": "apps/report-automation/src/cli/main.py",
+          "policy": "forbidden",
+          "call_count": 0,
+          "status": "PASS"
+        }
+      ]
+    },
+    "B": {
+      "status": "PASS",
+      "cwd_repo_relative": "app/vuln-pipeline",
+      "working_directory_matches": true,
+      "input_preflight_pass": true,
+      "artifact_presence": {
+        "input_preflight.json": true,
+        "release_readiness.json": true,
+        "submission_gate.json": true
+      }
+    }
+  },
+  "overall_status": "PASS",
+  "output_dir": "outputs/ready1/smoke",
+  "stable_compare_vector": {
+    "overall_status": "PASS",
+    "forbidden_path_results": [
+      {
+        "path": "apps/report-automation/src/cli/main.py",
+        "policy": "forbidden",
+        "call_count": 0,
+        "status": "PASS"
+      }
+    ],
+    "required_output_names": [
+      "input_preflight.json",
+      "release_readiness.json",
+      "submission_gate.json"
+    ]
+  }
+}
