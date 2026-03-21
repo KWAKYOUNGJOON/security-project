@@ -1,6 +1,8 @@
+import json
 import subprocess
 import sys
 from pathlib import Path
+import shutil
 
 BASE_DIR = Path(__file__).resolve().parent
 OUTPUT_DIR = BASE_DIR / "runs"
@@ -13,6 +15,7 @@ DEFAULT_TASK = "Analyze this repository and explain what this project does."
 FOLLOW_UP_INSTRUCTION = (
     "Based on the previous output, suggest one small next action to improve this repository."
 )
+ALLOWLIST_VIOLATION_RETURN_CODE = -3
 
 def run_codex(task: str, timeout: int = 180) -> dict:
     try:
@@ -114,13 +117,192 @@ def save_changed_files(prefix: str, changed_files: list[str]) -> None:
         content += "\n"
     (OUTPUT_DIR / f"{prefix}_changed_files.txt").write_text(content, encoding="utf-8")
 
+def save_text_output(path: Path, content: str) -> None:
+    path.write_text(content, encoding="utf-8")
+
+def save_summary(
+    prefix: str,
+    mode: str,
+    iteration: int,
+    max_iterations: int,
+    task: str,
+    result: dict,
+    changed_files: list[str],
+    allowlist: list[str],
+    rollback_performed: bool,
+    rolled_back_files: list[str],
+    read_only_mode: bool,
+) -> None:
+    summary = {
+        "mode": mode,
+        "iteration": iteration,
+        "max_iterations": max_iterations,
+        "task": task,
+        "success": result["success"],
+        "returncode": result["returncode"],
+        "changed_files": changed_files,
+        "allowlist": allowlist,
+        "rollback_performed": rollback_performed,
+        "rolled_back_files": rolled_back_files,
+        "read_only_mode": read_only_mode,
+    }
+    (OUTPUT_DIR / f"{prefix}_summary.json").write_text(
+        json.dumps(summary, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+def build_reviewer_task(summary_path: Path) -> str:
+    summary_text = summary_path.read_text(encoding="utf-8")
+    return (
+        "Review the following iteration summary JSON and respond with valid JSON only. "
+        "Do not modify any files.\n\n"
+        "Required JSON fields:\n"
+        "- iteration\n"
+        "- should_continue\n"
+        "- outcome\n"
+        "- reason\n"
+        "- next_mode\n"
+        "- next_task\n"
+        "- recommended_allowlist\n\n"
+        "Rules:\n"
+        "- Output JSON only\n"
+        "- next_mode must be either READ_ONLY or WRITE\n"
+        "- recommended_allowlist must be a JSON array of repository-relative paths\n"
+        "- If the summary shows read_only_mode=true and success=true and iteration is less than max_iterations, "
+        "normally propose one concrete non-empty next_task for continued analysis and set should_continue=true\n"
+        '- If no next task is needed, next_task must be ""\n\n'
+        f"Summary file: {summary_path.relative_to(BASE_DIR.parent)}\n"
+        "Summary JSON:\n"
+        f"{summary_text}"
+    )
+
+def normalize_review_data(iteration: int, raw_output: str) -> dict:
+    fallback = {
+        "iteration": iteration,
+        "should_continue": False,
+        "outcome": "invalid_reviewer_output",
+        "reason": "Reviewer did not return valid JSON only.",
+        "next_mode": "READ_ONLY",
+        "next_task": "",
+        "recommended_allowlist": [],
+    }
+
+    try:
+        data = json.loads(raw_output.strip())
+    except json.JSONDecodeError:
+        return fallback
+
+    if not isinstance(data, dict):
+        return fallback
+
+    next_mode = data.get("next_mode", "READ_ONLY")
+    if next_mode not in {"READ_ONLY", "WRITE"}:
+        next_mode = "READ_ONLY"
+
+    recommended_allowlist = data.get("recommended_allowlist", [])
+    if not isinstance(recommended_allowlist, list):
+        recommended_allowlist = []
+    recommended_allowlist = [path for path in recommended_allowlist if isinstance(path, str)]
+
+    next_task = data.get("next_task", "")
+    if not isinstance(next_task, str):
+        next_task = ""
+
+    reason = data.get("reason", "")
+    if not isinstance(reason, str):
+        reason = str(reason)
+
+    outcome = data.get("outcome", "")
+    if not isinstance(outcome, str):
+        outcome = str(outcome)
+
+    return {
+        "iteration": iteration,
+        "should_continue": bool(data.get("should_continue", False)),
+        "outcome": outcome,
+        "reason": reason,
+        "next_mode": next_mode,
+        "next_task": next_task,
+        "recommended_allowlist": recommended_allowlist,
+    }
+
+def run_reviewer(prefix: str, iteration: int) -> dict:
+    summary_path = OUTPUT_DIR / f"{prefix}_summary.json"
+    review_raw_path = OUTPUT_DIR / f"{prefix}_review_raw.txt"
+    review_json_path = OUTPUT_DIR / f"{prefix}_review.json"
+    next_task_path = OUTPUT_DIR / f"{prefix}_next_task.txt"
+
+    reviewer_task = build_reviewer_task(summary_path)
+    reviewer_result = run_codex(reviewer_task)
+    raw_output = reviewer_result["stdout"]
+    save_text_output(review_raw_path, raw_output)
+
+    review_data = normalize_review_data(iteration, raw_output)
+    save_text_output(review_json_path, json.dumps(review_data, indent=2) + "\n")
+    save_text_output(next_task_path, review_data["next_task"])
+    return review_data
+
+def parse_allow_change_args(args: list[str]) -> list[str]:
+    allowlist = []
+    index = 0
+    while index < len(args):
+        if args[index] == "--allow-change":
+            try:
+                allowlist.append(args[index + 1])
+            except IndexError:
+                print("Invalid value for --allow-change. Expected a repository-relative path.")
+                sys.exit(1)
+            index += 2
+            continue
+        index += 1
+    return allowlist
+
+def is_tracked_file(path: str) -> bool:
+    result = subprocess.run(
+        ["git", "ls-files", "--error-unmatch", "--", path],
+        capture_output=True,
+        text=True,
+        cwd=BASE_DIR.parent,
+    )
+    return result.returncode == 0
+
+def rollback_disallowed_changes(disallowed_files: list[str]) -> tuple[list[str], list[str]]:
+    rolled_back_files = []
+    failed_rollbacks = []
+
+    for path in disallowed_files:
+        file_path = BASE_DIR.parent / path
+        try:
+            if is_tracked_file(path):
+                result = subprocess.run(
+                    ["git", "restore", "--source=HEAD", "--staged", "--worktree", "--", path],
+                    capture_output=True,
+                    text=True,
+                    cwd=BASE_DIR.parent,
+                )
+                if result.returncode != 0:
+                    message = result.stderr.strip() or result.stdout.strip() or "git restore failed"
+                    failed_rollbacks.append(f"{path}: {message}")
+                    continue
+            else:
+                if file_path.is_dir():
+                    shutil.rmtree(file_path)
+                elif file_path.exists() or file_path.is_symlink():
+                    file_path.unlink()
+            rolled_back_files.append(path)
+        except Exception as exc:
+            failed_rollbacks.append(f"{path}: {exc}")
+
+    return rolled_back_files, failed_rollbacks
+
 if __name__ == "__main__":
     max_iterations = 3
-    read_only_mode = READ_ONLY_MODE
     args = sys.argv[1:]
+    autopilot_enabled = "--autopilot" in args
+    top_level_write_enabled = "--write" in args
+    current_read_only_mode = not top_level_write_enabled if top_level_write_enabled else READ_ONLY_MODE
+    current_allow_change_paths = parse_allow_change_args(args)
 
-    if "--write" in args:
-        read_only_mode = False
     if "--max-iterations" in args:
         index = args.index("--max-iterations")
         try:
@@ -132,11 +314,15 @@ if __name__ == "__main__":
             print("Invalid value for --max-iterations. Expected an integer >= 1.")
             sys.exit(1)
 
-    if read_only_mode:
+    if current_read_only_mode:
         print("=== MODE: READ_ONLY ===")
     else:
         print("=== MODE: WRITE ===")
         print("WRITE mode is enabled. File modifications are allowed.")
+        if current_allow_change_paths:
+            print("Active allowlist:")
+            for path in current_allow_change_paths:
+                print(path)
     print(f"Max iterations: {max_iterations}")
     print()
 
@@ -145,11 +331,15 @@ if __name__ == "__main__":
         task = TASK_FILE.read_text(encoding="utf-8").strip()
     if not task:
         task = DEFAULT_TASK
-    task = enforce_read_only_instruction(task, read_only_mode)
+    task = enforce_read_only_instruction(task, current_read_only_mode)
 
     previous_task = None
 
     for iteration in range(1, max_iterations + 1):
+        iteration_read_only_mode = current_read_only_mode
+        iteration_allow_change_paths = current_allow_change_paths[:]
+        iteration_mode = "READ_ONLY" if iteration_read_only_mode else "WRITE"
+
         print(f"=== ITERATION {iteration} TASK ===")
         print(task)
         print()
@@ -160,7 +350,6 @@ if __name__ == "__main__":
         save_git_diff_names(f"loop{iteration}", "before", git_diff_names_before)
 
         result = run_codex(task)
-        save_result(f"loop{iteration}", result)
         git_status_after = get_git_status()
         git_diff_names_after = get_git_diff_names()
         save_git_status(f"loop{iteration}", "after", git_status_after)
@@ -172,6 +361,68 @@ if __name__ == "__main__":
             git_diff_names_after,
         )
         save_changed_files(f"loop{iteration}", changed_files)
+
+        rolled_back_files = []
+        failed_rollbacks = []
+        disallowed_files = []
+
+        if changed_files and iteration_read_only_mode:
+            print(f"success: {result['success']}")
+            print(f"returncode: {result['returncode']}\n")
+
+            print(f"=== ITERATION {iteration} STDOUT ===")
+            print(result["stdout"] or "(empty)")
+
+            print(f"\n=== ITERATION {iteration} STDERR ===")
+            print(result["stderr"] or "(empty)")
+
+            print("\nChanged in this iteration:")
+            print("\n".join(changed_files))
+            save_result(f"loop{iteration}", result)
+            save_summary(
+                f"loop{iteration}",
+                iteration_mode,
+                iteration,
+                max_iterations,
+                task,
+                result,
+                changed_files,
+                iteration_allow_change_paths,
+                False,
+                [],
+                iteration_read_only_mode,
+            )
+            review_data = run_reviewer(f"loop{iteration}", iteration)
+            print("\nReviewer JSON:")
+            print(json.dumps(review_data, indent=2))
+            print("\nWarning: files were modified unexpectedly in read-only mode.")
+            break
+
+        if changed_files and not iteration_read_only_mode and iteration_allow_change_paths:
+            disallowed_files = [path for path in changed_files if path not in iteration_allow_change_paths]
+            if disallowed_files:
+                print("\nError: changes outside the allowed write scope were detected.")
+                print("Disallowed changed files:")
+                print("\n".join(disallowed_files))
+                rolled_back_files, failed_rollbacks = rollback_disallowed_changes(disallowed_files)
+                result["success"] = False
+                result["returncode"] = ALLOWLIST_VIOLATION_RETURN_CODE
+
+        save_result(f"loop{iteration}", result)
+        save_summary(
+            f"loop{iteration}",
+            iteration_mode,
+            iteration,
+            max_iterations,
+            task,
+            result,
+            changed_files,
+            iteration_allow_change_paths,
+            bool(rolled_back_files),
+            rolled_back_files,
+            iteration_read_only_mode,
+        )
+        review_data = run_reviewer(f"loop{iteration}", iteration)
 
         print(f"success: {result['success']}")
         print(f"returncode: {result['returncode']}\n")
@@ -188,11 +439,44 @@ if __name__ == "__main__":
         else:
             print("(none)")
 
-        if changed_files:
-            if read_only_mode:
-                print("\nWarning: files were modified unexpectedly in read-only mode.")
-                break
+        print("\nReviewer JSON:")
+        print(json.dumps(review_data, indent=2))
+
+        if disallowed_files:
+            print("\nRolled back disallowed changes:")
+            if rolled_back_files:
+                print("\n".join(rolled_back_files))
+            else:
+                print("(none)")
+            if failed_rollbacks:
+                print("\nRollback failed for:")
+                print("\n".join(failed_rollbacks))
+            break
+
+        if changed_files and not iteration_read_only_mode:
             print("\nFile modifications were detected in WRITE mode. Continuing.")
+
+        if autopilot_enabled:
+            next_task = review_data["next_task"].strip()
+            if review_data["should_continue"] and next_task:
+                next_mode = review_data["next_mode"]
+                if next_mode == "WRITE" and not top_level_write_enabled:
+                    print("\nAUTOPILOT: reviewer requested WRITE, but top-level run is not in --write mode. Downgrading to READ_ONLY.")
+                    next_mode = "READ_ONLY"
+                current_read_only_mode = next_mode == "READ_ONLY"
+                current_allow_change_paths = review_data["recommended_allowlist"][:]
+                previous_task = task
+                task = enforce_read_only_instruction(next_task, current_read_only_mode)
+                print("\nAUTOPILOT: using reviewer next_task for the next iteration")
+                if not current_read_only_mode and current_allow_change_paths:
+                    print("AUTOPILOT allowlist:")
+                    print("\n".join(current_allow_change_paths))
+                if task.strip() == previous_task.strip():
+                    print("\nStopping: generated task matched the previous task.")
+                    break
+                continue
+            print("\nAUTOPILOT: reviewer did not propose a usable next_task. Stopping cleanly.")
+            break
 
         if not result["success"]:
             print("\nStopping: Codex returned success=False.")
@@ -211,7 +495,7 @@ if __name__ == "__main__":
             f"{result['stderr'].strip() or '(empty)'}\n\n"
             f"{FOLLOW_UP_INSTRUCTION}"
         )
-        task = enforce_read_only_instruction(task, read_only_mode)
+        task = enforce_read_only_instruction(task, iteration_read_only_mode)
 
         if task.strip() == previous_task.strip():
             print("\nStopping: generated task matched the previous task.")
