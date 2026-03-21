@@ -2,6 +2,7 @@ import json
 import subprocess
 import sys
 from pathlib import Path
+from pathlib import PurePosixPath
 import shutil
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -16,6 +17,77 @@ FOLLOW_UP_INSTRUCTION = (
     "Based on the previous output, suggest one small next action to improve this repository."
 )
 ALLOWLIST_VIOLATION_RETURN_CODE = -3
+
+def sanitize_repo_relative_path(path: str) -> str | None:
+    if not isinstance(path, str):
+        return None
+    raw_path = path.strip()
+    if not raw_path:
+        return None
+
+    posix_path = raw_path.replace("\\", "/")
+    candidate = PurePosixPath(posix_path)
+    if candidate.is_absolute():
+        return None
+
+    normalized_parts = []
+    for part in candidate.parts:
+        if part in {"", "."}:
+            continue
+        if part == "..":
+            if not normalized_parts:
+                return None
+            normalized_parts.pop()
+            continue
+        normalized_parts.append(part)
+
+    if not normalized_parts:
+        return None
+    return PurePosixPath(*normalized_parts).as_posix()
+
+def sanitize_allowlist(paths: list[str]) -> list[str]:
+    sanitized_paths = []
+    seen = set()
+    for path in paths:
+        sanitized_path = sanitize_repo_relative_path(path)
+        if not sanitized_path or sanitized_path in seen:
+            continue
+        seen.add(sanitized_path)
+        sanitized_paths.append(sanitized_path)
+    return sanitized_paths
+
+def apply_operator_scope(
+    requested_allowlist: list[str],
+    operator_allowlist: list[str],
+) -> list[str]:
+    sanitized_allowlist = sanitize_allowlist(requested_allowlist)
+    if not operator_allowlist:
+        return sanitized_allowlist
+    operator_scope = set(operator_allowlist)
+    return [path for path in sanitized_allowlist if path in operator_scope]
+
+def get_safe_repo_path(path: str) -> Path | None:
+    sanitized_path = sanitize_repo_relative_path(path)
+    if not sanitized_path:
+        return None
+
+    repo_root = BASE_DIR.parent.resolve()
+    candidate = (repo_root / sanitized_path).resolve(strict=False)
+    if candidate != repo_root and repo_root not in candidate.parents:
+        return None
+    return candidate
+
+def get_disallowed_changed_files(
+    changed_files: list[str],
+    iteration_allow_change_paths: list[str],
+    operator_scope_active: bool,
+) -> list[str]:
+    if not changed_files:
+        return []
+    if not operator_scope_active and not iteration_allow_change_paths:
+        return []
+    allowed_paths = set(iteration_allow_change_paths)
+    return [path for path in changed_files if path not in allowed_paths]
 
 def run_codex(task: str, timeout: int = 180) -> dict:
     try:
@@ -198,7 +270,7 @@ def normalize_plan_data(goal: str, raw_output: str) -> dict:
     recommended_allowlist = data.get("recommended_allowlist", [])
     if not isinstance(recommended_allowlist, list):
         recommended_allowlist = []
-    recommended_allowlist = [path for path in recommended_allowlist if isinstance(path, str)]
+    recommended_allowlist = sanitize_allowlist([path for path in recommended_allowlist if isinstance(path, str)])
 
     should_execute = bool(data.get("should_execute", False))
     execution_task = data.get("execution_task", "")
@@ -226,7 +298,7 @@ def normalize_plan_data(goal: str, raw_output: str) -> dict:
         "reason": reason,
     }
 
-def run_planner(goal: str, top_level_write_enabled: bool) -> dict:
+def run_planner(goal: str, top_level_write_enabled: bool, operator_allowlist: list[str]) -> dict:
     plan_raw_path = OUTPUT_DIR / "plan_raw.txt"
     plan_json_path = OUTPUT_DIR / "plan.json"
     plan_task_path = OUTPUT_DIR / "plan_task.txt"
@@ -237,6 +309,10 @@ def run_planner(goal: str, top_level_write_enabled: bool) -> dict:
     save_text_output(plan_raw_path, raw_output)
 
     plan_data = normalize_plan_data(goal, raw_output)
+    plan_data["recommended_allowlist"] = apply_operator_scope(
+        plan_data["recommended_allowlist"],
+        operator_allowlist,
+    )
     if plan_data["execution_mode"] == "WRITE" and not top_level_write_enabled:
         print("PLANNER: requested WRITE, but top-level run is not in --write mode. Downgrading to READ_ONLY.")
         plan_data["execution_mode"] = "READ_ONLY"
@@ -296,7 +372,7 @@ def normalize_review_data(iteration: int, raw_output: str) -> dict:
     recommended_allowlist = data.get("recommended_allowlist", [])
     if not isinstance(recommended_allowlist, list):
         recommended_allowlist = []
-    recommended_allowlist = [path for path in recommended_allowlist if isinstance(path, str)]
+    recommended_allowlist = sanitize_allowlist([path for path in recommended_allowlist if isinstance(path, str)])
 
     next_task = data.get("next_task", "")
     if not isinstance(next_task, str):
@@ -320,7 +396,7 @@ def normalize_review_data(iteration: int, raw_output: str) -> dict:
         "recommended_allowlist": recommended_allowlist,
     }
 
-def run_reviewer(prefix: str, iteration: int) -> dict:
+def run_reviewer(prefix: str, iteration: int, operator_allowlist: list[str]) -> dict:
     summary_path = OUTPUT_DIR / f"{prefix}_summary.json"
     review_raw_path = OUTPUT_DIR / f"{prefix}_review_raw.txt"
     review_json_path = OUTPUT_DIR / f"{prefix}_review.json"
@@ -332,6 +408,10 @@ def run_reviewer(prefix: str, iteration: int) -> dict:
     save_text_output(review_raw_path, raw_output)
 
     review_data = normalize_review_data(iteration, raw_output)
+    review_data["recommended_allowlist"] = apply_operator_scope(
+        review_data["recommended_allowlist"],
+        operator_allowlist,
+    )
     save_text_output(review_json_path, json.dumps(review_data, indent=2) + "\n")
     save_text_output(next_task_path, review_data["next_task"])
     return review_data
@@ -349,7 +429,7 @@ def parse_allow_change_args(args: list[str]) -> list[str]:
             index += 2
             continue
         index += 1
-    return allowlist
+    return sanitize_allowlist(allowlist)
 
 def is_tracked_file(path: str) -> bool:
     result = subprocess.run(
@@ -365,7 +445,10 @@ def rollback_disallowed_changes(disallowed_files: list[str]) -> tuple[list[str],
     failed_rollbacks = []
 
     for path in disallowed_files:
-        file_path = BASE_DIR.parent / path
+        file_path = get_safe_repo_path(path)
+        if file_path is None:
+            failed_rollbacks.append(f"{path}: rollback skipped because the path is outside the repository root or invalid")
+            continue
         try:
             if is_tracked_file(path):
                 result = subprocess.run(
@@ -395,7 +478,8 @@ if __name__ == "__main__":
     autopilot_enabled = "--autopilot" in args
     top_level_write_enabled = "--write" in args
     current_read_only_mode = not top_level_write_enabled if top_level_write_enabled else READ_ONLY_MODE
-    current_allow_change_paths = parse_allow_change_args(args)
+    operator_allow_change_paths = parse_allow_change_args(args)
+    current_allow_change_paths = operator_allow_change_paths[:]
 
     if "--max-iterations" in args:
         index = args.index("--max-iterations")
@@ -430,7 +514,7 @@ if __name__ == "__main__":
     print(goal)
     print()
 
-    plan_data = run_planner(goal, top_level_write_enabled)
+    plan_data = run_planner(goal, top_level_write_enabled, operator_allow_change_paths)
 
     print("=== PLAN JSON ===")
     print(json.dumps(plan_data, indent=2))
@@ -504,14 +588,18 @@ if __name__ == "__main__":
                 [],
                 iteration_read_only_mode,
             )
-            review_data = run_reviewer(f"loop{iteration}", iteration)
+            review_data = run_reviewer(f"loop{iteration}", iteration, operator_allow_change_paths)
             print("\nReviewer JSON:")
             print(json.dumps(review_data, indent=2))
             print("\nWarning: files were modified unexpectedly in read-only mode.")
             break
 
-        if changed_files and not iteration_read_only_mode and iteration_allow_change_paths:
-            disallowed_files = [path for path in changed_files if path not in iteration_allow_change_paths]
+        if changed_files and not iteration_read_only_mode:
+            disallowed_files = get_disallowed_changed_files(
+                changed_files,
+                iteration_allow_change_paths,
+                bool(operator_allow_change_paths),
+            )
             if disallowed_files:
                 print("\nError: changes outside the allowed write scope were detected.")
                 print("Disallowed changed files:")
@@ -534,7 +622,7 @@ if __name__ == "__main__":
             rolled_back_files,
             iteration_read_only_mode,
         )
-        review_data = run_reviewer(f"loop{iteration}", iteration)
+        review_data = run_reviewer(f"loop{iteration}", iteration, operator_allow_change_paths)
 
         print(f"success: {result['success']}")
         print(f"returncode: {result['returncode']}\n")
