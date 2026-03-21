@@ -1,2 +1,2 @@
-Analyze the automation folder and explain the current safety controls in this orchestrator.
+Review the automation folder and determine the next safest high-value improvement for this orchestrator.
 Do not modify any files.

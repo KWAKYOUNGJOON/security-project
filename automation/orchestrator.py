@@ -151,6 +151,100 @@ def save_summary(
         encoding="utf-8",
     )
 
+def build_planner_task(goal: str) -> str:
+    return (
+        "Convert the following top-level goal into a structured execution plan for a repository automation loop. "
+        "Respond with valid JSON only. Do not modify any files.\n\n"
+        "Required JSON fields:\n"
+        "- goal\n"
+        "- should_execute\n"
+        "- execution_mode\n"
+        "- execution_task\n"
+        "- recommended_allowlist\n"
+        "- reason\n\n"
+        "Rules:\n"
+        "- Output JSON only\n"
+        "- execution_mode must be either READ_ONLY or WRITE\n"
+        "- recommended_allowlist must be a JSON array of repository-relative paths\n"
+        '- If should_execute is false, execution_task must be ""\n'
+        "- Keep the plan conservative and safe\n"
+        "- Planner must not modify files\n\n"
+        "Top-level goal:\n"
+        f"{goal}\n"
+    )
+
+def normalize_plan_data(goal: str, raw_output: str) -> dict:
+    fallback = {
+        "goal": goal,
+        "should_execute": True,
+        "execution_mode": "READ_ONLY",
+        "execution_task": goal,
+        "recommended_allowlist": [],
+        "reason": "Planner did not return valid JSON only; falling back to the original goal.",
+    }
+
+    try:
+        data = json.loads(raw_output.strip())
+    except json.JSONDecodeError:
+        return fallback
+
+    if not isinstance(data, dict):
+        return fallback
+
+    execution_mode = data.get("execution_mode", "READ_ONLY")
+    if execution_mode not in {"READ_ONLY", "WRITE"}:
+        execution_mode = "READ_ONLY"
+
+    recommended_allowlist = data.get("recommended_allowlist", [])
+    if not isinstance(recommended_allowlist, list):
+        recommended_allowlist = []
+    recommended_allowlist = [path for path in recommended_allowlist if isinstance(path, str)]
+
+    should_execute = bool(data.get("should_execute", False))
+    execution_task = data.get("execution_task", "")
+    if not isinstance(execution_task, str):
+        execution_task = ""
+    if not should_execute:
+        execution_task = ""
+    elif not execution_task.strip():
+        execution_task = goal
+
+    reason = data.get("reason", "")
+    if not isinstance(reason, str):
+        reason = str(reason)
+
+    planned_goal = data.get("goal", goal)
+    if not isinstance(planned_goal, str) or not planned_goal.strip():
+        planned_goal = goal
+
+    return {
+        "goal": planned_goal,
+        "should_execute": should_execute,
+        "execution_mode": execution_mode,
+        "execution_task": execution_task,
+        "recommended_allowlist": recommended_allowlist,
+        "reason": reason,
+    }
+
+def run_planner(goal: str, top_level_write_enabled: bool) -> dict:
+    plan_raw_path = OUTPUT_DIR / "plan_raw.txt"
+    plan_json_path = OUTPUT_DIR / "plan.json"
+    plan_task_path = OUTPUT_DIR / "plan_task.txt"
+
+    planner_task = build_planner_task(goal)
+    planner_result = run_codex(planner_task)
+    raw_output = planner_result["stdout"]
+    save_text_output(plan_raw_path, raw_output)
+
+    plan_data = normalize_plan_data(goal, raw_output)
+    if plan_data["execution_mode"] == "WRITE" and not top_level_write_enabled:
+        print("PLANNER: requested WRITE, but top-level run is not in --write mode. Downgrading to READ_ONLY.")
+        plan_data["execution_mode"] = "READ_ONLY"
+
+    save_text_output(plan_json_path, json.dumps(plan_data, indent=2) + "\n")
+    save_text_output(plan_task_path, plan_data["execution_task"])
+    return plan_data
+
 def build_reviewer_task(summary_path: Path) -> str:
     summary_text = summary_path.read_text(encoding="utf-8")
     return (
@@ -326,12 +420,30 @@ if __name__ == "__main__":
     print(f"Max iterations: {max_iterations}")
     print()
 
-    task = ""
+    goal = ""
     if TASK_FILE.exists():
-        task = TASK_FILE.read_text(encoding="utf-8").strip()
-    if not task:
-        task = DEFAULT_TASK
-    task = enforce_read_only_instruction(task, current_read_only_mode)
+        goal = TASK_FILE.read_text(encoding="utf-8").strip()
+    if not goal:
+        goal = DEFAULT_TASK
+
+    print("=== PLANNER GOAL ===")
+    print(goal)
+    print()
+
+    plan_data = run_planner(goal, top_level_write_enabled)
+
+    print("=== PLAN JSON ===")
+    print(json.dumps(plan_data, indent=2))
+    print()
+
+    if not plan_data["should_execute"]:
+        print("PLANNER: should_execute is false. Stopping cleanly before iteration 1.")
+        print("\nSaved outputs to automation/runs/")
+        sys.exit(0)
+
+    current_read_only_mode = plan_data["execution_mode"] == "READ_ONLY"
+    current_allow_change_paths = plan_data["recommended_allowlist"][:]
+    task = enforce_read_only_instruction(plan_data["execution_task"], current_read_only_mode)
 
     previous_task = None
 
