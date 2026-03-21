@@ -41,6 +41,7 @@ desktop.ini
 # ------------------------------------------------------------
 apps/report-template/dist/
 apps/report-automation/logs/
+automation/runs/
 
 # ------------------------------------------------------------
 # Local databases / packages
