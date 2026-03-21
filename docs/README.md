@@ -11,6 +11,9 @@ Project-level documentation for the phase-1 Web baseline and the planned path to
 
 ## Recommended starting points
 
+- Canonical READY execution contract and command root:
+  - `docs/READY_EXECUTION_CONTRACT.md`
+  - `app/vuln-pipeline`
 - [READY_EXECUTION_CONTRACT.md](READY_EXECUTION_CONTRACT.md)
 - [architecture/project-overview.md](architecture/project-overview.md)
 - [architecture/folder-policy.md](architecture/folder-policy.md)
@@ -25,3 +28,8 @@ Project-level documentation for the phase-1 Web baseline and the planned path to
 ## Scope note
 
 Current implementation is Web only. Documentation should keep that explicit while reserving room for API and Server additions later.
+
+READY note:
+- `docs/READY_EXECUTION_CONTRACT.md` is the single source of truth for READY execution.
+- The canonical real-input schema is fixed there as `burp/burp-findings.json`, `nuclei/nuclei-findings.json`, `httpx/httpx-hosts.json`, and `manual/manual-findings.json` under `data/inputs/real/`.
+- `apps/report-automation/**` materials may remain for legacy or pre-target workflows, but they are not canonical READY execution or READY evidence.

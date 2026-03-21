@@ -1,75 +1,139 @@
-"""READY(1) contract logic and deterministic smoke execution."""
+"""READY contract logic and deterministic smoke execution."""
 
 from __future__ import annotations
 
 import hashlib
 import json
 import platform
+import re
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
 
-SCHEMA_VERSION = "ready1/v0.1"
+SCHEMA_VERSION = "ready-contract/v1"
 GATE_NAME = "READY(1)"
 WORKING_DIRECTORY = "app/vuln-pipeline"
 OFFICIAL_ENTRYPOINT = "python -m vuln_pipeline.cli.main"
-OFFICIAL_INSTALL_COMMAND = "python -m pip install -e ."
-OFFICIAL_SMOKE_COMMAND = "python -m vuln_pipeline.cli.main smoke --output-dir ../../outputs/ready1/smoke"
-FORBIDDEN_PATHS = ("apps/report-automation/src/cli/main.py",)
-ALLOWED_INPUT_SUBDIRS = ("burp", "httpx", "manual", "nuclei")
-MINIMAL_REAL_INPUT_SET = (
-    "burp/burp-findings.json",
-    "httpx/httpx-hosts.json",
-    "manual/manual-findings.json",
-    "nuclei/nuclei-findings.json",
+OFFICIAL_ENVIRONMENT_PREPARATION = (
+    "cd app/vuln-pipeline",
+    "python -m pip install -e .",
 )
-REQUIRED_OUTPUTS = (
+OFFICIAL_SMOKE_COMMAND = "python -m vuln_pipeline.cli.main smoke --run-id <run_id>"
+OFFICIAL_TEST_COMMAND = "python -m pytest -q -m must_pass tests/test_fixture_smoke_e2e.py"
+RUN_ID_REGEX = r"^run-\d{8}T\d{6}Z$"
+RUN_ID_PATTERN = re.compile(RUN_ID_REGEX)
+REAL_INPUT_SCHEMA = (
+    {
+        "provider": "burp",
+        "required_root": "data/inputs/real/burp",
+        "relative_path": "burp/burp-findings.json",
+        "repo_relative_path": "data/inputs/real/burp/burp-findings.json",
+        "why_required": "Canonical Burp findings input consumed by the READY smoke flow.",
+    },
+    {
+        "provider": "nuclei",
+        "required_root": "data/inputs/real/nuclei",
+        "relative_path": "nuclei/nuclei-findings.json",
+        "repo_relative_path": "data/inputs/real/nuclei/nuclei-findings.json",
+        "why_required": "Canonical Nuclei findings input consumed by the READY smoke flow.",
+    },
+    {
+        "provider": "httpx",
+        "required_root": "data/inputs/real/httpx",
+        "relative_path": "httpx/httpx-hosts.json",
+        "repo_relative_path": "data/inputs/real/httpx/httpx-hosts.json",
+        "why_required": "Canonical HTTPX host inventory input consumed by the READY smoke flow.",
+    },
+    {
+        "provider": "manual",
+        "required_root": "data/inputs/real/manual",
+        "relative_path": "manual/manual-findings.json",
+        "repo_relative_path": "data/inputs/real/manual/manual-findings.json",
+        "why_required": "Canonical manually reviewed findings input consumed by the READY smoke flow.",
+    },
+)
+REAL_INPUT_SUBDIRS = tuple(item["provider"] for item in REAL_INPUT_SCHEMA)
+REQUIRED_REAL_INPUT_FILES = tuple(item["relative_path"] for item in REAL_INPUT_SCHEMA)
+REQUIRED_ARTIFACTS = (
     "input_preflight.json",
     "release_readiness.json",
     "submission_gate.json",
 )
-MINIMUM_PYTHON = (3, 11, 0)
+FORBIDDEN_PATH_RULES = (
+    {
+        "path": "apps/report-automation/src/cli/main.py",
+        "evidence_root": "apps/report-automation",
+    },
+)
+COMPARE_EXCLUDED_FIELDS = ("generated_at", "duration_ms", "temp path", "host/user 정보")
+PLACEHOLDER_NAMES = {"README.md", ".gitkeep", ".keep"}
+REQUIRED_PYTHON_MAJOR_MINOR = (3, 11)
 
 
-def run_smoke(*, input_root: Path | None, output_dir: Path | None) -> dict[str, Any]:
+def run_smoke(
+    *,
+    run_id: str,
+    mode: str,
+    input_root: Path | None,
+    output_dir: Path | None,
+) -> dict[str, Any]:
     repo_root = get_repo_root()
-    resolved_input_root = resolve_repo_path(input_root, repo_root) if input_root else repo_root / "data" / "inputs" / "real"
-    resolved_output_dir = (
-        resolve_repo_path(output_dir, repo_root) if output_dir else repo_root / "outputs" / "ready1" / "smoke"
-    )
+    resolved_input_root = resolve_repo_path(input_root, repo_root) if input_root else canonical_input_root(repo_root)
+    resolved_output_dir = resolve_repo_path(output_dir, repo_root) if output_dir else canonical_run_dir(repo_root, run_id)
     resolved_output_dir.mkdir(parents=True, exist_ok=True)
 
-    preflight = build_input_preflight(resolved_input_root, repo_root)
-    release = build_release_readiness(preflight, repo_root, resolved_output_dir)
-    gate = build_submission_gate(preflight, release, repo_root, resolved_output_dir)
+    preflight = build_input_preflight(
+        run_id=run_id,
+        requested_mode=mode,
+        input_root=resolved_input_root,
+        repo_root=repo_root,
+    )
+    release = build_release_readiness(
+        run_id=run_id,
+        preflight=preflight,
+        repo_root=repo_root,
+        input_root=resolved_input_root,
+        output_dir=resolved_output_dir,
+    )
 
-    input_preflight_path = resolved_output_dir / REQUIRED_OUTPUTS[0]
-    release_readiness_path = resolved_output_dir / REQUIRED_OUTPUTS[1]
-    submission_gate_path = resolved_output_dir / REQUIRED_OUTPUTS[2]
+    input_preflight_path = resolved_output_dir / REQUIRED_ARTIFACTS[0]
+    release_readiness_path = resolved_output_dir / REQUIRED_ARTIFACTS[1]
+    submission_gate_path = resolved_output_dir / REQUIRED_ARTIFACTS[2]
 
     write_json(input_preflight_path, preflight)
     write_json(release_readiness_path, release)
-    write_json(submission_gate_path, gate)
 
-    artifact_presence = build_artifact_presence(resolved_output_dir)
-    release = build_release_readiness(preflight, repo_root, resolved_output_dir, artifact_presence=artifact_presence)
-    gate = build_submission_gate(
-        preflight,
-        release,
-        repo_root,
-        resolved_output_dir,
+    artifact_presence = {name: True for name in REQUIRED_ARTIFACTS}
+    release = build_release_readiness(
+        run_id=run_id,
+        preflight=preflight,
+        repo_root=repo_root,
+        input_root=resolved_input_root,
+        output_dir=resolved_output_dir,
         artifact_presence=artifact_presence,
     )
+    gate = build_submission_gate(
+        run_id=run_id,
+        preflight=preflight,
+        release=release,
+        repo_root=repo_root,
+        output_dir=resolved_output_dir,
+        artifact_presence=artifact_presence,
+    )
+
     write_json(release_readiness_path, release)
     write_json(submission_gate_path, gate)
 
     return {
         "status": gate["decision"]["status"],
-        "working_directory": WORKING_DIRECTORY,
+        "run_id": run_id,
+        "mode": preflight["effective_mode"],
         "input_root": preflight["input_root"],
-        "output_dir": repo_relative(resolved_output_dir, repo_root),
-        "artifacts": REQUIRED_OUTPUTS,
+        "run_dir": repo_relative(resolved_output_dir, repo_root),
+        "artifacts": list(REQUIRED_ARTIFACTS),
+        "reasons": gate["decision"]["reasons"],
         "input_fingerprint": preflight["input_fingerprint"],
         "gate_fingerprint": gate["stable_compare_vector"]["fingerprint"],
     }
@@ -78,38 +142,38 @@ def run_smoke(*, input_root: Path | None, output_dir: Path | None) -> dict[str, 
 def compare_run_directories(run_dirs: Iterable[Path]) -> dict[str, Any]:
     repo_root = get_repo_root()
     resolved_dirs = [resolve_repo_path(path, repo_root) for path in run_dirs]
-    if len(resolved_dirs) < 2:
-        raise ValueError("compare-runs requires at least two --run-dir values.")
+    if not 2 <= len(resolved_dirs) <= 3:
+        raise ValueError("compare-runs requires two or three --run-dir values.")
 
-    run_payloads = []
+    runs: list[dict[str, Any]] = []
     for run_dir in resolved_dirs:
-        gate_path = run_dir / "submission_gate.json"
-        gate = json.loads(gate_path.read_text(encoding="utf-8"))
+        input_preflight = json.loads((run_dir / REQUIRED_ARTIFACTS[0]).read_text(encoding="utf-8"))
+        gate = json.loads((run_dir / REQUIRED_ARTIFACTS[2]).read_text(encoding="utf-8"))
         vector = gate["stable_compare_vector"]
-        run_payloads.append(
+        runs.append(
             {
                 "run_dir": repo_relative(run_dir, repo_root),
                 "decision_status": gate["decision"]["status"],
-                "input_fingerprint": vector["input_fingerprint"],
                 "required_keys": gate["required_keys"],
                 "forbidden_path_results": gate["forbidden_path_results"],
+                "input_fingerprint": input_preflight["input_fingerprint"],
                 "fingerprint": vector["fingerprint"],
             }
         )
 
-    baseline = run_payloads[0]
+    baseline = runs[0]
     mismatches: list[dict[str, str]] = []
     decision_status_equal = True
     required_keys_equal = True
     forbidden_path_results_equal = True
     input_fingerprint_equal = True
 
-    for candidate in run_payloads[1:]:
+    for candidate in runs[1:]:
         if candidate["decision_status"] != baseline["decision_status"]:
             decision_status_equal = False
             mismatches.append(
                 {
-                    "field": "decision_status",
+                    "field": "decision.status",
                     "baseline_run_dir": baseline["run_dir"],
                     "candidate_run_dir": candidate["run_dir"],
                 }
@@ -142,204 +206,278 @@ def compare_run_directories(run_dirs: Iterable[Path]) -> dict[str, Any]:
                 }
             )
 
-    status = (
-        "PASS"
-        if decision_status_equal and required_keys_equal and forbidden_path_results_equal and input_fingerprint_equal
-        else "FAIL"
-    )
     return {
-        "status": status,
+        "status": "PASS"
+        if decision_status_equal and required_keys_equal and forbidden_path_results_equal and input_fingerprint_equal
+        else "FAIL",
         "gate": GATE_NAME,
-        "run_count": len(run_payloads),
+        "run_count": len(runs),
         "decision_status_equal": decision_status_equal,
         "required_keys_equal": required_keys_equal,
         "forbidden_path_results_equal": forbidden_path_results_equal,
         "input_fingerprint_equal": input_fingerprint_equal,
-        "runs": run_payloads,
+        "compare_excluded_fields": list(COMPARE_EXCLUDED_FIELDS),
+        "runs": runs,
         "mismatches": mismatches,
     }
 
 
-def build_input_preflight(input_root: Path, repo_root: Path) -> dict[str, Any]:
-    violations: list[dict[str, str]] = []
-    discovered_files: list[dict[str, Any]] = []
-    per_source_summary = {name: {"file_count": 0, "record_count": 0} for name in ALLOWED_INPUT_SUBDIRS}
-    present_paths: set[str] = set()
+def build_input_preflight(
+    *,
+    run_id: str,
+    requested_mode: str,
+    input_root: Path,
+    repo_root: Path,
+) -> dict[str, Any]:
+    missing_input_roots: list[str] = []
+    placeholder_files: list[str] = []
+    unexpected_files: list[str] = []
+    present_real_inputs: list[dict[str, str]] = []
+    missing_real_inputs: list[str] = []
+    required_real_input_schema: list[dict[str, Any]] = []
+    missing_real_input_details: list[dict[str, str]] = []
+    blocking_reasons: list[str] = []
+    root_status: dict[str, dict[str, Any]] = {
+        item["provider"]: {
+            "root_exists": False,
+            "placeholder_files": [],
+            "unexpected_files": [],
+        }
+        for item in REAL_INPUT_SCHEMA
+    }
 
-    if not input_root.exists():
-        violations.append({"code": "missing_input_root", "path": repo_relative(input_root, repo_root)})
-    else:
-        for file_path in sorted(path for path in input_root.rglob("*") if path.is_file()):
-            rel = file_path.relative_to(input_root).as_posix()
-            present_paths.add(rel)
-            parts = rel.split("/")
-            first_part = parts[0] if parts else ""
-            if first_part not in ALLOWED_INPUT_SUBDIRS:
-                violations.append({"code": "disallowed_subpath", "path": rel})
-                continue
+    for schema_entry in REAL_INPUT_SCHEMA:
+        provider = schema_entry["provider"]
+        expected_dir = input_root / provider
+        if not expected_dir.exists():
+            missing_input_roots.append(repo_relative(expected_dir, repo_root))
+        else:
+            root_status[provider]["root_exists"] = True
+            for file_path in sorted(path for path in expected_dir.rglob("*") if path.is_file()):
+                rel = file_path.relative_to(input_root).as_posix()
+                if file_path.name in PLACEHOLDER_NAMES:
+                    placeholder_files.append(rel)
+                    root_status[provider]["placeholder_files"].append(rel)
+                elif rel not in REQUIRED_REAL_INPUT_FILES:
+                    unexpected_files.append(rel)
+                    root_status[provider]["unexpected_files"].append(rel)
 
-            record_count = 0
-            source_name = first_part
-            payload_error = ""
-            try:
-                payload = json.loads(file_path.read_text(encoding="utf-8"))
-                source_value = str(payload.get("source") or "").strip()
-                records = payload.get("records")
-                if source_value != source_name:
-                    violations.append(
-                        {
-                            "code": "source_mismatch",
-                            "path": rel,
-                            "expected_source": source_name,
-                            "actual_source": source_value,
-                        }
-                    )
-                if not isinstance(records, list) or not records:
-                    violations.append({"code": "missing_records", "path": rel})
-                else:
-                    record_count = len(records)
-            except json.JSONDecodeError as exc:
-                payload_error = f"invalid_json:{exc.msg}"
-                violations.append({"code": "invalid_json", "path": rel})
-
-            per_source_summary[source_name]["file_count"] += 1
-            per_source_summary[source_name]["record_count"] += record_count
-            discovered_files.append(
+    for schema_entry in REAL_INPUT_SCHEMA:
+        rel = schema_entry["relative_path"]
+        provider = schema_entry["provider"]
+        candidate = input_root / rel
+        placeholder_only = (
+            root_status[provider]["root_exists"]
+            and not candidate.exists()
+            and bool(root_status[provider]["placeholder_files"])
+            and not root_status[provider]["unexpected_files"]
+        )
+        blocker_reason = None
+        if candidate.exists():
+            present_real_inputs.append(
                 {
+                    "provider": provider,
                     "path": rel,
-                    "source": source_name,
-                    "sha256": sha256_file(file_path),
-                    "record_count": record_count,
-                    "payload_error": payload_error,
+                    "repo_relative_path": schema_entry["repo_relative_path"],
+                    "sha256": sha256_file(candidate),
                 }
             )
+        else:
+            missing_real_inputs.append(rel)
+            missing_real_input_details.append(
+                {
+                    "provider": provider,
+                    "path": rel,
+                    "repo_relative_path": schema_entry["repo_relative_path"],
+                    "why_required": schema_entry["why_required"],
+                }
+            )
+            blocker_reason = (
+                f"Missing canonical real input {schema_entry['repo_relative_path']}; "
+                "placeholder files do not satisfy this requirement."
+                if placeholder_only
+                else f"Missing canonical real input {schema_entry['repo_relative_path']}."
+            )
+            blocking_reasons.append(blocker_reason)
 
-    missing_required = [path for path in MINIMAL_REAL_INPUT_SET if path not in present_paths]
-    for missing in missing_required:
-        violations.append({"code": "missing_required_input", "path": missing})
+        required_real_input_schema.append(
+            {
+                **schema_entry,
+                "root_exists": root_status[provider]["root_exists"],
+                "required_file_present": candidate.exists(),
+                "placeholder_only": placeholder_only,
+                "placeholder_files": root_status[provider]["placeholder_files"],
+                "unexpected_files": root_status[provider]["unexpected_files"],
+                "blocker_reason": blocker_reason,
+            }
+        )
+
+    real_input_ready = not missing_input_roots and not missing_real_inputs
+    effective_mode = requested_mode
+    if requested_mode == "auto":
+        effective_mode = "real" if real_input_ready else "dry-run"
 
     input_fingerprint = digest_json(
-        [
-            {
-                "path": item["path"],
-                "sha256": item["sha256"],
-                "record_count": item["record_count"],
-            }
-            for item in discovered_files
-        ]
+        {
+            "present_real_inputs": present_real_inputs,
+            "missing_real_inputs": missing_real_inputs,
+            "missing_input_roots": missing_input_roots,
+        }
     )
 
     return {
         "schema_version": SCHEMA_VERSION,
+        "generated_at": utc_now(),
         "gate": GATE_NAME,
+        "run_id": run_id,
+        "requested_mode": requested_mode,
+        "effective_mode": effective_mode,
         "input_root": repo_relative(input_root, repo_root),
-        "allowed_subdirectories": list(ALLOWED_INPUT_SUBDIRS),
-        "minimal_real_input_set": list(MINIMAL_REAL_INPUT_SET),
-        "discovered_files": discovered_files,
-        "source_summary": per_source_summary,
-        "violation_count": len(violations),
-        "violations": violations,
-        "pass": len(violations) == 0,
+        "required_input_roots": [item["required_root"] for item in REAL_INPUT_SCHEMA],
+        "required_real_inputs": list(REQUIRED_REAL_INPUT_FILES),
+        "required_real_input_schema": required_real_input_schema,
+        "missing_input_roots": missing_input_roots,
+        "present_real_inputs": present_real_inputs,
+        "missing_real_inputs": missing_real_inputs,
+        "missing_real_input_details": missing_real_input_details,
+        "blocking_reasons": blocking_reasons,
+        "placeholder_files": placeholder_files,
+        "placeholder_files_are_ready_evidence": False,
+        "unexpected_files": unexpected_files,
+        "real_input_ready": real_input_ready,
         "input_fingerprint": input_fingerprint,
+        "note": "Placeholder or missing real inputs are never READY(1) evidence.",
     }
 
 
 def build_release_readiness(
+    *,
+    run_id: str,
     preflight: dict[str, Any],
     repo_root: Path,
+    input_root: Path,
     output_dir: Path,
-    *,
     artifact_presence: dict[str, bool] | None = None,
 ) -> dict[str, Any]:
-    artifact_presence = artifact_presence or {name: False for name in REQUIRED_OUTPUTS}
-    python_version = platform.python_version()
-    python_ok = sys.version_info[:3] >= MINIMUM_PYTHON
-    app_root = repo_root / "app" / "vuln-pipeline"
+    artifact_presence = artifact_presence or {name: False for name in REQUIRED_ARTIFACTS}
+    app_root = canonical_app_root(repo_root)
+    runs_root = canonical_runs_root(repo_root)
     entrypoint_path = app_root / "vuln_pipeline" / "cli" / "main.py"
+    python_pin_path = app_root / ".python-version"
     cwd_matches = Path.cwd().resolve() == app_root.resolve()
+    python_version = platform.python_version()
+    python_version_matches = sys.version_info[:2] == REQUIRED_PYTHON_MAJOR_MINOR
+    run_id_valid = validate_run_id(run_id)
+    output_dir_is_canonical = output_dir.resolve() == canonical_run_dir(repo_root, run_id).resolve()
+    forbidden_path_results = evaluate_forbidden_ready_paths([input_root, output_dir], repo_root)
 
-    forbidden_path_results = [
-        {
-            "path": path,
-            "policy": "forbidden",
-            "call_count": 0,
-            "status": "PASS",
-        }
-        for path in FORBIDDEN_PATHS
-    ]
-    condition_a_pass = app_root.exists() and entrypoint_path.exists() and all(item["call_count"] == 0 for item in forbidden_path_results)
-    condition_b_pass = python_ok and cwd_matches and preflight["pass"]
-    overall_status = "PASS" if condition_a_pass and condition_b_pass else "FAIL"
+    blocked_reasons: list[str] = []
+    if not app_root.exists():
+        blocked_reasons.append("canonical app root is missing")
+    if not entrypoint_path.exists():
+        blocked_reasons.append("canonical CLI entrypoint is missing")
+    if not runs_root.exists():
+        blocked_reasons.append("canonical data/runs root is missing")
+    if not run_id_valid:
+        blocked_reasons.append("run_id does not match ^run-\\d{8}T\\d{6}Z$")
+    if not cwd_matches:
+        blocked_reasons.append("current working directory is not app/vuln-pipeline")
+    if not python_version_matches:
+        blocked_reasons.append("python version is not 3.11.x")
+    if not output_dir_is_canonical:
+        blocked_reasons.append("output directory is not the canonical data/runs/<run_id> path")
+    if any(item["status"] == "FAIL" for item in forbidden_path_results):
+        blocked_reasons.append("legacy READY evidence path was selected")
 
     return {
         "schema_version": SCHEMA_VERSION,
+        "generated_at": utc_now(),
         "gate": GATE_NAME,
+        "run_id": run_id,
         "working_directory": WORKING_DIRECTORY,
         "official_entrypoint": OFFICIAL_ENTRYPOINT,
-        "official_install_command": OFFICIAL_INSTALL_COMMAND,
+        "official_environment_preparation": list(OFFICIAL_ENVIRONMENT_PREPARATION),
         "official_smoke_command": OFFICIAL_SMOKE_COMMAND,
+        "official_test_command": OFFICIAL_TEST_COMMAND,
         "python_version": {
+            "executable": Path(sys.executable).resolve().as_posix(),
             "detected": python_version,
-            "minimum": ".".join(str(part) for part in MINIMUM_PYTHON),
-            "minimum_satisfied": python_ok,
+            "required": "3.11.x",
+            "pin_file": repo_relative(python_pin_path, repo_root),
+            "pin_value": python_pin_path.read_text(encoding="utf-8").strip() if python_pin_path.exists() else None,
+            "matches_contract": python_version_matches,
         },
-        "conditions": {
-            "A": {
-                "status": "PASS" if condition_a_pass else "FAIL",
-                "official_root_exists": app_root.exists(),
-                "official_entrypoint_path": repo_relative(entrypoint_path, repo_root),
-                "official_entrypoint_exists": entrypoint_path.exists(),
-                "missing_path_call_count": 0,
-                "forbidden_path_results": forbidden_path_results,
-            },
-            "B": {
-                "status": "PASS" if condition_b_pass else "FAIL",
-                "cwd_repo_relative": repo_relative(Path.cwd(), repo_root),
-                "working_directory_matches": cwd_matches,
-                "input_preflight_pass": preflight["pass"],
-                "artifact_presence": artifact_presence,
-            },
-        },
-        "overall_status": overall_status,
+        "run_id_regex": RUN_ID_REGEX,
+        "run_id_valid": run_id_valid,
+        "cwd_repo_relative": repo_relative(Path.cwd(), repo_root),
+        "working_directory_matches": cwd_matches,
+        "input_root": repo_relative(input_root, repo_root),
+        "canonical_output_dir": repo_relative(canonical_run_dir(repo_root, run_id), repo_root),
         "output_dir": repo_relative(output_dir, repo_root),
-        "stable_compare_vector": {
-            "overall_status": overall_status,
-            "forbidden_path_results": forbidden_path_results,
-            "required_output_names": list(REQUIRED_OUTPUTS),
-        },
+        "output_dir_is_canonical": output_dir_is_canonical,
+        "artifact_presence": artifact_presence,
+        "forbidden_path_results": forbidden_path_results,
+        "blocked_reasons": blocked_reasons,
+        "ready_contract_possible": not blocked_reasons,
+        "note": "Install command success is verified by canonical tests, not inferred from this JSON alone.",
     }
 
 
 def build_submission_gate(
+    *,
+    run_id: str,
     preflight: dict[str, Any],
     release: dict[str, Any],
     repo_root: Path,
     output_dir: Path,
-    *,
     artifact_presence: dict[str, bool] | None = None,
 ) -> dict[str, Any]:
-    artifact_presence = artifact_presence or {name: False for name in REQUIRED_OUTPUTS}
+    artifact_presence = artifact_presence or {name: False for name in REQUIRED_ARTIFACTS}
     required_keys = {
         "input_preflight.json": sorted(preflight.keys()),
         "release_readiness.json": sorted(release.keys()),
         "submission_gate.json": sorted(
             [
-                "schema_version",
+                "artifact_presence",
+                "compare_excluded_fields",
+                "decision",
+                "forbidden_path_results",
                 "gate",
+                "generated_at",
                 "output_dir",
                 "required_artifacts",
-                "artifact_presence",
                 "required_keys",
-                "forbidden_path_results",
-                "decision",
+                "run_id",
+                "schema_version",
                 "stable_compare_vector",
             ]
         ),
     }
-    forbidden_path_results = release["conditions"]["A"]["forbidden_path_results"]
-    decision_status = "PASS" if preflight["pass"] and release["overall_status"] == "PASS" and all(artifact_presence.values()) else "FAIL"
+
+    blocked_reasons = list(release["blocked_reasons"])
+    not_ready_reasons: list[str] = []
+    if preflight["effective_mode"] != "real":
+        blocked_reasons.append("dry-run evaluation is not READY(1) evidence")
+    if preflight["missing_real_inputs"]:
+        blocked_reasons.append("required real inputs are missing")
+    if preflight["placeholder_files"] and preflight["missing_real_inputs"]:
+        blocked_reasons.append("placeholder files do not satisfy the missing required real inputs")
+    if not all(artifact_presence.values()):
+        blocked_reasons.append("required artifacts are incomplete")
+
+    if blocked_reasons:
+        decision_status = "BLOCKED"
+        reasons = blocked_reasons + not_ready_reasons
+    elif not_ready_reasons:
+        decision_status = "NOT_READY"
+        reasons = not_ready_reasons
+    else:
+        decision_status = GATE_NAME
+        reasons = ["All canonical READY(1) contract checks passed."]
+
+    forbidden_path_results = release["forbidden_path_results"]
     stable_compare_vector = {
-        "decision_status": decision_status,
+        "decision.status": decision_status,
         "required_keys": required_keys,
         "forbidden_path_results": forbidden_path_results,
         "input_fingerprint": preflight["input_fingerprint"],
@@ -348,22 +486,80 @@ def build_submission_gate(
 
     return {
         "schema_version": SCHEMA_VERSION,
+        "generated_at": utc_now(),
         "gate": GATE_NAME,
+        "run_id": run_id,
         "output_dir": repo_relative(output_dir, repo_root),
-        "required_artifacts": list(REQUIRED_OUTPUTS),
+        "required_artifacts": list(REQUIRED_ARTIFACTS),
         "artifact_presence": artifact_presence,
         "required_keys": required_keys,
         "forbidden_path_results": forbidden_path_results,
+        "compare_excluded_fields": list(COMPARE_EXCLUDED_FIELDS),
         "decision": {
             "status": decision_status,
-            "reason": "READY(1) contract satisfied." if decision_status == "PASS" else "READY(1) contract failed.",
+            "reasons": reasons,
         },
         "stable_compare_vector": stable_compare_vector,
     }
 
 
+def validate_run_id(run_id: str) -> bool:
+    return bool(RUN_ID_PATTERN.fullmatch(run_id))
+
+
+def canonical_app_root(repo_root: Path) -> Path:
+    return repo_root / "app" / "vuln-pipeline"
+
+
+def canonical_input_root(repo_root: Path) -> Path:
+    return repo_root / "data" / "inputs" / "real"
+
+
+def canonical_runs_root(repo_root: Path) -> Path:
+    return repo_root / "data" / "runs"
+
+
+def canonical_run_dir(repo_root: Path, run_id: str) -> Path:
+    return canonical_runs_root(repo_root) / run_id
+
+
+def evaluate_forbidden_ready_paths(
+    candidate_paths: Iterable[Path],
+    repo_root: Path,
+    invoked_paths: Iterable[str] | None = None,
+) -> list[dict[str, Any]]:
+    invoked_paths = tuple(invoked_paths or ())
+    resolved_candidates = [candidate.resolve() for candidate in candidate_paths]
+    results: list[dict[str, Any]] = []
+    for rule in FORBIDDEN_PATH_RULES:
+        relative_path = rule["path"]
+        relative_root = rule["evidence_root"]
+        absolute_path = repo_root / relative_path
+        absolute_root = repo_root / relative_root
+        matched_paths = [
+            repo_relative(candidate, repo_root)
+            for candidate in resolved_candidates
+            if is_relative_to(candidate, absolute_root.resolve())
+        ]
+        ready_evidence_detected = bool(matched_paths)
+        call_count = sum(1 for candidate in invoked_paths if candidate == relative_path)
+        results.append(
+            {
+                "path": relative_path,
+                "evidence_root": relative_root,
+                "exists": absolute_path.exists(),
+                "call_count": call_count,
+                "ready_evidence_allowed": False,
+                "ready_evidence_detected": ready_evidence_detected,
+                "matched_paths": matched_paths,
+                "status": "FAIL" if ready_evidence_detected or call_count else "PASS",
+            }
+        )
+    return results
+
+
 def build_artifact_presence(output_dir: Path) -> dict[str, bool]:
-    return {name: (output_dir / name).exists() for name in REQUIRED_OUTPUTS}
+    return {name: (output_dir / name).exists() for name in REQUIRED_ARTIFACTS}
 
 
 def get_repo_root() -> Path:
@@ -381,6 +577,14 @@ def repo_relative(path: Path, repo_root: Path) -> str:
         return path.resolve().relative_to(repo_root.resolve()).as_posix()
     except ValueError:
         return path.resolve().as_posix()
+
+
+def is_relative_to(path: Path, parent: Path) -> bool:
+    try:
+        path.relative_to(parent)
+        return True
+    except ValueError:
+        return False
 
 
 def sha256_file(path: Path) -> str:
@@ -402,3 +606,7 @@ def digest_json(payload: Any) -> str:
 def write_json(path: Path, payload: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def utc_now() -> str:
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")

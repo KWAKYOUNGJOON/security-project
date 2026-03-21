@@ -1,11 +1,13 @@
+.python-version
 README.md
 pyproject.toml
-tests/test_ready1_smoke.py
+tests/test_fixture_smoke_e2e.py
 vuln_pipeline/__init__.py
 vuln_pipeline/contracts.py
 vuln_pipeline.egg-info/PKG-INFO
 vuln_pipeline.egg-info/SOURCES.txt
 vuln_pipeline.egg-info/dependency_links.txt
+vuln_pipeline.egg-info/requires.txt
 vuln_pipeline.egg-info/top_level.txt
 vuln_pipeline/cli/__init__.py
 vuln_pipeline/cli/main.py

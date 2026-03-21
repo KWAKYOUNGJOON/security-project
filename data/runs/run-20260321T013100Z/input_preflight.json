@@ -1,0 +1,39 @@
+{
+  "schema_version": "ready-contract/v1",
+  "generated_at": "2026-03-20T16:30:46Z",
+  "gate": "READY(1)",
+  "run_id": "run-20260321T013100Z",
+  "requested_mode": "auto",
+  "effective_mode": "dry-run",
+  "input_root": "data/inputs/real",
+  "required_input_roots": [
+    "data/inputs/real/burp",
+    "data/inputs/real/nuclei",
+    "data/inputs/real/httpx",
+    "data/inputs/real/manual"
+  ],
+  "required_real_inputs": [
+    "burp/burp-findings.json",
+    "nuclei/nuclei-findings.json",
+    "httpx/httpx-hosts.json",
+    "manual/manual-findings.json"
+  ],
+  "missing_input_roots": [],
+  "present_real_inputs": [],
+  "missing_real_inputs": [
+    "burp/burp-findings.json",
+    "nuclei/nuclei-findings.json",
+    "httpx/httpx-hosts.json",
+    "manual/manual-findings.json"
+  ],
+  "placeholder_files": [
+    "burp/README.md",
+    "nuclei/README.md",
+    "httpx/README.md",
+    "manual/README.md"
+  ],
+  "unexpected_files": [],
+  "real_input_ready": false,
+  "input_fingerprint": "e4c95b1e2f9df2eda2844a00a6decb0bb4b374d3a0e9d164a2c51d3625ee15ed",
+  "note": "Placeholder or missing real inputs are never READY(1) evidence."
+}

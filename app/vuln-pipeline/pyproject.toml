@@ -5,11 +5,19 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "vuln-pipeline"
 version = "0.1.0"
-description = "Deterministic READY(1) vulnerability pipeline smoke runner."
-requires-python = ">=3.11"
+description = "Canonical READY contract validator and smoke runner."
+requires-python = ">=3.11,<3.12"
+dependencies = [
+  "pytest>=8",
+]
 
 [tool.setuptools]
 include-package-data = true
 
 [tool.setuptools.packages.find]
 include = ["vuln_pipeline*"]
+
+[tool.pytest.ini_options]
+markers = [
+  "must_pass: canonical contract validation tests",
+]

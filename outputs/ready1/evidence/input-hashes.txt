@@ -1,9 +1,4 @@
-
-Path                                                             Hash
-----                                                             ----
-D:\security-project\data\inputs\real\burp\burp-findings.json     A085757EBC9953C5EBF9C56CB5A0ED059CE5655B7B3D1ECD525F79E26D1FD150
-D:\security-project\data\inputs\real\httpx\httpx-hosts.json      BB17DCEC98C56E0E690F1784221D2893E21A7DB2B7D855429762C7665F843A3B
-D:\security-project\data\inputs\real\manual\manual-findings.json 891203C3ACF13A4647CD775212545566C46D06113F7A72D8456EE27376BB422E
-D:\security-project\data\inputs\real\nuclei\nuclei-findings.json CCF861F3A9CD771520A7B1A2C4CC62F75301B82014025B8F14472F71BAB64F20
-
-
+data/inputs/real/burp/burp-findings.json	a085757ebc9953c5ebf9c56cb5a0ed059ce5655b7b3d1ecd525f79e26d1fd150
+data/inputs/real/nuclei/nuclei-findings.json	ccf861f3a9cd771520a7b1a2c4cc62f75301b82014025b8f14472f71bab64f20
+data/inputs/real/httpx/httpx-hosts.json	bb17dcec98c56e0e690f1784221d2893e21a7db2b7d855429762c7665f843a3b
+data/inputs/real/manual/manual-findings.json	891203c3acf13a4647cd775212545566c46d06113f7a72d8456ee27376bb422e

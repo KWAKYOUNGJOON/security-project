@@ -1,0 +1,192 @@
+{
+  "schema_version": "ready-contract/v1",
+  "generated_at": "2026-03-20T18:20:43Z",
+  "gate": "READY(1)",
+  "run_id": "run-20260321T010300Z",
+  "output_dir": "data/runs/run-20260321T010300Z",
+  "required_artifacts": [
+    "input_preflight.json",
+    "release_readiness.json",
+    "submission_gate.json"
+  ],
+  "artifact_presence": {
+    "input_preflight.json": true,
+    "release_readiness.json": true,
+    "submission_gate.json": true
+  },
+  "required_keys": {
+    "input_preflight.json": [
+      "blocking_reasons",
+      "effective_mode",
+      "gate",
+      "generated_at",
+      "input_fingerprint",
+      "input_root",
+      "missing_input_roots",
+      "missing_real_input_details",
+      "missing_real_inputs",
+      "note",
+      "placeholder_files",
+      "placeholder_files_are_ready_evidence",
+      "present_real_inputs",
+      "real_input_ready",
+      "requested_mode",
+      "required_input_roots",
+      "required_real_input_schema",
+      "required_real_inputs",
+      "run_id",
+      "schema_version",
+      "unexpected_files"
+    ],
+    "release_readiness.json": [
+      "artifact_presence",
+      "blocked_reasons",
+      "canonical_output_dir",
+      "cwd_repo_relative",
+      "forbidden_path_results",
+      "gate",
+      "generated_at",
+      "input_root",
+      "note",
+      "official_entrypoint",
+      "official_environment_preparation",
+      "official_smoke_command",
+      "official_test_command",
+      "output_dir",
+      "output_dir_is_canonical",
+      "python_version",
+      "ready_contract_possible",
+      "run_id",
+      "run_id_regex",
+      "run_id_valid",
+      "schema_version",
+      "working_directory",
+      "working_directory_matches"
+    ],
+    "submission_gate.json": [
+      "artifact_presence",
+      "compare_excluded_fields",
+      "decision",
+      "forbidden_path_results",
+      "gate",
+      "generated_at",
+      "output_dir",
+      "required_artifacts",
+      "required_keys",
+      "run_id",
+      "schema_version",
+      "stable_compare_vector"
+    ]
+  },
+  "forbidden_path_results": [
+    {
+      "path": "apps/report-automation/src/cli/main.py",
+      "evidence_root": "apps/report-automation",
+      "exists": true,
+      "call_count": 0,
+      "ready_evidence_allowed": false,
+      "ready_evidence_detected": true,
+      "matched_paths": [
+        "apps/report-automation"
+      ],
+      "status": "FAIL"
+    }
+  ],
+  "compare_excluded_fields": [
+    "generated_at",
+    "duration_ms",
+    "temp path",
+    "host/user 정보"
+  ],
+  "decision": {
+    "status": "BLOCKED",
+    "reasons": [
+      "legacy READY evidence path was selected",
+      "dry-run evaluation is not READY(1) evidence",
+      "required real inputs are missing"
+    ]
+  },
+  "stable_compare_vector": {
+    "decision.status": "BLOCKED",
+    "required_keys": {
+      "input_preflight.json": [
+        "blocking_reasons",
+        "effective_mode",
+        "gate",
+        "generated_at",
+        "input_fingerprint",
+        "input_root",
+        "missing_input_roots",
+        "missing_real_input_details",
+        "missing_real_inputs",
+        "note",
+        "placeholder_files",
+        "placeholder_files_are_ready_evidence",
+        "present_real_inputs",
+        "real_input_ready",
+        "requested_mode",
+        "required_input_roots",
+        "required_real_input_schema",
+        "required_real_inputs",
+        "run_id",
+        "schema_version",
+        "unexpected_files"
+      ],
+      "release_readiness.json": [
+        "artifact_presence",
+        "blocked_reasons",
+        "canonical_output_dir",
+        "cwd_repo_relative",
+        "forbidden_path_results",
+        "gate",
+        "generated_at",
+        "input_root",
+        "note",
+        "official_entrypoint",
+        "official_environment_preparation",
+        "official_smoke_command",
+        "official_test_command",
+        "output_dir",
+        "output_dir_is_canonical",
+        "python_version",
+        "ready_contract_possible",
+        "run_id",
+        "run_id_regex",
+        "run_id_valid",
+        "schema_version",
+        "working_directory",
+        "working_directory_matches"
+      ],
+      "submission_gate.json": [
+        "artifact_presence",
+        "compare_excluded_fields",
+        "decision",
+        "forbidden_path_results",
+        "gate",
+        "generated_at",
+        "output_dir",
+        "required_artifacts",
+        "required_keys",
+        "run_id",
+        "schema_version",
+        "stable_compare_vector"
+      ]
+    },
+    "forbidden_path_results": [
+      {
+        "path": "apps/report-automation/src/cli/main.py",
+        "evidence_root": "apps/report-automation",
+        "exists": true,
+        "call_count": 0,
+        "ready_evidence_allowed": false,
+        "ready_evidence_detected": true,
+        "matched_paths": [
+          "apps/report-automation"
+        ],
+        "status": "FAIL"
+      }
+    ],
+    "input_fingerprint": "b282f64f408b341c5db6e4e5dec37a0c84ef56af013b4462444e821e5899b6e2",
+    "fingerprint": "7761983da92b82636f1b9d111dde5cb5efc9e3e9cf1743bee91a9c0783748a63"
+  }
+}

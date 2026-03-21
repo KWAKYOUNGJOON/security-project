@@ -30,6 +30,11 @@ Do not place live intake originals in `cases/`.
 
 ## Command
 
+This guide documents a pre-target, file-only legacy workflow.
+It is not the canonical READY execution path.
+For READY execution and READY evidence, use `docs/READY_EXECUTION_CONTRACT.md` and run from `app/vuln-pipeline`.
+The canonical real-input schema is limited to `data/inputs/real/burp/burp-findings.json`, `data/inputs/real/nuclei/nuclei-findings.json`, `data/inputs/real/httpx/httpx-hosts.json`, and `data/inputs/real/manual/manual-findings.json`.
+
 Run from `apps/report-automation`:
 
 ```powershell

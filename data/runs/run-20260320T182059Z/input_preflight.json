@@ -1,0 +1,134 @@
+{
+  "schema_version": "ready-contract/v1",
+  "generated_at": "2026-03-20T18:20:59Z",
+  "gate": "READY(1)",
+  "run_id": "run-20260320T182059Z",
+  "requested_mode": "auto",
+  "effective_mode": "dry-run",
+  "input_root": "data/inputs/real",
+  "required_input_roots": [
+    "data/inputs/real/burp",
+    "data/inputs/real/nuclei",
+    "data/inputs/real/httpx",
+    "data/inputs/real/manual"
+  ],
+  "required_real_inputs": [
+    "burp/burp-findings.json",
+    "nuclei/nuclei-findings.json",
+    "httpx/httpx-hosts.json",
+    "manual/manual-findings.json"
+  ],
+  "required_real_input_schema": [
+    {
+      "provider": "burp",
+      "required_root": "data/inputs/real/burp",
+      "relative_path": "burp/burp-findings.json",
+      "repo_relative_path": "data/inputs/real/burp/burp-findings.json",
+      "why_required": "Canonical Burp findings input consumed by the READY smoke flow.",
+      "root_exists": true,
+      "required_file_present": false,
+      "placeholder_only": true,
+      "placeholder_files": [
+        "burp/README.md"
+      ],
+      "unexpected_files": [],
+      "blocker_reason": "Missing canonical real input data/inputs/real/burp/burp-findings.json; placeholder files do not satisfy this requirement."
+    },
+    {
+      "provider": "nuclei",
+      "required_root": "data/inputs/real/nuclei",
+      "relative_path": "nuclei/nuclei-findings.json",
+      "repo_relative_path": "data/inputs/real/nuclei/nuclei-findings.json",
+      "why_required": "Canonical Nuclei findings input consumed by the READY smoke flow.",
+      "root_exists": true,
+      "required_file_present": false,
+      "placeholder_only": true,
+      "placeholder_files": [
+        "nuclei/README.md"
+      ],
+      "unexpected_files": [],
+      "blocker_reason": "Missing canonical real input data/inputs/real/nuclei/nuclei-findings.json; placeholder files do not satisfy this requirement."
+    },
+    {
+      "provider": "httpx",
+      "required_root": "data/inputs/real/httpx",
+      "relative_path": "httpx/httpx-hosts.json",
+      "repo_relative_path": "data/inputs/real/httpx/httpx-hosts.json",
+      "why_required": "Canonical HTTPX host inventory input consumed by the READY smoke flow.",
+      "root_exists": true,
+      "required_file_present": false,
+      "placeholder_only": true,
+      "placeholder_files": [
+        "httpx/README.md"
+      ],
+      "unexpected_files": [],
+      "blocker_reason": "Missing canonical real input data/inputs/real/httpx/httpx-hosts.json; placeholder files do not satisfy this requirement."
+    },
+    {
+      "provider": "manual",
+      "required_root": "data/inputs/real/manual",
+      "relative_path": "manual/manual-findings.json",
+      "repo_relative_path": "data/inputs/real/manual/manual-findings.json",
+      "why_required": "Canonical manually reviewed findings input consumed by the READY smoke flow.",
+      "root_exists": true,
+      "required_file_present": false,
+      "placeholder_only": true,
+      "placeholder_files": [
+        "manual/README.md"
+      ],
+      "unexpected_files": [],
+      "blocker_reason": "Missing canonical real input data/inputs/real/manual/manual-findings.json; placeholder files do not satisfy this requirement."
+    }
+  ],
+  "missing_input_roots": [],
+  "present_real_inputs": [],
+  "missing_real_inputs": [
+    "burp/burp-findings.json",
+    "nuclei/nuclei-findings.json",
+    "httpx/httpx-hosts.json",
+    "manual/manual-findings.json"
+  ],
+  "missing_real_input_details": [
+    {
+      "provider": "burp",
+      "path": "burp/burp-findings.json",
+      "repo_relative_path": "data/inputs/real/burp/burp-findings.json",
+      "why_required": "Canonical Burp findings input consumed by the READY smoke flow."
+    },
+    {
+      "provider": "nuclei",
+      "path": "nuclei/nuclei-findings.json",
+      "repo_relative_path": "data/inputs/real/nuclei/nuclei-findings.json",
+      "why_required": "Canonical Nuclei findings input consumed by the READY smoke flow."
+    },
+    {
+      "provider": "httpx",
+      "path": "httpx/httpx-hosts.json",
+      "repo_relative_path": "data/inputs/real/httpx/httpx-hosts.json",
+      "why_required": "Canonical HTTPX host inventory input consumed by the READY smoke flow."
+    },
+    {
+      "provider": "manual",
+      "path": "manual/manual-findings.json",
+      "repo_relative_path": "data/inputs/real/manual/manual-findings.json",
+      "why_required": "Canonical manually reviewed findings input consumed by the READY smoke flow."
+    }
+  ],
+  "blocking_reasons": [
+    "Missing canonical real input data/inputs/real/burp/burp-findings.json; placeholder files do not satisfy this requirement.",
+    "Missing canonical real input data/inputs/real/nuclei/nuclei-findings.json; placeholder files do not satisfy this requirement.",
+    "Missing canonical real input data/inputs/real/httpx/httpx-hosts.json; placeholder files do not satisfy this requirement.",
+    "Missing canonical real input data/inputs/real/manual/manual-findings.json; placeholder files do not satisfy this requirement."
+  ],
+  "placeholder_files": [
+    "burp/README.md",
+    "nuclei/README.md",
+    "httpx/README.md",
+    "manual/README.md"
+  ],
+  "placeholder_files_are_ready_evidence": false,
+  "unexpected_files": [],
+  "real_input_ready": false,
+  "input_fingerprint": "e4c95b1e2f9df2eda2844a00a6decb0bb4b374d3a0e9d164a2c51d3625ee15ed",
+  "note": "Placeholder or missing real inputs are never READY(1) evidence."
+}

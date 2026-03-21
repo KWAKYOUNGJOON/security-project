@@ -1,0 +1,45 @@
+{
+  "schema_version": "ready-contract/v1",
+  "generated_at": "2026-03-20T16:30:46Z",
+  "gate": "READY(1)",
+  "run_id": "run-20260321T013100Z",
+  "working_directory": "app/vuln-pipeline",
+  "official_entrypoint": "python -m vuln_pipeline.cli.main",
+  "official_environment_preparation": [
+    "cd app/vuln-pipeline",
+    "python -m pip install -e ."
+  ],
+  "official_smoke_command": "python -m vuln_pipeline.cli.main smoke --run-id <run_id>",
+  "official_test_command": "python -m pytest -q -m must_pass tests/test_fixture_smoke_e2e.py",
+  "python_version": {
+    "detected": "3.14.3",
+    "required": "3.11.x",
+    "matches_contract": false
+  },
+  "run_id_regex": "^run-\\d{8}T\\d{6}Z$",
+  "run_id_valid": true,
+  "cwd_repo_relative": "app/vuln-pipeline",
+  "working_directory_matches": true,
+  "canonical_output_dir": "data/runs/run-20260321T013100Z",
+  "output_dir": "data/runs/run-20260321T013100Z",
+  "output_dir_is_canonical": true,
+  "artifact_presence": {
+    "input_preflight.json": true,
+    "release_readiness.json": true,
+    "submission_gate.json": true
+  },
+  "forbidden_path_results": [
+    {
+      "path": "apps/report-automation",
+      "exists": true,
+      "ready_evidence_allowed": false,
+      "ready_evidence_detected": false,
+      "status": "PASS"
+    }
+  ],
+  "blocked_reasons": [
+    "python version is not 3.11.x"
+  ],
+  "ready_contract_possible": false,
+  "note": "Install command success is verified by canonical tests, not inferred from this JSON alone."
+}
