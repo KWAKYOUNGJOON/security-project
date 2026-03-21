@@ -1,6 +1,9 @@
 import argparse
 import io
 import json
+import os
+import subprocess
+import sys
 import tempfile
 import unittest
 from contextlib import redirect_stdout
@@ -10,11 +13,34 @@ from unittest.mock import patch
 from automation import chatgpt_codex_loop
 
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+SCRIPT_PATH = REPO_ROOT / "automation" / "chatgpt_codex_loop.py"
+
+
 class ChatgptCodexLoopTest(unittest.TestCase):
     def make_paths(self) -> chatgpt_codex_loop.LoopPaths:
         self.temp_dir = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp_dir.cleanup)
         return chatgpt_codex_loop.build_paths(Path(self.temp_dir.name))
+
+    def run_cli(
+        self,
+        *args: str,
+        env: dict[str, str] | None = None,
+        input_text: str | None = None,
+    ) -> subprocess.CompletedProcess[str]:
+        cli_env = os.environ.copy()
+        if env:
+            cli_env.update(env)
+        return subprocess.run(
+            [sys.executable, str(SCRIPT_PATH), *args],
+            cwd=REPO_ROOT,
+            env=cli_env,
+            input=input_text,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
 
     def test_init_creates_state_and_directories(self) -> None:
         paths = self.make_paths()
@@ -36,6 +62,20 @@ class ChatgptCodexLoopTest(unittest.TestCase):
         self.assertEqual(state["latest_codex_prompt"], "")
         self.assertEqual(state["latest_codex_reply"], "")
 
+    def test_init_refuses_existing_artifacts_without_force(self) -> None:
+        paths = self.make_paths()
+        paths.chatgpt_dir.mkdir(parents=True, exist_ok=True)
+        (paths.chatgpt_dir / "request_001.md").write_text("existing request\n", encoding="utf-8")
+
+        with self.assertRaises(SystemExit) as exc:
+            chatgpt_codex_loop.command_init(
+                argparse.Namespace(goal="Ship a safe repo-local loop."),
+                paths,
+            )
+
+        self.assertIn("Refusing to overwrite existing loop state or artifacts", str(exc.exception))
+        self.assertIn(str(paths.loop_dir), str(exc.exception))
+
     def test_guide_with_no_state_suggests_init(self) -> None:
         paths = self.make_paths()
         stdout = io.StringIO()
@@ -43,6 +83,7 @@ class ChatgptCodexLoopTest(unittest.TestCase):
             chatgpt_codex_loop.command_guide(argparse.Namespace(), paths)
 
         output = stdout.getvalue()
+        self.assertIn("Loop root:", output)
         self.assertIn("No loop state exists.", output)
         self.assertIn("init --goal", output)
 
@@ -292,6 +333,7 @@ class ChatgptCodexLoopTest(unittest.TestCase):
             chatgpt_codex_loop.command_status(argparse.Namespace(verbose=True), paths)
 
         output = stdout.getvalue()
+        self.assertIn("Loop root:", output)
         self.assertIn("Verbose details:", output)
         self.assertIn("latest", output.lower())
         self.assertIn("request_001.md", output)
@@ -349,6 +391,131 @@ class ChatgptCodexLoopTest(unittest.TestCase):
         self.assertTrue(state["latest_codex_prompt"].endswith("codex_prompt_001.md"))
         self.assertTrue(state["latest_codex_reply"].endswith("reply_001.md"))
         self.assertEqual(state["iteration"], 1)
+
+    def test_default_paths_uses_env_override_for_loop_root(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            override_dir = Path(temp_dir) / "custom-loop-root"
+            with patch.dict(os.environ, {chatgpt_codex_loop.LOOP_DIR_ENV_VAR: str(override_dir)}, clear=False):
+                paths = chatgpt_codex_loop.default_paths()
+
+        self.assertEqual(paths.loop_dir, override_dir.resolve())
+        self.assertEqual(paths.state_file, override_dir.resolve() / "state.json")
+        self.assertEqual(paths.chatgpt_dir, override_dir.resolve() / "chatgpt")
+        self.assertEqual(paths.codex_dir, override_dir.resolve() / "codex")
+        self.assertEqual(paths.prompts_dir, override_dir.resolve() / "prompts")
+
+    def test_cli_override_runs_full_cycle_in_temporary_directory(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            override_dir = Path(temp_dir) / "loop-root"
+            env = {chatgpt_codex_loop.LOOP_DIR_ENV_VAR: str(override_dir)}
+
+            init = self.run_cli("init", "--goal", "Ship a safe loop override.", env=env)
+            self.assertEqual(init.returncode, 0, init.stderr or init.stdout)
+
+            next_chatgpt = self.run_cli("next-chatgpt", env=env)
+            self.assertEqual(next_chatgpt.returncode, 0, next_chatgpt.stderr or next_chatgpt.stdout)
+            self.assertIn("## CODEX_PROMPT", next_chatgpt.stdout)
+
+            save_chatgpt = self.run_cli(
+                "save-chatgpt-reply",
+                env=env,
+                input_text=(
+                    "## CODEX_PROMPT\n"
+                    "Inspect automation/chatgpt_codex_loop.py.\n\n"
+                    "## WHY\n"
+                    "We need the next step.\n"
+                ),
+            )
+            self.assertEqual(save_chatgpt.returncode, 0, save_chatgpt.stderr or save_chatgpt.stdout)
+
+            show_codex = self.run_cli("show-codex-prompt", env=env)
+            self.assertEqual(show_codex.returncode, 0, show_codex.stderr or show_codex.stdout)
+            self.assertEqual(show_codex.stdout, "Inspect automation/chatgpt_codex_loop.py.\n")
+
+            save_codex = self.run_cli(
+                "save-codex-reply",
+                env=env,
+                input_text="Implemented the next safe improvement.\n",
+            )
+            self.assertEqual(save_codex.returncode, 0, save_codex.stderr or save_codex.stdout)
+
+            state = json.loads((override_dir / "state.json").read_text(encoding="utf-8"))
+            self.assertEqual(state["iteration"], 1)
+            self.assertEqual(state["latest_chatgpt_request"], str(override_dir / "chatgpt" / "request_001.md"))
+            self.assertEqual(state["latest_chatgpt_reply"], str(override_dir / "chatgpt" / "reply_001.md"))
+            self.assertEqual(state["latest_codex_prompt"], str(override_dir / "prompts" / "codex_prompt_001.md"))
+            self.assertEqual(state["latest_codex_reply"], str(override_dir / "codex" / "reply_001.md"))
+            self.assertEqual(
+                (override_dir / "prompts" / "codex_prompt_001.md").read_text(encoding="utf-8"),
+                "Inspect automation/chatgpt_codex_loop.py.\n",
+            )
+            self.assertEqual(
+                (override_dir / "codex" / "reply_001.md").read_text(encoding="utf-8"),
+                "Implemented the next safe improvement.\n",
+            )
+
+    def test_cli_override_fails_clearly_when_path_is_a_file(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            invalid_path = Path(temp_dir) / "not-a-directory"
+            invalid_path.write_text("content", encoding="utf-8")
+
+            result = self.run_cli(
+                "status",
+                env={chatgpt_codex_loop.LOOP_DIR_ENV_VAR: str(invalid_path)},
+            )
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn(chatgpt_codex_loop.LOOP_DIR_ENV_VAR, result.stderr)
+        self.assertIn("unusable loop directory", result.stderr)
+
+    def test_cli_init_refuses_existing_state_without_force(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            override_dir = Path(temp_dir) / "loop-root"
+            env = {chatgpt_codex_loop.LOOP_DIR_ENV_VAR: str(override_dir)}
+
+            first_init = self.run_cli("init", "--goal", "First goal.", env=env)
+            self.assertEqual(first_init.returncode, 0, first_init.stderr or first_init.stdout)
+
+            second_init = self.run_cli("init", "--goal", "Second goal.", env=env)
+
+        self.assertNotEqual(second_init.returncode, 0)
+        self.assertIn("Refusing to overwrite existing loop state or artifacts", second_init.stderr)
+        self.assertIn(str(override_dir.resolve()), second_init.stderr)
+        self.assertIn("init --force --goal", second_init.stderr)
+
+    def test_cli_init_force_overwrites_existing_state(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            override_dir = Path(temp_dir) / "loop-root"
+            env = {chatgpt_codex_loop.LOOP_DIR_ENV_VAR: str(override_dir)}
+
+            first_init = self.run_cli("init", "--goal", "First goal.", env=env)
+            self.assertEqual(first_init.returncode, 0, first_init.stderr or first_init.stdout)
+
+            forced_init = self.run_cli("init", "--force", "--goal", "Second goal.", env=env)
+            self.assertEqual(forced_init.returncode, 0, forced_init.stderr or forced_init.stdout)
+
+            state = json.loads((override_dir / "state.json").read_text(encoding="utf-8"))
+
+        self.assertEqual(state["goal"], "Second goal.")
+        self.assertEqual(state["iteration"], 0)
+
+    def test_cli_guide_shows_default_loop_root(self) -> None:
+        result = self.run_cli("guide")
+        self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
+        self.assertIn(f"Loop root: {chatgpt_codex_loop.LOOP_DIR}", result.stdout)
+        self.assertIn("default repository path", result.stdout)
+
+    def test_cli_guide_shows_override_loop_root(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            override_dir = Path(temp_dir) / "loop-root"
+            result = self.run_cli(
+                "guide",
+                env={chatgpt_codex_loop.LOOP_DIR_ENV_VAR: str(override_dir)},
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
+        self.assertIn(f"Loop root: {override_dir.resolve()}", result.stdout)
+        self.assertIn(f"override via {chatgpt_codex_loop.LOOP_DIR_ENV_VAR}", result.stdout)
 
 
 if __name__ == "__main__":

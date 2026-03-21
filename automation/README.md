@@ -30,6 +30,8 @@ State lives under:
 - `automation/loop/codex/`
 - `automation/loop/prompts/`
 
+Set `CHATGPT_CODEX_LOOP_DIR=/tmp/my-loop` to redirect that loop root for isolated dry runs or tests. If the variable is unset, the default `automation/loop/` location is used unchanged.
+
 One full cycle:
 
 ```bash

@@ -17,6 +17,6 @@ Current completed iteration: 0
 Next Codex cycle number: 1
 
 ## TOP_LEVEL_GOAL
-security-project의 automation/을 검토하고, 현재 구조를 유지하면서 가장 안전한 다음 개선 1개를 진행한다.
+security-project의 automation 폴더를 기준으로, 현재 구조를 유지하면서 가장 안전하고 효과적인 다음 개선 1가지를 정하고 Codex 실행 프롬프트로 작성해줘.
 
 Focus on the single most useful next Codex step given the latest repository state.

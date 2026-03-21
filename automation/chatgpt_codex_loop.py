@@ -13,6 +13,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent
 LOOP_DIR = BASE_DIR / "loop"
 STATE_FILE = LOOP_DIR / "state.json"
+LOOP_DIR_ENV_VAR = "CHATGPT_CODEX_LOOP_DIR"
 
 
 @dataclass(frozen=True)
@@ -26,19 +27,44 @@ class LoopPaths:
 
 
 def default_paths() -> LoopPaths:
-    return build_paths(BASE_DIR)
+    override = os.environ.get(LOOP_DIR_ENV_VAR, "").strip()
+    if not override:
+        return build_paths(BASE_DIR)
+    loop_dir = resolve_loop_dir_override(override)
+    return build_loop_paths(loop_dir)
 
 
 def build_paths(base_dir: Path) -> LoopPaths:
     loop_dir = base_dir / "loop"
+    return build_loop_paths(loop_dir, base_dir=base_dir)
+
+
+def build_loop_paths(loop_dir: Path, base_dir: Path | None = None) -> LoopPaths:
     return LoopPaths(
-        base_dir=base_dir,
+        base_dir=base_dir if base_dir is not None else loop_dir.parent,
         loop_dir=loop_dir,
         state_file=loop_dir / "state.json",
         chatgpt_dir=loop_dir / "chatgpt",
         codex_dir=loop_dir / "codex",
         prompts_dir=loop_dir / "prompts",
     )
+
+
+def resolve_loop_dir_override(raw_path: str) -> Path:
+    loop_dir = Path(raw_path).expanduser()
+    if not loop_dir.is_absolute():
+        loop_dir = (Path.cwd() / loop_dir).resolve()
+    try:
+        loop_dir.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        raise SystemExit(
+            f"{LOOP_DIR_ENV_VAR} points to an unusable loop directory {loop_dir}: {exc}"
+        ) from exc
+    if not loop_dir.is_dir():
+        raise SystemExit(
+            f"{LOOP_DIR_ENV_VAR} must point to a directory, got: {loop_dir}"
+        )
+    return loop_dir
 
 
 def utc_now() -> str:
@@ -50,6 +76,24 @@ def ensure_loop_dirs(paths: LoopPaths) -> None:
     paths.chatgpt_dir.mkdir(parents=True, exist_ok=True)
     paths.codex_dir.mkdir(parents=True, exist_ok=True)
     paths.prompts_dir.mkdir(parents=True, exist_ok=True)
+
+
+def has_loop_artifacts(paths: LoopPaths) -> bool:
+    for directory in (paths.chatgpt_dir, paths.codex_dir, paths.prompts_dir):
+        if directory.exists() and any(directory.iterdir()):
+            return True
+    return False
+
+
+def ensure_init_target_is_safe(paths: LoopPaths, force: bool) -> None:
+    if force:
+        return
+    if not paths.state_file.exists() and not has_loop_artifacts(paths):
+        return
+    raise SystemExit(
+        "Refusing to overwrite existing loop state or artifacts under "
+        f"{paths.loop_dir}. Re-run `init --force --goal \"...\"` to replace it."
+    )
 
 
 def default_state(goal: str) -> dict:
@@ -230,8 +274,18 @@ def build_chatgpt_request(state: dict) -> str:
     return "\n".join(sections).strip() + "\n"
 
 
-def format_status_output(state: dict, verbose: bool = False) -> str:
+def uses_default_loop_root(paths: LoopPaths) -> bool:
+    return paths.loop_dir == LOOP_DIR
+
+
+def format_loop_root_line(paths: LoopPaths) -> str:
+    location = "default repository path" if uses_default_loop_root(paths) else f"override via {LOOP_DIR_ENV_VAR}"
+    return f"Loop root: {paths.loop_dir} ({location})"
+
+
+def format_status_output(paths: LoopPaths, state: dict, verbose: bool = False) -> str:
     lines = [
+        format_loop_root_line(paths),
         f"Goal: {state['goal']}",
         f"Iteration: {state['iteration']}",
         f"Created: {state['created_at']}",
@@ -277,8 +331,9 @@ def has_current_cycle_artifact(state: dict, key: str, expected_path: Path) -> bo
 
 
 def format_guide_output(paths: LoopPaths) -> str:
+    prefix = format_loop_root_line(paths) + "\n"
     if not paths.state_file.exists():
-        return (
+        return prefix + (
             "No loop state exists.\n"
             "Next step: python3 automation/chatgpt_codex_loop.py init --goal \"<your goal>\"\n"
         )
@@ -291,24 +346,24 @@ def format_guide_output(paths: LoopPaths) -> str:
     has_codex_reply = has_current_cycle_artifact(state, "latest_codex_reply", current_paths["codex_reply"])
 
     if not has_request:
-        return (
+        return prefix + (
             f"Iteration {state['iteration']} is complete or not started for the next cycle.\n"
             "Next step: python3 automation/chatgpt_codex_loop.py next-chatgpt --copy\n"
         )
     if not has_chatgpt_reply:
-        return (
+        return prefix + (
             f"ChatGPT request is ready at {current_paths['chatgpt_request']}.\n"
             "Next step: save the ChatGPT reply with:\n"
             "  python3 automation/chatgpt_codex_loop.py save-chatgpt-reply --file /path/to/chatgpt_reply.md\n"
         )
     if has_codex_prompt and not has_codex_reply:
-        return (
+        return prefix + (
             f"Codex prompt is ready at {current_paths['codex_prompt']}.\n"
             "Next steps:\n"
             "  python3 automation/chatgpt_codex_loop.py show-codex-prompt --copy\n"
             "  python3 automation/chatgpt_codex_loop.py save-codex-reply --file /path/to/codex_reply.md\n"
         )
-    return (
+    return prefix + (
         f"Codex reply is saved for iteration {state['iteration']}.\n"
         "Next step: python3 automation/chatgpt_codex_loop.py next-chatgpt --copy\n"
     )
@@ -350,6 +405,7 @@ def command_init(args: argparse.Namespace, paths: LoopPaths) -> int:
     goal = args.goal.strip()
     if not goal:
         raise SystemExit("`init --goal` requires non-empty text.")
+    ensure_init_target_is_safe(paths, force=getattr(args, "force", False))
     ensure_loop_dirs(paths)
     state = default_state(goal)
     write_state(paths, state)
@@ -436,7 +492,7 @@ def find_existing_cycle_file(directory: Path, prefix: str, number: int) -> str:
 
 def command_status(args: argparse.Namespace, paths: LoopPaths) -> int:
     state = load_state(paths)
-    sys.stdout.write(format_status_output(state, verbose=args.verbose))
+    sys.stdout.write(format_status_output(paths, state, verbose=args.verbose))
     return 0
 
 
@@ -477,6 +533,11 @@ def build_parser() -> argparse.ArgumentParser:
 
     init_parser = subparsers.add_parser("init", help="Initialize loop state with a top-level goal.")
     init_parser.add_argument("--goal", required=True, help="Top-level loop goal.")
+    init_parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Replace existing loop state or artifacts in the resolved loop root.",
+    )
     init_parser.set_defaults(func=command_init)
 
     next_parser = subparsers.add_parser("next-chatgpt", help="Generate the next ChatGPT request.")
